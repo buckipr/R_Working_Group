@@ -1,7 +1,3 @@
----
-layout: default
----
-
 ## Welcome to the R Working Group
 
 
@@ -17,7 +13,7 @@ layout: default
 
 * Intro to R for beginners
 * Intro to R for experienced data users
-* [Making the transition from Stata to R](transition2R/transition2R.html)
+* [Making the transition from Stata to R](transition2R/README.md)
 
 ## **About Us**
 
