@@ -1,5 +1,7 @@
-theme: jekyll-theme-minimal
 title: R Working Group
-description: What we do
-logo: logo.png
-show_downloads: "true"
+logo: /assets/img/logo.png
+description:
+  * Does this work
+  * and another one here?
+show_downloads: true
+theme: jekyll-theme-minimal
