@@ -4,13 +4,13 @@ layout: default
 
 ## Welcome to the R Working Group
 
-## **What's New**
+### **What's New**
 
 * Our first workshop will be March 3rd (intro to R)
 * Anyone have ideas for a better logo?  Does it need Brutus (is that even legal)?
 
 
-## **Schedule**
+### **Schedule**
 
 * March 3rd, 2022: Introduction to R (for those who want to become experienced R users)
 * March 10th, 2022: Help session/Office Hours
@@ -18,7 +18,7 @@ layout: default
 * March 24th, 2022: Advanced Workshop (topic: TBD, looking for volunteers)
 * March 31st, 2022: Discussion of projects/research groups & Help session 
 
-## **Resources**
+### **Resources**
 
 * Intro to R for beginners
 * Intro to R for experienced data users
