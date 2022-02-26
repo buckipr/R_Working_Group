@@ -1,0 +1,24 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+ /* unvisited link */
+a:link {
+  color: #bb0000;
+}
+
+/* visited link */
+a:visited {
+  color: #bb0000;
+}
+
+/* mouse over link */
+a:hover {
+  color: #666666;
+}
+
+/* selected link */
+a:active {
+  color: #bb0000;
+} 
