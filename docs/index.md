@@ -4,6 +4,11 @@ layout: default
 
 ## Welcome to the R Working Group
 
+## **What's New**
+
+* Our first workshop will be March 3rd (intro to R)
+* Anyone have ideas for a better logo?  Does it need Brutus (is that even legal)?
+
 
 ## **Schedule**
 
@@ -19,12 +24,3 @@ layout: default
 * Intro to R for experienced data users
 * [Making the transition from Stata to R](transition2R/transition2R.html)
 
-## **About Us**
-
-### Goal
-
-We are dedicated to help build lit-R-acy and to foster a community of useRs on campus and beyond.
-
-### Who R we?
-
-The R Working Group consists of students, staff, & faculty at Ohio State University 
