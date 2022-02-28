@@ -22,5 +22,5 @@ layout: default
 
 * Intro to R for beginners
 * Intro to R for experienced data users
-* [Making the transition from Stata to R](../transition2R/transition2R.html)
+* [Making the transition from Stata to R](https://buckipr.github.io/transition2R/transition2R.html)
 
