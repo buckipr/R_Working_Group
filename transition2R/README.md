@@ -21,7 +21,7 @@ slides can be found on our [webpage](https://buckipr.github.io/R_Working_Group/t
 [UCLA's Statistical Methods & Data Analytics](https://stats.oarc.ucla.edu/) unit.
 
   - [auto.dta](https://www.stata-press.com/data/r17/auto.dta)
-  - [duncan.dta](https://stats.idre.ucla.edu/stat/stata/examples/ara/duncan)
+  - [duncan.dta](https://stats.idre.ucla.edu/stat/stata/examples/ara/duncan.dta)
   - [binary.dta](https://stats.idre.ucla.edu/stat/stata/dae/binary.dta)
-  - [hsbdemo.dta](https://stats.idre.ucla.edu/stat/data/hsbdemo)
-  - [nb_data.dta](https://stats.idre.ucla.edu/stat/stata/dae/nb_data)
+  - [hsbdemo.dta](https://stats.idre.ucla.edu/stat/data/hsbdemo.dta)
+  - [nb_data.dta](https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta)
