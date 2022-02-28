@@ -17,7 +17,7 @@ slides can be found on our [webpage](https://buckipr.github.io/R_Working_Group/t
   - [MASS](https://cran.r-project.org/package=MASS)
   - [nnet](https://cran.r-project.org/package=nnet)
 
-* Several example Stata datasets are also used (from Stata and
+* Several example datasets are also used from Stata and
 [UCLA's Statistical Methods & Data Analytics](https://stats.oarc.ucla.edu/) unit.
 
   - [auto.dta](https://www.stata-press.com/data/r17/auto.dta)
