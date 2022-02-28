@@ -10,7 +10,9 @@ output:
 ```{r setup, include=FALSE}
 library(flexdashboard)
 require(knitr)
-stataPath <- "/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp"
+knitr::opts_chunk$set(engine.path = list(
+  stata = "/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp"
+))
 ```
 
 Contents {data-navmenu="Introduction"}
@@ -72,7 +74,7 @@ Row {.tabset .tabset-fade data-height=3000}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath, eval=TRUE, comment = "", highlight=TRUE}
+```{stata, eval=TRUE, comment = "", highlight=TRUE}
 sysuse auto, clear
 save auto.dta, replace
 estpost summarize price mpg rep78 foreign, listwise
@@ -119,7 +121,7 @@ Row {.tabset .tabset-fade data-height=2000}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath, eval=TRUE, comment = "", highlight=TRUE}
+```{stata, eval=TRUE, comment = "", highlight=TRUE}
 * load and save the data
 use https://stats.idre.ucla.edu/stat/stata/examples/ara/duncan, clear
 save duncan.dta, replace
@@ -155,7 +157,7 @@ Row {.tabset .tabset-fade data-height=1500}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 quietly: regress prestige income educ i.occ_type
 
@@ -183,7 +185,7 @@ Row {.tabset .tabset-fade data-height=1500}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 quietly: regress prestige income
 eststo mod1
@@ -225,7 +227,7 @@ Row {.tabset .tabset-fade data-height=2000}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 codebook occ_type
 regress prestige income educ if occ_type == 1
@@ -249,7 +251,7 @@ summary(mod1_wc)
 
 
 ### **Stata** (another example)
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 regress prestige income educ if occ_type == 1 | occ_type == 3
 ```
@@ -273,7 +275,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata** (y-hat)
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 regress prestige occ_type##c.educ
 margins occ_type
@@ -287,10 +289,11 @@ graph export "marginsPlot.svg", replace
 
 ### **R** (y-hat)
 ```{r, echo=TRUE, eval=TRUE}
-m1 <- lm(prestige ~ educ*factor(occ_type), data = duncan)
+duncan$occ_factor <- factor(duncan$occ_type, levels = 1:3, labels = c("bc", "prof", "wc"))
+m1 <- lm(prestige ~ educ*occ_factor, data = duncan)
 summary(m1)
 
-p1 <- prediction(m1, at = list(occ_type = c(1, 2, 3)))
+p1 <- prediction(m1, at = list(occ_factor = c("bc", "prof", "wc")))
 summary(p1)
 yhat1 <- summary(p1)[, 1:5]
 names(yhat1) <- c('term', 'estimate', 'std.error', 'statistic', 'p.value')
@@ -305,7 +308,7 @@ cbind(yhat1[, 2] - qt(0.975, df = 39) * yhat1[, 3],
 ```
 
 ### **Stata** (marginal effects)
-```{stata, engine.path=stataPath}
+```{stata}
 use duncan, clear
 regress prestige occ_type##c.educ
 margins, dydx(*)
@@ -342,7 +345,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use https://stats.idre.ucla.edu/stat/stata/dae/binary.dta, clear
 save gradSchool.dta, replace
 
@@ -370,7 +373,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use gradSchool.dta, replace
 probit admit gre gpa i.rank
 ``` 
@@ -401,7 +404,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use https://stats.idre.ucla.edu/stat/data/hsbdemo, clear
 save hsbdemo, replace
 mlogit prog i.ses write, base(2)
@@ -427,7 +430,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use https://stats.idre.ucla.edu/stat/stata/dae/nb_data, clear
 save schoolAbsence, replace
 poisson daysabs math i.prog
@@ -452,7 +455,7 @@ Row {.tabset .tabset-fade data-height=3400}
 -----------------------------------------------------------------------
 
 ### **Stata**
-```{stata, engine.path=stataPath}
+```{stata}
 use schoolAbsence, replace
 nbreg daysabs math i.prog
 ``` 
