@@ -7,7 +7,7 @@
 * March 11th, 2022: Help session/Office Hours
 * March 18th, 2022: Spring Break
 * March 25th, 2022: Advanced Workshop (topic: TBD, looking for volunteers)
-* March 31st, 2022: Discussion of projects/research groups & Help session 
+
 
 ## **Resources**
 
