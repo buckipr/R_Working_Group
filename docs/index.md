@@ -12,11 +12,12 @@ layout: default
 
 ### **Schedule**
 
-* March 3rd, 2022: Introduction to R (for those who want to become experienced R users)
-* March 10th, 2022: Help session/Office Hours
-* March 17th, 2022: Spring Break
-* March 24th, 2022: Advanced Workshop (topic: TBD, looking for volunteers)
-* March 31st, 2022: Discussion of projects/research groups & Help session 
+
+* March 3rd, 2022: Introduction to R (for those who want to become experienced R users) SPECIAL THURSDAY MEETING
+* March 11th, 2022: Help session/Office Hours
+* March 18th, 2022: Spring Break
+* March 25th, 2022: Advanced Workshop (topic: TBD, looking for volunteers)
+
 
 ### **Resources**
 
