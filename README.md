@@ -1,5 +1,6 @@
 ## Welcome to the R Working Group
 
+Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R_Working_Group)
 
 ## **Schedule**
 
