@@ -14,7 +14,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 * Mar 31st: R Markdown and Dynamic Documents
 
-* Apr 17th: PAA (No Session)
+* Apr 14th: PAA (No Session)
 
 * Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
