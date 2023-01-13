@@ -1,13 +1,22 @@
-## Welcome to the R Working Group
+## Welcome to the <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> Working Group
 
 Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R_Working_Group)
 
-## **Schedule**
+## **Schedule for Spring Semester 2023**
 
-* March 3rd, 2022: Introduction to R (for those who want to become experienced R users) **SPECIAL THURSDAY MEETING**
-* March 11th, 2022: Help session/Office Hours
-* March 18th, 2022: Spring Break
-* March 25th, 2022: Advanced Workshop (topic: TBD, looking for volunteers)
+* Jan 20th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Feb 3rd: Regression models in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Feb 17th: Data management in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> using [dplyr](https://dplyr.tidyverse.org/)
+
+* Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
+
+* Mar 31st: R Markdown and Dynamic Documents
+
+* Apr 17th: PAA (No Session)
+
+* Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
 
 ## **Resources**
