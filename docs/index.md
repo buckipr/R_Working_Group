@@ -18,7 +18,7 @@ layout: default
 * Feb 17th: Data management in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> using [dplyr](https://dplyr.tidyverse.org/)
 * Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 * Mar 31st: R Markdown and Dynamic Documents
-* Apr 17th: PAA (No Session)
+* Apr 14th: PAA (No Session)
 * Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
 
