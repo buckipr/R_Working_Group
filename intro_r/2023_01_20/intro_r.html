@@ -60,27 +60,138 @@ class: inverse, center, middle
 
 # R Studio
 
----
 
+---
 # R Studio
 
 * Let's dive in by starting R Studio and opening a new R script
 
-    - menu bar: &amp;nbsp; `File` &amp;rarr; `New File` &amp;rarr; `R Script`
+    + menu bar: &amp;nbsp; `File` &amp;rarr; `New File` &amp;rarr; `R Script`
+    + (in R: &amp;nbsp; `File` &amp;rarr; `New Script`)
 --
 
 * You should now have 4 panes open (like on the next slide)
 
-    - **Source** -- Our script where we will type and save our comments &amp; commands
-    - **Console** -- Where we can give R commands and where the output will appear
-    - **Output** -- File explorer, plots, help files, and more!
-    - **Environments** -- Useful information about the R session
+    + **Source** -- Our script where we will type and save our comments &amp; commands
+    + **Console** -- Where we can give R commands and where the output will appear
+    + **Output** -- File explorer, plots, help files, and more!
+    + **Environments** -- Useful information about the R session
 
 
 ---
 .center[&lt;img src="img/rstudio-panes-labeled.jpeg" style="width: 75%" /&gt;]
 
 .center[.bottom[downloaded from [user guide on postit.co](https://docs.posit.co/ide/user/ide/guide/ui/ui-panes.html)]]
+
+
+---
+# R Studio: Good Habits
+
+* Add a comment to our new script:
+    
+    ```r
+    # Comment: My R script from Working Group Session (1/20/2023)
+    # (R ignores all lines that begin with a pound/hash/number sign/#)
+    ```
+--
+
+* Save our script
+    + menu bar: &amp;nbsp; `File` &amp;rarr; `Save As...`
+--
+
+* Set our **working directory**
+    + this is where R will start looking for &amp; saving files (e.g., data files or plots)
+    + menu bar: &amp;nbsp; `Session` &amp;rarr; `Set Working Directory` &amp;rarr; `Choose Directory...`
+
+
+---
+class: inverse, center, middle
+
+# Basic R Syntax
+
+---
+# Basic R Syntax
+
+* R syntax takes the form
+
+
+```r
+# object_name &lt;- object_value  
+mean_age &lt;- 33
+```
+
+--
+
+* The symbol `&lt;-` is called the assignment operator
+
+    + we are creating a new variable called `mean_age` and assigning it a value of 33
+
+    + `mean_age = 33` will also work (but `&lt;-` is the convention)
+
+
+---
+class: slide-font-25
+# Basic R Syntax (cont.)
+
+If we enter the name of a variable in the `Console`, then R will list the value(s)
+
+```r
+&gt; Mean_age2 &lt;- 22  ## note: object names are case-sensitive
+&gt; Mean_age2
+```
+
+```
+## [1] 22
+```
+
+--
+BUT we are in the business of good habits...
+
+* type this syntax into our script and (with the cursor on the same line) press the following keys together:
+
+    + On a Mac: &amp;nbsp;  `&lt;command&gt; &lt;enter&gt;`
+    
+    + In Windows: &amp;nbsp: `&lt;control&gt; &lt;enter&gt;` (R Studio)  `&lt;control&gt; r` (plain R)
+
+* these keyboard shortcuts will run the syntax on the line in the `Console` &lt;br&gt; 
+(or you can highlight a region)
+
+
+---
+# Basic R Syntax: functions
+
+We have seen a simple object for holding data, but R has many useful **functions**
+
+```r
+ls()        # list all the objects in memory
+getwd()     # print the working directory
+dir()       # list the files in the current directory
+dir("../")  # list the files in the parent directory
+save.image("my_data.RData")  # save all the objects in memory
+load("my_data.RData")        # load all the objects in the data file
+```
+
+
+---
+# Basic R Syntax: help files
+
+* Google searches are a very effective way to find help
+
+    + and so is asking the R Working Group :)
+--
+
+* R documentation can be accessed in the `Help` tab in the `Output` pane
+
+--
+
+* Some additional syntax and functions
+
+```r
+?read.csv  # show the help file for the function read.csv
+help.search("weighted mean")  # search help files for the phrase'weighted mean'
+```
+
+
 
 ---
 

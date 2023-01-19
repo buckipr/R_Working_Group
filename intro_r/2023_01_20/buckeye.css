@@ -10,6 +10,14 @@
   padding: 1em 1em 1em 1em;
 }
 
+.slide-font-25 {
+  font-size: 25px;
+}
+
+.slide-font-20 {
+  font-size: 20px;
+}
+
 h1, h2, h3 {
   color: #bb0000;
   line-height: 0.6em;
