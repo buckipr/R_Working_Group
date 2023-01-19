@@ -24,7 +24,7 @@ layout: default
 
 ### **Resources**
 
-* Intro to R for beginners
+* [Intro to R for beginners](intro_r/intro_h.html)
 * Intro to R for experienced data users
 * [Making the transition from Stata to R](transition2R/transition2R.html)
 
