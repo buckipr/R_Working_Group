@@ -1,0 +1,761 @@
+---
+title: "Introduction to <br/><br/> ![](img/r-logo.png){width=200px}"
+author: "Evangeline Warren"
+institute: "R Working Group"
+date: "Jan 20th, 2023"
+output:
+  xaringan::moon_reader:
+    css: ["buckeye.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+```
+
+
+# Goals for this session
+
+* Learn about...
+
+--
+    + basic R syntax
+    
+    + different R objects (things that hold data)
+    
+    + useful functions for working with data
+
+--
+  
+* Become familiar with [R Studio](https://posit.co/download/rstudio-desktop/) & 
+  develop good coding habits 
+  
+--
+  
+    * R Studio is an *additional* program that provides many useful features
+    for working with R
+    
+    * (you need to download and install both [R](https://cran.r-project.org/) and 
+    [R Studio](https://posit.co/download/rstudio-desktop/))
+
+
+---
+class: inverse, center, middle
+
+# R Studio
+
+---
+
+# R Studio
+
+* Let's dive in by starting R Studio and opening a new R script
+
+    - menu bar: &nbsp; `File` &rarr; `New File` &rarr; `R Script`
+--
+
+* You should now have 4 panes open (like on the next slide)
+
+    - **Source** -- Our script where we will type and save our comments & commands
+    - **Console** -- Where we can give R commands and where the output will appear
+    - **Output** -- File explorer, plots, help files, and more!
+    - **Environments** -- Useful information about the R session
+
+
+---
+.center[<img src="img/rstudio-panes-labeled.jpeg" style="width: 75%" />]
+
+.center[.bottom[downloaded from [user guide on postit.co](https://docs.posit.co/ide/user/ide/guide/ui/ui-panes.html)]]
+
+# R Studio
+
+* save script
+
+* set working directory
+
+
+---
+class: inverse, center, middle
+
+# Basic R Syntax
+
+---
+
+# Basic R Syntax
+
+* comments
+
+* assignment
+
+* keyboard shortcut for sending code to console
+
+
+---
+
+## **Data Structures**: overview
+
+* R has different structures for holding data, which can be 
+organized by... 
+
+    + how many dimensions does it have? 
+    
+      - just a row of values (dim = 1)
+      - standard data set of rows and columns (dim = 2) 
+
+    + do the types of data need to be the same? 
+  
+* We'll now introduce different data structures, and learn about
+different data types along the way.
+
+
+---
+
+## **Data Structures**: overview (continued)
+
+* **Vectors**
+  1. 1 dimension
+  1. same data type
+    + special case: **factor** (predefined categories)
+
+* **Matrices**
+  1. rows and columns
+  1. same data type
+
+* **Arrays** 
+  1. any number of dimensions
+  1. same data type
+
+* **Data Frames**
+  1. rows and columns
+  1. different data types
+
+* **Lists**
+  1. 1 dimension
+  1. different data types (or structures!)
+  - actually, this is just a special type of vector (can you verify this?)
+
+
+## **Vectors**
+
+Create and explore a **vector**...
+
+```{r, prompt = TRUE}
+vector1 <- c(5, 2, 8)  # c() for combine elements
+dim(vector1) # get dimensions
+```
+
+
+
+`dim()` only work if we have 2+ dimensions, so we'll go with
+
+```{r}
+str(vector1)  # tell us about the structure
+```
+
+
+
+We learn about the number of elements (3) and the *data type* (`num` for numeric)
+
+
+## **Vectors**: accessing elements with addresses
+
+The output from `str` also gives an example of *subsetting* vectors
+
+    + use [ ] to access elements in a vector:
+
+```{r, prompt = TRUE}
+vector1[1]  # get the first element
+```
+
+
+
+```{r, prompt = TRUE}
+vector1[c(1, 3)] # get 1st and 3rd elements
+```
+
+
+
+```{r, prompt = TRUE}
+vector1[1:3] # get 1st, 2nd, & 3rd
+```
+
+(we'll return to this shortly)
+
+
+## **Vectors**: data type conversion
+
+Can you explain what is going on here?
+
+  + (*hint*: remember the 2 features of data structures)
+
+```{r, prompt = TRUE}
+c(vector1, "1")
+```
+
+```{r, prompt = TRUE}
+mean(c(vector1, "1"))
+```
+
+
+## **Vectors**: data type conversion (cont.)
+
+* Recall that (normal) vectors are *atomic*, another way of saying that all
+the elements must be of the same *data type* 
+
+* In the previous example, R converts all of the elements to the same data type
+
+```{r, prompt = TRUE}
+str(c(vector1, "1"))
+```
+
+
+
+* Thankfully, R does not know how to take the mean of the data type `chr`
+(characters)
+
+
+## **Vectors**: subsetting & changing values
+
+* So far we have accessed elements in a vector using [ ] and the position (e.g., 1, 2, 3, ... for $1^{st}$, $2^{nd}$, $3^{rd}$, ...) 
+
+* We can also use [*position*] to change elements in a vector
+
+```{r, prompt = TRUE}
+vector1
+vector1[3] <- 29
+vector1
+```
+
+
+* What will this code do?
+```{r, prompt = TRUE, eval = FALSE}
+vector1[c(1, 2)] <- -9
+vector1[4] <- 56
+vector1[8] <- mean(vector1)
+```
+
+
+## **Vectors**: subsetting & changing values (cont.)
+
+* When you want to change a vector, do the *delta 2-step*: 
+
+  1. create an index vector that identifies the elements you want to change 
+  (what data type should this vector hold?... `logical`) 
+  
+      + `which()` is a very useful tool, be we can also use basic statements
+  
+  2. assign new values to the vector using you vector of indices
+
+
+## **Vectors**: subsetting & changing values (cont.)
+
+Suppose we want to change all `NA` values to -9
+
+```{r}
+x <- c(1, 2, 3, NA, 7, 8, NA)
+x_missing <- is.na(x)
+```
+
+
+
+```{r}
+x[x_missing]
+```
+
+
+
+```{r}
+x[x_missing] <- -9
+x
+```
+
+
+## **Vectors**: subsetting & changing values (cont.)
+
+Suppose we want to change all values below 0 to `NA
+
+```{r}
+x 
+x[x < 0]
+```
+
+
+
+```{r}
+x[x < 0] <- NA
+x
+```
+
+
+## **Vectors**: subsetting & changing values (cont.)
+
+Suppose we want to change the maximum value to 100
+
+```{r}
+x 
+which(x == max(x, na.rm = TRUE))
+```
+
+
+
+```{r}
+x_ind_max <- which(x == max(x, na.rm = TRUE))
+x[x_ind_max] <- 100
+x
+```
+
+## **Vectors**: subsetting & changing values (cont.)
+
+We can also use multiple conditions
+
+ * to satisfy BOTH conditions use `&` (and)
+ * to satisfy EITHER condition use `|` (or)
+
+```{r}
+x_index_new <- is.na(x) | x > 7
+x[x_index_new]
+```
+
+
+
+```{r}
+y <- -10:10
+y_index <- y > -3 & y < 3
+y[y_index]
+```
+
+
+## **Vectors**: subsetting & changing values (cont.)
+
+What is wrong?
+
+```{r}
+y <- 1:6
+y[y < 3] <- c(0, 1, 2)
+```
+
+## **Data Structures**: *Matrix*
+
+```{r, prompt = TRUE}
+# cbind() - combine vectors as columns
+Mat1 <- cbind( c(1:2), c(3:4), c(5:6) )
+Mat1
+
+# rbind() - combine vectors as rows
+Mat2 <- rbind( c(1:2), c(3:4), c(5:6) )
+Mat2
+```
+
+
+## **Getting to Know Your Matrix**
+
+* With vectors, we used `vector1[i]` to access the
+$i^{th}$ element.
+
+* With matrices, the location of an element has 2 parts: *row* & *column*
+
+* Suppose, `coolMatrix` is a 10 by 10 matrix.  We can access
+  the element in the $3^{rd}$ row and the $8^{th}$ column as follows...
+
+    + `coolmatrix[3, 8]`
+
+* Excluding the row will return an entire column
+
+    + `coolMatrix[, 8]`
+    
+    + or you can get part of a column
+    
+      `coolMatrix[c(3:5), 8]`
+
+
+## **Getting to Know Your Matrix** (cont.)
+
+```{r, prompt = TRUE}
+dim(Mat1)
+str(Mat1)
+nrow(Mat1)
+ncol(Mat1)
+```
+
+## **Getting to Know Your Matrix** (cont.)
+  
+```{r, prompt = TRUE}
+Mat2[1, 1]
+Mat2[2, ]
+t(Mat2)
+```
+
+## **Getting to Know Your Matrix** (cont.)
+
+```{r, prompt = TRUE}
+apply(Mat2, 1, mean)
+```
+  
+```{r, prompt = TRUE}
+colMeans(Mat2)
+rowMeans(Mat2)
+```
+  
+## **Exercises**: vectors & matrices
+
+* Provide an example of data type conversion with a matrix
+
+* How do you print out the first row of Mat2?
+
+* Replace the diagonal elements in Mat1 with zeros.
+
+* Why does the following code give an Warning message?
+    ```{r, prompt = TRUE, eval = FALSE}
+    M1 <- rbind( c("a", "b"), c("d", "e") )
+    cbind( M1, c("1", "2", "3") )
+    ```
+
+* Find another R function for creating a matrix, and provide an example.
+
+* Create a 2 x 6 matrix called Mat21 that combines `Mat1` and `t(Mat2)`.
+
+
+## **Data Structures**: *Data Frames*
+
+* **Data frames** are R structure for typical data sets (i.e.,
+variables as columns and an observation for each row). 
+
+  + `read.csv()` -- read in a CSV file (the resulting object 
+    will be a data frame)
+
+** The same process for accessing elements in a matrix also works
+for data frames
+
+  + With data frames we can also use [[ ]] or $*column_names* to access
+  a column
+    - with [[ ]] we can use either the columns position or characters
+    - (what is the difference between [[ ]] and ?)
+
+
+## **Data Frames**: exploring columns
+
+```{r, prompt = TRUE}
+is.data.frame(mtcars)
+names(mtcars)
+```
+
+
+## **Data Frames**: exploring columns (cont.)
+
+```{r, prompt = TRUE}
+str(mtcars)  ## print structure of data frame
+```
+
+
+## **Data Frames**: exploring columns (cont.)
+
+```{r, prompt = TRUE}
+mtcars[[1]]
+```
+
+
+## **Data Frames**: exploring columns (cont.)
+
+```{r, prompt = TRUE}
+mtcars[["mpg"]]
+```
+
+```{r, prompt = TRUE}
+is.vector(mtcars[["mpg"]])
+```
+
+What does this do?
+
+```{r, prompt = TRUE}
+mtcars$mpg[10] <- "a"
+```
+
+## **Data Frames**: exploring columns (cont.)
+
+What does this do?
+
+```{r, prompt = TRUE, eval = FALSE}
+jt <- "mpg"
+mtcars[[jt]]
+```
+
+
+## **Data Frames**: exploring columns (cont.)
+
+
+```{r, prompt = TRUE}
+mtcars$mpg[1:2]           ## access variable with $
+summary(mtcars$mpg)       ## summarize variable
+## summary(mtcars)             ## summarize all variables
+mtcars$NewVar <- 1:nrow(mtcars)  ## create new variable
+names(mtcars)
+```
+
+
+# Extra Slides
+
+## more
+
+* named vectors, seq, rep
+* `which` (and `which.max`)
+* na.rm option
+* `apply` and `lapply`
+* `subset` is a very useful command (more on this)
+
+
+
+## Data Structures: exercises with vectors
+
+* Create a new vector called vector4 that is exactly the same
+as vector3.
+
+* Create a new vector called vector5 that is exactly the same as 
+vector3 but includes the string "IPR" at the end (i.e., as the 9th 
+element).
+
+* What does the function **`seq()`** do? Use this
+function in two different ways.
+
+* What does the function **`rep()`** do?  Use this function in two
+different ways.
+
+* Make a vector with elements 100, 99, ..., -98, -99, -100. Please,
+please, please, please do not type in each individual number.
+
+
+## Data Structures: getting to know your vector 
+
+**A few useful tools when working with vectors**
+
+* List info about data structure: `str()`
+    ```{r, prompt = TRUE}
+    str(1:100)
+    ```
+
+
+* Number of elements: `length()`
+    ```{r, prompt = TRUE}
+    length(1:100)
+    ```
+
+* sort and order
+
+## Data Structures: getting to know your vector (cont.)
+
+* view particular elements in the vector, e.g, get the second element
+    ```{r, prompt = TRUE}
+    vector1; vector1[2]
+    ```
+
+
+* we can also create **named vectors**
+    ```{r}
+    v6 <- c("OH" = 120000, "WA" = 7)
+    v6
+    ```
+
+
+## Data Structures: getting to know your vector (cont.)
+
+* Alternatively, we can add names to an existing vector
+    ```{r, warnings=TRUE}
+    names(vector1)
+    names(vector1) <- letters[1:5]
+    vector1
+    attributes(vector1)
+    ```
+
+
+
+## Data Structures: `factor` (special kind of vector)
+
+* A `factor` has predefined values for categorical data
+
+    + There are ordered and unordered `factors`
+
+* The function: `factor()` includes arguments...
+
+    + `x` - the actual data
+
+    + `levels` - the predefined values
+  
+    + `labels` - informative names for the `levels`
+
+
+## Data Structures: `factor` (continued)
+
+```{r, prompt = TRUE}
+z <- factor( x = c(0,0,1,1,2),
+             levels = 0:2,
+             labels = c("neonate",
+                        "child",
+                        "adult"))
+is.factor(z)
+z
+levels(z)
+```
+
+
+## Data Structures: creating matrices
+
+```{r, prompt = TRUE}
+# cbind() - combine vectors as columns
+Mat1 <- cbind( c(1:2), c(3:4), c(5:6) )
+Mat1
+
+# rbind() - combine vectors as rows
+Mat2 <- rbind( c(1:2), c(3:4), c(5:6) )
+Mat2
+```
+
+
+## Data Structures: getting to know your matrices
+
+* With vectors, we used `vector1[i]` to access the
+$i^{th}$ element.
+
+* With matrices, the location of an element has 2 parts: *row* & *column*
+
+* Suppose, `coolMatrix` is a 10 by 10 matrix.  We can access
+  the element in the $3^{rd} row and the $8^{th} column as follows...
+
+    + `coolmatrix[3, 8]`
+
+* Excluding the row will return an entire column
+
+    + `coolMatrix[, 8]`
+    
+    + or you can get part of a column
+    
+      `coolMatrix`[c(3:5), 8]
+
+
+## Data Structures: getting to know your matrices
+
+  ```{r, prompt = TRUE}
+  dim(Mat1)
+  str(Mat2)
+  nrow(Mat2)
+  ncol(Mat2)
+  ```
+  
+  ```{r, prompt = TRUE}
+  Mat2[1, 1]
+  Mat2[2,]
+  t(Mat2)
+  ```
+  
+## Data Structures: exercises for vectors & matrices
+
+* How do you print out the first row of Mat2?
+
+* Replace the diagonal elements in Mat1 with zeros.
+
+* Why does the following code give an Warning message?
+    ```{r, prompt = TRUE, eval = FALSE}
+    M1 <- rbind( c("a", "b"), c("d", "e") )
+    cbind( M1, c("1", "2", "3") )
+    ```
+
+* Find another R function for creating a matrix, and provide an example.
+
+* Create a 2 x 6 matrix called Mat21 that combines `Mat1` and `t(Mat2)`.
+
+
+## Data Structures: data frames intro
+
+* **Data frames** are R structure for typical data sets (i.e.,
+variables as columns and an observation for each row). 
+
+* To explore data frames we are going to use a new function.
+
+    + `read.csv()` -- read in a CSV file (the resulting object 
+    will be a data frame)
+    
+* `subset` is a very useful command (more on this)
+
+
+## Data Structures: data frames example
+
+```{r, prompt = TRUE}
+dir()
+data(cars)
+is.vector(cars)
+is.factor(cars)
+is.matrix(cars)
+is.data.frame(cars)
+```
+
+
+## Data Structures: data frames example (continued)
+
+**A few useful tools to work with data frames...**
+
+```{r, prompt = TRUE}
+str(cars)  ## print structure of data frame
+```
+
+
+## Data Structures: data frames example (continued)
+
+**A few useful tools to work with data frames...***
+
+```{r, prompt = TRUE}
+names(cars)  ## list variable names
+dim(cars)    ## dimensions (rows, columns)
+newDFrame <- as.data.frame(Mat1)  ## convert matrix to d.f.
+newDFrame
+```
+
+
+## Data Structures: data frames example (continued)
+
+**A few useful tools to work with data frames...**
+
+```{r, prompt = TRUE}
+cars$speed[1:2]           ## access variable with $
+summary(cars$speed)       ## summarize variable
+## summary(cars)             ## summarize all variables
+cars$NewVar <- 1:nrow(cars)  ## create new variable
+names(cars)
+```
+
+
+## Data Structures: data frame exercises
+
+* Summarize the `dist` variable and describe the values.
+
+* Write an R command that prints out the 7th, 12th, and 33rd 
+state names.
+
+
+## Data Structures: lists
+
+* What are the characteristics of a `list` in R
+
+  ```{r, prompt = TRUE}
+  newList <- list(
+    v1 = c("a", "b", "c"), 
+    v2 = 1:4
+    )
+  newList
+  newList$v1
+  ```
+
+
+## Data Structures: lists (cont.)  
+
+
+
+  ```{r, prompt = TRUE}
+  newList$v2
+  newList$v3 <- c(
+  "x", "y", "z"
+  )
+  newList
+  ```
+  
