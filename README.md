@@ -12,7 +12,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 * Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-* $\textcolor{red}{Mar \space 24th \space (new \space date!)}$: R Markdown and Dynamic Documents (originally planned for March, 31st)
+* *Mar 24th (new date)*: R Markdown and Dynamic Documents (originally planned for March, 31st)
 
 * Apr 14th: PAA (No Session)
 
