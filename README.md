@@ -12,7 +12,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 * Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-* ![#f03c15](https://placehold.it/150/ffffff/ff0000?text=Mar 24 (new date!)): R Markdown and Dynamic Documents (originally planned for March, 31st)
+* $\textcolor{red}{Mar \space 24th \space (new \space date!)}$: R Markdown and Dynamic Documents (originally planned for March, 31st)
 
 * Apr 14th: PAA (No Session)
 
@@ -34,3 +34,5 @@ We are dedicated to help build lit-R-acy and to foster a community of useRs on c
 ### Who R we?
 
 The R Working Group consists of students, staff, & faculty at Ohio State University 
+
+(for more information, please feel free to contact Jason Thomas: thomas DOT 3912 at osu DOT edu)
