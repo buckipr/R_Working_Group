@@ -19,7 +19,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## **Resources**
 
-* (Intro to R for beginners)[https://buckipr.github.io/R_Working_Group/intro_r/intro_r.html#1]
+* [Intro to R for beginners](https://buckipr.github.io/R_Working_Group/intro_r/intro_r.html#1)
 * [Making the transition from Stata to R](transition2R/README.md)
 
 ## **About Us**
