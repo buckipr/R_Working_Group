@@ -6,25 +6,31 @@ layout: default
 
 ### **What's New**
 
-* Our first session for Spring Semester 2023 will be January 20th (intro to R)
-* Anyone have ideas for a better logo?  Does it need Brutus (is that even legal)?
+* Over the summer, several of us are getting together for a deep dive into map making and spatial statistics
+
+* Please let us know if you have any request for session topics for the fall.  Currenly, we are considering...
+
+  + Intro to R
+  
+  + Web scraping
+  
+  + Making maps
+  
+  + Intro to the R package [rstan](https://cran.r-project.org/web/packages/rstan/vignettes/rstan.html) for Bayesian modeling and inference
 
 
-### **Schedule**
+### **Resources**
+
+* [Intro to R for beginners](intro_r/intro_r.html)
+* [Making the transition from Stata to R](transition2R/transition2R.html)
+
+
+### **OLD Schedule for Spring Semester 2023**
 
 
 * Jan 20th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 * Feb 3rd: Regression models in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 * Feb 17th: Data management in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> using [dplyr](https://dplyr.tidyverse.org/)
 * Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
-* <font color="red"> Mar 24th (new date!)</font>: R Markdown and Dynamic Documents (original date was March 31st)
-* Apr 14th: PAA (No Session)
+* Mar 24th: R Markdown and Dynamic Documents
 * Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-
-
-### **Resources**
-
-* [Intro to R for beginners](intro_r/intro_r.html)
-* Intro to R for experienced data users
-* [Making the transition from Stata to R](transition2R/transition2R.html)
-
