@@ -8,6 +8,8 @@ layout: default
 
 * Over the summer, several of us are getting together for a deep dive into map making and spatial statistics
 
+  + June 9th @ 12pm (Townshend Hall 038): Introduction to making maps in R & planning session
+
 * Please let us know if you have any request for session topics for the fall.  Currenly, we are considering...
 
   + Intro to R
