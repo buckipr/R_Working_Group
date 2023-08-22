@@ -5,20 +5,27 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* Over the summer, several of us are getting together for a deep dive into map making and spatial statistics
+* The Fall schedule has been posted!  Workshops will be on the first Thursday of each month
+  from 12:30 to 2pm, with a "lunch and learn" approach.  The first half hour will be for
+  socializing, answering random R questions, sharing new ideas, etc.  Then, starting around 1pm,
+  we'll get down to business with the session topic for that day.  We hope to have some type
+  of food or treat, but still working on the details...
 
-  + June 9th @ 12pm (Townshend Hall 038): Introduction to making maps in R & planning session
+* We are looking to get more people (students, staff, & faculty) involved with planning and
+  coordinating the R Working Group.  If you are interesetd, please let us know
+  (email: thomas DOT 3912 at osu DOT edu)
 
+## **Schedule for Fall 2023**
 
-* Please let us know if you have any request for session topics for the fall.  Currenly, we are considering...
+* **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
 
-  + Intro to R
+* Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Oct. 5th: <img src="https://github.com/rstudio/rmarkdown/blob/main/man/figures/logo.png" width="25"> R Markdown and Dynamic Documents
   
-  + Web scraping
-  
-  + Making maps
-  
-  + Intro to the R package [rstan](https://cran.r-project.org/web/packages/rstan/vignettes/rstan.html) for Bayesian modeling and inference
+* Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
 
 ## **Resources**
 
@@ -37,18 +44,4 @@ The R Working Group consists of students, staff, & faculty at Ohio State Univers
 
 (for more information, please feel free to contact Jason Thomas: thomas DOT 3912 at osu DOT edu)
 
-
-## **OLD: Schedule for Spring Semester 2023**
-
-* Jan 20th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-
-* Feb 3rd: Regression models in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-
-* Feb 17th: Data management in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> using [dplyr](https://dplyr.tidyverse.org/)
-
-* Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
-
-* Mar 24th*: R Markdown and Dynamic Documents
-
-* Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
