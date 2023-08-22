@@ -4,22 +4,26 @@ layout: default
 
 ## Welcome to the R Working Group
 
+### **Scedule for Fall 2023**
+
+* **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
+
+* Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Oct. 5th: <img src="https://github.com/rstudio/rmarkdown/blob/main/man/figures/logo.png" width="25"> R Markdown and Dynamic Documents
+  
+* Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
+
+
 ### **What's New**
 
-* Over the summer, several of us are getting together for a deep dive into map making and spatial statistics
-
-  + June 9th @ 12pm (Townshend Hall 038): Introduction to making maps in R & planning session
-
-* Please let us know if you have any request for session topics for the fall.  Currenly, we are considering...
-
-  + Intro to R
-  
-  + Web scraping
-  
-  + Making maps
-  
-  + Intro to the R package [rstan](https://cran.r-project.org/web/packages/rstan/vignettes/rstan.html) for Bayesian modeling and inference
-
+* The Fall schedule has been posted!  Workshops will be on the first Thursday of each month
+  from 12:30 to 2pm, with a "lunch and learn" approach.  The first half hour will be for
+  socializing, answering random R questions, sharing new ideas, etc.  Then, starting around 1pm,
+  we'll get down to business with the session topic for that day.  We hope to have some type
+  of food or treat, but still working on the details...
 
 ### **Resources**
 
