@@ -10,7 +10,7 @@ layout: default
 
 * Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Oct. 5th: <img src="https://github.com/rstudio/rmarkdown/blob/main/man/figures/logo.png" width="25"> R Markdown and Dynamic Documents
+* Oct. 5th: <img src="https://pkgs.rstudio.com/rmarkdown/reference/figures/logo.png" width="25"> R Markdown and Dynamic Documents
   
 * Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
