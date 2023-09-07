@@ -16,6 +16,7 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(emoji)
+library(dplyr)
 knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
 ```
 
@@ -157,27 +158,27 @@ BUT we are in the business of good habits...
 
 
 ---
+class: slide-font-25
 # Basic R Syntax: functions
 
 We have seen a simple object for holding data, but R has many useful **functions**
 ```{r, eval=FALSE, prompt=FALSE}
 ls()                         # list all the objects in memory
 rm(Mean_age2)                # remove the object called Mean_age2
-getwd()                      # print the working directory
-setwd("Thesis/Analysis")     # set the working directory to the folder Thesis/Analysis
+getwd()                      # print the working directory (wd)
+setwd("Thesis/Analysis")     # set the wd to the folder Thesis/Analysis
 dir()                        # list the files in the current directory
 dir("../")                   # list the files in the parent directory
 save.image("my_data.RData")  # save all the objects in memory
 load("my_data.RData")        # load all the objects in the data file
 ```
 
-
 --
 
 *Quick note*:
 
 * suppose you create an object called `abc` that holds the value 2
-* then you load a file `data.RData` that also has an object named `abc` but holds the value 99
+* then you load `data.RData` that also has an object named `abc` but holds the value 99
 * the first version of the object (`abc` holding 2) will get replaced
 
 
@@ -357,6 +358,7 @@ Let's walk through this... <br>
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: changing vectors (cont.)
 
 ```{r}
@@ -558,32 +560,28 @@ install.packages("dplyr")  ## only run once (not in script)
 library(dplyr)
 ```
 
-```{r, load_dplyr, eval=TRUE, echo=FALSE, include=FALSE}
-library(dplyr)
-```
-
 
 ---
-## **Data Structures**: `dplyr` select columns
-
-```{r}
-# only look at a few columns
-names(mtcars)
-mtcars %>% 
-  select(mpg, cyl)
-```
-
-
----
+class: slide-font-25
 ## **Data Structures**: `dplyr` arrange rows
 
-```{r}
+```{r, eval=FALSE}
 # only look at a few columns
 names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
-  arrange(mpg,desc(cyl))
+  arrange(mpg, desc(cyl))
 ```
+
+```{r, echo=FALSE}
+# only look at a few columns
+names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  arrange(mpg,desc(cyl)) %>%
+  head(n=10)
+```
+(truncated output)
 
 
 ---
@@ -591,11 +589,15 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl == 6)
 ```
+
+keyboard shortcuts in RStudio for the pipe (`%>%`)
+  
+  + MacOS: &nbsp;  `<command> <shift> M`
+  + Windows: &nbsp; `<control> <shift> M`
 
 
 ---
@@ -603,7 +605,6 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl > 4 & mpg > 22)
@@ -615,23 +616,9 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl > 4 & mpg > 18)
-```
-
-
----
-## **Data Structures**: `dplyr` filter more rows
-
-```{r}
-# only look at a few rows
-names(mtcars)
-mtcars %>% 
-  select(mpg, cyl) %>%
-  slice(grep("Mazda", row.names(mtcars)))
-# also look at stringr library
 ```
 
 
@@ -640,7 +627,20 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  slice(grep("Mazda", row.names(mtcars)))
+```
+
+<br><br>
+(also look at [`stringr`](https://stringr.tidyverse.org/) package)
+
+
+---
+## **Data Structures**: `dplyr` take another slice
+
+```{r}
+# only look at a few rows
 mtcars %>% 
   select(mpg, cyl) %>%
   slice(c(1, 9, 20))
@@ -648,23 +648,39 @@ mtcars %>%
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: `dplyr` make new column
 
-```{r}
-# only look at a few rows
-names(mtcars)
+```{r, eval=FALSE}
+# create new column named mpg2
 mtcars %>% 
   select(mpg, cyl) %>%
   mutate(mpg2 = mpg/1000)
 ```
 
+```{r, echo=FALSE}
+mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg2 = mpg/1000) %>%
+  head(n=12)
+```
+(truncated output)
+
 
 ---
+class: slide-font-25
 ## **Data Structures**: exploring data frames
 
-* Old School way to access a single column in a data frame is to use `$`
+* And now, some Old School techniques for working with data frames
+* Access a single column in a data frame is to use `$`
 
-```{r}
+```{r, eval=FALSE}
+names(mtcars)  ## print the variable names
+mtcars$mpg     ## return the mpg variable
+```
+
+```{r, echo=FALSE}
+options(width=70)
 names(mtcars)  ## print the variable names
 mtcars$mpg     ## return the mpg variable
 ```
@@ -700,7 +716,7 @@ An alternative ways to access a data frame's variable(s):
 
 ```{r, prompt=TRUE}
 mtcars[["mpg"]]
-mtcars[, c("mpg", "cyl")]
+mtcars[1:10, c("mpg", "cyl")]
 ```
 
 
@@ -709,20 +725,22 @@ mtcars[, c("mpg", "cyl")]
 
 ```{r, prompt=TRUE, eval=TRUE}
 mtcars$mpg_squared <- mtcars$mpg * mtcars$mpg
-mtcars[, c("mpg", "mpg_squared")]
+mtcars[1:10, c("mpg", "mpg_squared")]
 ```
+
 
 ---
 ## **Data Frames**: more on indexing
 
 When creating an index, we can also use multiple conditions
 
- * to satisfy EITHER condition use `|` (or)
  * to satisfy BOTH conditions use `&` (and)
+ * to satisfy EITHER condition use `|` (or)
+ 
  
 
 ```{r}
-mtcars$mpg > 20 | mtcars$mpg < 25
+mtcars[mtcars$mpg < 25 & mtcars$mpg > 21, c("mpg", "cyl")]
 ```
 
 
@@ -732,7 +750,7 @@ mtcars$mpg > 20 | mtcars$mpg < 25
 (remember: variables are just vectors, so we can use what we learned earlier)
 
 ```{r}
-cbind(mtcars$mpg, mtcars$mpg < 20 | mtcars$mpg > 30)
+cbind(mtcars$mpg, mtcars$mpg < 15 | mtcars$mpg > 20)[1:10,]
 ```
 
 
@@ -773,7 +791,7 @@ Sanity check
 
 ```{r}
 # cbind(mtcars$good_car, hi_mpg, hi_cyl, mtcars$mpg, mtcars$cyl)
-cbind(mtcars$good_car, hi_mpg, hi_cyl)
+cbind(mtcars$good_car, hi_mpg, hi_cyl)[1:15,]
 ```
 
 

@@ -16,6 +16,7 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(emoji)
+library(dplyr)
 knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
 ```
 
@@ -25,8 +26,6 @@ knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
 * Website [https://buckipr.github.io/R_Working_Group/](https://buckipr.github.io/R_Working_Group/)
 
 * We are Slackers <br> (email Jason at thomas.3912 for more details)
-
---
 
 * Plan for this semester:  <br> build R into your workflow (even if not for analysis)
 
@@ -38,19 +37,14 @@ knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
 
 * Learn about...
 
---
     + basic R syntax
     
     + different R objects (things that hold data) & **indexing** them
     
     + useful functions for working with data
 
---
-  
 * Become familiar with [R Studio](https://posit.co/download/rstudio-desktop/) & 
   develop good coding habits 
-  
---
   
     * R Studio is an *additional* program that provides many useful features
     for working with R
@@ -72,7 +66,6 @@ class: inverse, center, middle
 
     + menu bar: &nbsp; `File` &rarr; `New File` &rarr; `R Script`
     + (in R: &nbsp; `File` &rarr; `New Script`)
---
 
 * You should now have 4 panes open (like on the next slide)
 
@@ -96,11 +89,11 @@ class: inverse, center, middle
     # Comment: My R script from Working Group Session (1/20/2023)
     # (R ignores all lines that begin with a pound/hash/number sign/#)
     ```
---
+
 
 * Save our script
     + menu bar: &nbsp; `File` &rarr; `Save As...`
---
+
 
 * Set our **working directory**
     + this is where R will start looking for & saving files (e.g., data files or plots)
@@ -123,7 +116,7 @@ class: inverse, center, middle
 mean_age <- 33
 ```
 
---
+
 
 * The symbol "`<-`" is called the assignment operator
 
@@ -142,7 +135,7 @@ Mean_age2 <- 22  ## note: object names are case-sensitive
 Mean_age2
 ```
 
---
+
 BUT we are in the business of good habits...
 
 * type this syntax into our script and (with the cursor on the same line) press the following keys together:
@@ -157,14 +150,15 @@ BUT we are in the business of good habits...
 
 
 ---
+class: slide-font-25
 # Basic R Syntax: functions
 
 We have seen a simple object for holding data, but R has many useful **functions**
 ```{r, eval=FALSE, prompt=FALSE}
 ls()                         # list all the objects in memory
 rm(Mean_age2)                # remove the object called Mean_age2
-getwd()                      # print the working directory
-setwd("Thesis/Analysis")     # set the working directory to the folder Thesis/Analysis
+getwd()                      # print the working directory (wd)
+setwd("Thesis/Analysis")     # set the wd to the folder Thesis/Analysis
 dir()                        # list the files in the current directory
 dir("../")                   # list the files in the parent directory
 save.image("my_data.RData")  # save all the objects in memory
@@ -172,12 +166,11 @@ load("my_data.RData")        # load all the objects in the data file
 ```
 
 
---
 
 *Quick note*:
 
 * suppose you create an object called `abc` that holds the value 2
-* then you load a file `data.RData` that also has an object named `abc` but holds the value 99
+* then you load `data.RData` that also has an object named `abc` but holds the value 99
 * the first version of the object (`abc` holding 2) will get replaced
 
 
@@ -187,11 +180,11 @@ load("my_data.RData")        # load all the objects in the data file
 * Google searches are a very effective way to find help
 
     + and so is asking the R Working Group `r emoji("sunglasses")`
---
+
 
 * R documentation can be accessed in the `Help` tab in the `Output` pane
 
---
+
 
 * Some additional syntax and functions
 ```{r, eval=FALSE, prompt=FALSE}
@@ -233,7 +226,7 @@ important_data
 
 
 Wait, what is going on here?
---
+
 
 * we are mixing different types of data & R assumes that we just forgot to
 wrap the 4 in quotation marks
@@ -254,7 +247,7 @@ mean_scores / 100
 
  `r emoji("pouting_cat")` Ugh! Why didn't R tell me there was a problem when I tried to calculate the mean?!?
 
---
+
 * another R assumption
     
 * can you figure out how to calculate the mean for non-missing values? (help file
@@ -266,7 +259,7 @@ is helpful `r emoji("smile")`)
 
 * We have been creating **vectors** when we use `c()` to concatenate data
 
---
+
 
 * Here are some more useful functions for working with vectors
 
@@ -300,7 +293,7 @@ test_scores[1]    # first element
 test_scores[2]    # second element
 ```
 
---
+
 ```{r}
 1:3   # a vector of c(1, 2, 3)
       # so what will test_scores[3:1] give us?
@@ -313,14 +306,14 @@ test_scores[2]    # second element
 
 The syntax &ensp; `3:1` &ensp; gives the vector &ensp; `c(3, 2, 1)`, so...
 
---
+
 
 ```{r}
 test_scores[3:1]  # returns 3rd element, then the 2nd, then the first
 test_scores       # sanity check
 ```
 
---
+
 
 * So what will the following command do? `r emoji("thinking")`
 
@@ -340,7 +333,7 @@ test_scores[1]  <- NA # change the first element to NA
 test_scores[1]
 ```
 
---
+
 
 Again, we can use vectors to index as well:
 
@@ -349,7 +342,7 @@ index_missing_scores <- is.na(test_scores)  # create an index vector of TRUE & F
 test_scores[index_missing_scores] <- -99    # change NA to -99
 ```
 
---
+
 
 Let's walk through this... <br>
 (`r emoji("owl")` but note a good habit would be to create a new vector,
@@ -357,6 +350,7 @@ Let's walk through this... <br>
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: changing vectors (cont.)
 
 ```{r}
@@ -365,17 +359,17 @@ index_missing_scores <- is.na(test_scores)
 index_missing_scores
 ```
 
---
+
 
 ```{r}
 # attach these 2 vectors together as columns
 cbind(index_missing_scores, test_scores)
 ```
 
---
+
 
 * with &nbsp; `cbind` &nbsp; we are actually creating a new **data structure** called a **matrix**
---
+
 
 * as we will see, matrices can only hold the same *data type*, so R changes `TRUE`/`FALSE`
 to `1`/`0` (respectively)
@@ -388,7 +382,7 @@ to `1`/`0` (respectively)
 test_scores[index_missing_scores]  #  access all of the indices with TRUE 
 ```
 
---
+
 
 ```{r}
 # recode NA to -99
@@ -416,12 +410,12 @@ When you want to change a vector, do the *delta 2-step*:
 * We are not going to become `r emoji("moneybag")` famous `r emoji("moneybag")` by working with
 a single vector
 
---
+
 
 * However, we have learned a powerful way to work with vectors, **indexing**, that extends to
 other types of **data structures**
 
---
+
 
 * A **matrix** made a brief appearance earlier, but before going further let's review a useful framework
 for thinking about **data structures**
@@ -433,14 +427,14 @@ for thinking about **data structures**
 R has different structures for holding data, which can be 
 organized by... 
 
---
+
 1. How many dimensions does the structure have? 
 
---
+
 
 2. Do the types of data need to be the same?
   
---
+
 
 
 * Example: **vectors**
@@ -448,7 +442,7 @@ organized by...
     + only 1 dimension (it is just a single row or a column)
     + we saw earlier that R changes the elements so they all have the same data type (e.g., `4` &rarr; `"4"`)
 
---
+
 
 * We'll now (re)introduce different data structures, and learn about
 different data types along the way.
@@ -492,7 +486,7 @@ different data types along the way.
 * For the rest of this session we will focus on **Data frames**, the R structure
 typically used for data sets (i.e., variables as columns and an observation for each row). 
 
---
+
 
 * Let's get some practice working with data frames using one
 of R's example data sets
@@ -528,7 +522,7 @@ dim(mtcars)
 mtcars[1, 1]  # 1st observation in 1st variable
 ```
 
---
+
 
 * Many times, however, we just work with one variable/column at a time, so all our skills
 working with vectors still apply
@@ -558,32 +552,28 @@ install.packages("dplyr")  ## only run once (not in script)
 library(dplyr)
 ```
 
-```{r, load_dplyr, eval=TRUE, echo=FALSE, include=FALSE}
-library(dplyr)
-```
-
 
 ---
-## **Data Structures**: `dplyr` select columns
-
-```{r}
-# only look at a few columns
-names(mtcars)
-mtcars %>% 
-  select(mpg, cyl)
-```
-
-
----
+class: slide-font-25
 ## **Data Structures**: `dplyr` arrange rows
 
-```{r}
+```{r, eval=FALSE}
 # only look at a few columns
 names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
-  arrange(mpg,desc(cyl))
+  arrange(mpg, desc(cyl))
 ```
+
+```{r, echo=FALSE}
+# only look at a few columns
+names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  arrange(mpg,desc(cyl)) %>%
+  head(n=10)
+```
+(truncated output)
 
 
 ---
@@ -591,11 +581,15 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl == 6)
 ```
+
+keyboard shortcuts in RStudio for the pipe (`%>%`)
+  
+  + MacOS: &nbsp;  `<command> <shift> M`
+  + Windows: &nbsp; `<control> <shift> M`
 
 
 ---
@@ -603,7 +597,6 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl > 4 & mpg > 22)
@@ -615,23 +608,9 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
 mtcars %>% 
   select(mpg, cyl) %>%
   filter(cyl > 4 & mpg > 18)
-```
-
-
----
-## **Data Structures**: `dplyr` filter more rows
-
-```{r}
-# only look at a few rows
-names(mtcars)
-mtcars %>% 
-  select(mpg, cyl) %>%
-  slice(grep("Mazda", row.names(mtcars)))
-# also look at stringr library
 ```
 
 
@@ -640,7 +619,20 @@ mtcars %>%
 
 ```{r}
 # only look at a few rows
-names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  slice(grep("Mazda", row.names(mtcars)))
+```
+
+<br><br>
+(also look at [`stringr`](https://stringr.tidyverse.org/) package)
+
+
+---
+## **Data Structures**: `dplyr` take another slice
+
+```{r}
+# only look at a few rows
 mtcars %>% 
   select(mpg, cyl) %>%
   slice(c(1, 9, 20))
@@ -648,28 +640,44 @@ mtcars %>%
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: `dplyr` make new column
 
-```{r}
-# only look at a few rows
-names(mtcars)
+```{r, eval=FALSE}
+# create new column named mpg2
 mtcars %>% 
   select(mpg, cyl) %>%
   mutate(mpg2 = mpg/1000)
 ```
 
+```{r, echo=FALSE}
+mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg2 = mpg/1000) %>%
+  head(n=12)
+```
+(truncated output)
+
 
 ---
+class: slide-font-25
 ## **Data Structures**: exploring data frames
 
-* Old School way to access a single column in a data frame is to use `$`
+* And now, some Old School techniques for working with data frames
+* Access a single column in a data frame is to use `$`
 
-```{r}
+```{r, eval=FALSE}
 names(mtcars)  ## print the variable names
 mtcars$mpg     ## return the mpg variable
 ```
 
---
+```{r, echo=FALSE}
+options(width=70)
+names(mtcars)  ## print the variable names
+mtcars$mpg     ## return the mpg variable
+```
+
+
 
 * Now we will (re)introduce several functions for exploring data frames
 * We will also see a more advanced example of indexing
@@ -700,7 +708,7 @@ An alternative ways to access a data frame's variable(s):
 
 ```{r, prompt=TRUE}
 mtcars[["mpg"]]
-mtcars[, c("mpg", "cyl")]
+mtcars[1:10, c("mpg", "cyl")]
 ```
 
 
@@ -709,20 +717,22 @@ mtcars[, c("mpg", "cyl")]
 
 ```{r, prompt=TRUE, eval=TRUE}
 mtcars$mpg_squared <- mtcars$mpg * mtcars$mpg
-mtcars[, c("mpg", "mpg_squared")]
+mtcars[1:10, c("mpg", "mpg_squared")]
 ```
+
 
 ---
 ## **Data Frames**: more on indexing
 
 When creating an index, we can also use multiple conditions
 
- * to satisfy EITHER condition use `|` (or)
  * to satisfy BOTH conditions use `&` (and)
+ * to satisfy EITHER condition use `|` (or)
+ 
  
 
 ```{r}
-mtcars$mpg > 20 | mtcars$mpg < 25
+mtcars[mtcars$mpg < 25 & mtcars$mpg > 21, c("mpg", "cyl")]
 ```
 
 
@@ -732,7 +742,7 @@ mtcars$mpg > 20 | mtcars$mpg < 25
 (remember: variables are just vectors, so we can use what we learned earlier)
 
 ```{r}
-cbind(mtcars$mpg, mtcars$mpg < 20 | mtcars$mpg > 30)
+cbind(mtcars$mpg, mtcars$mpg < 15 | mtcars$mpg > 20)[1:10,]
 ```
 
 
@@ -773,7 +783,7 @@ Sanity check
 
 ```{r}
 # cbind(mtcars$good_car, hi_mpg, hi_cyl, mtcars$mpg, mtcars$cyl)
-cbind(mtcars$good_car, hi_mpg, hi_cyl)
+cbind(mtcars$good_car, hi_mpg, hi_cyl)[1:15,]
 ```
 
 

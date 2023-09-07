@@ -174,6 +174,7 @@ BUT we are in the business of good habits...
 
 
 ---
+class: slide-font-25
 # Basic R Syntax: functions
 
 We have seen a simple object for holding data, but R has many useful **functions**
@@ -181,21 +182,20 @@ We have seen a simple object for holding data, but R has many useful **functions
 ```r
 ls()                         # list all the objects in memory
 rm(Mean_age2)                # remove the object called Mean_age2
-getwd()                      # print the working directory
-setwd("Thesis/Analysis")     # set the working directory to the folder Thesis/Analysis
+getwd()                      # print the working directory (wd)
+setwd("Thesis/Analysis")     # set the wd to the folder Thesis/Analysis
 dir()                        # list the files in the current directory
 dir("../")                   # list the files in the parent directory
 save.image("my_data.RData")  # save all the objects in memory
 load("my_data.RData")        # load all the objects in the data file
 ```
 
-
 --
 
 *Quick note*:
 
 * suppose you create an object called `abc` that holds the value 2
-* then you load a file `data.RData` that also has an object named `abc` but holds the value 99
+* then you load `data.RData` that also has an object named `abc` but holds the value 99
 * the first version of the object (`abc` holding 2) will get replaced
 
 
@@ -483,6 +483,7 @@ Let's walk through this... &lt;br&gt;
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: changing vectors (cont.)
 
 
@@ -748,82 +749,23 @@ working with vectors still apply
 ```
 
 
-
-
 ---
-## **Data Structures**: `dplyr` select columns
-
-
-```r
-&gt; # only look at a few columns
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
-&gt; mtcars %&gt;% 
-+   select(mpg, cyl)
-```
-
-```
-##                      mpg cyl
-## Mazda RX4           21.0   6
-## Mazda RX4 Wag       21.0   6
-## Datsun 710          22.8   4
-## Hornet 4 Drive      21.4   6
-## Hornet Sportabout   18.7   8
-## Valiant             18.1   6
-## Duster 360          14.3   8
-## Merc 240D           24.4   4
-## Merc 230            22.8   4
-## Merc 280            19.2   6
-## Merc 280C           17.8   6
-## Merc 450SE          16.4   8
-## Merc 450SL          17.3   8
-## Merc 450SLC         15.2   8
-## Cadillac Fleetwood  10.4   8
-## Lincoln Continental 10.4   8
-## Chrysler Imperial   14.7   8
-## Fiat 128            32.4   4
-## Honda Civic         30.4   4
-## Toyota Corolla      33.9   4
-## Toyota Corona       21.5   4
-## Dodge Challenger    15.5   8
-## AMC Javelin         15.2   8
-## Camaro Z28          13.3   8
-## Pontiac Firebird    19.2   8
-## Fiat X1-9           27.3   4
-## Porsche 914-2       26.0   4
-## Lotus Europa        30.4   4
-## Ford Pantera L      15.8   8
-## Ferrari Dino        19.7   6
-## Maserati Bora       15.0   8
-## Volvo 142E          21.4   4
-```
-
-
----
+class: slide-font-25
 ## **Data Structures**: `dplyr` arrange rows
 
 
 ```r
 &gt; # only look at a few columns
 &gt; names(mtcars)
+&gt; mtcars %&gt;% 
+&gt;   select(mpg, cyl) %&gt;%
+&gt;   arrange(mpg, desc(cyl))
 ```
+
 
 ```
 ##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
 ## [11] "carb"
-```
-
-```r
-&gt; mtcars %&gt;% 
-+   select(mpg, cyl) %&gt;%
-+   arrange(mpg,desc(cyl))
 ```
 
 ```
@@ -838,29 +780,8 @@ working with vectors still apply
 ## AMC Javelin         15.2   8
 ## Dodge Challenger    15.5   8
 ## Ford Pantera L      15.8   8
-## Merc 450SE          16.4   8
-## Merc 450SL          17.3   8
-## Merc 280C           17.8   6
-## Valiant             18.1   6
-## Hornet Sportabout   18.7   8
-## Pontiac Firebird    19.2   8
-## Merc 280            19.2   6
-## Ferrari Dino        19.7   6
-## Mazda RX4           21.0   6
-## Mazda RX4 Wag       21.0   6
-## Hornet 4 Drive      21.4   6
-## Volvo 142E          21.4   4
-## Toyota Corona       21.5   4
-## Datsun 710          22.8   4
-## Merc 230            22.8   4
-## Merc 240D           24.4   4
-## Porsche 914-2       26.0   4
-## Fiat X1-9           27.3   4
-## Honda Civic         30.4   4
-## Lotus Europa        30.4   4
-## Fiat 128            32.4   4
-## Toyota Corolla      33.9   4
 ```
+(truncated output)
 
 
 ---
@@ -869,15 +790,6 @@ working with vectors still apply
 
 ```r
 &gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars %&gt;% 
 +   select(mpg, cyl) %&gt;%
 +   filter(cyl == 6)
@@ -894,6 +806,10 @@ working with vectors still apply
 ## Ferrari Dino   19.7   6
 ```
 
+keyboard shortcuts in RStudio for the pipe (`%&gt;%`)
+  
+  + MacOS: &amp;nbsp;  `&lt;command&gt; &lt;shift&gt; M`
+  + Windows: &amp;nbsp; `&lt;control&gt; &lt;shift&gt; M`
 
 ---
 ## **Data Structures**: `dplyr` filter more rows
@@ -901,15 +817,6 @@ working with vectors still apply
 
 ```r
 &gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars %&gt;% 
 +   select(mpg, cyl) %&gt;%
 +   filter(cyl &gt; 4 &amp; mpg &gt; 22)
@@ -927,15 +834,6 @@ working with vectors still apply
 
 ```r
 &gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars %&gt;% 
 +   select(mpg, cyl) %&gt;%
 +   filter(cyl &gt; 4 &amp; mpg &gt; 18)
@@ -955,20 +853,11 @@ working with vectors still apply
 
 
 ---
-## **Data Structures**: `dplyr` filter more rows
+## **Data Structures**: `dplyr` take a slice
 
 
 ```r
 &gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars %&gt;% 
 +   select(mpg, cyl) %&gt;%
 +   slice(grep("Mazda", row.names(mtcars)))
@@ -980,26 +869,16 @@ working with vectors still apply
 ## Mazda RX4 Wag  21   6
 ```
 
-```r
-&gt; # also look at stringr library
-```
+&lt;br&gt;&lt;br&gt;
+(also look at [`stringr`](https://stringr.tidyverse.org/) package)
 
 
 ---
-## **Data Structures**: `dplyr` take a slice
+## **Data Structures**: `dplyr` take another slice
 
 
 ```r
 &gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars %&gt;% 
 +   select(mpg, cyl) %&gt;%
 +   slice(c(1, 9, 20))
@@ -1014,85 +893,59 @@ working with vectors still apply
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: `dplyr` make new column
 
 
 ```r
-&gt; # only look at a few rows
-&gt; names(mtcars)
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
+&gt; # create new column named mpg2
 &gt; mtcars %&gt;% 
-+   select(mpg, cyl) %&gt;%
-+   mutate(mpg2 = mpg/1000)
+&gt;   select(mpg, cyl) %&gt;%
+&gt;   mutate(mpg2 = mpg/1000)
 ```
 
+
 ```
-##                      mpg cyl   mpg2
-## Mazda RX4           21.0   6 0.0210
-## Mazda RX4 Wag       21.0   6 0.0210
-## Datsun 710          22.8   4 0.0228
-## Hornet 4 Drive      21.4   6 0.0214
-## Hornet Sportabout   18.7   8 0.0187
-## Valiant             18.1   6 0.0181
-## Duster 360          14.3   8 0.0143
-## Merc 240D           24.4   4 0.0244
-## Merc 230            22.8   4 0.0228
-## Merc 280            19.2   6 0.0192
-## Merc 280C           17.8   6 0.0178
-## Merc 450SE          16.4   8 0.0164
-## Merc 450SL          17.3   8 0.0173
-## Merc 450SLC         15.2   8 0.0152
-## Cadillac Fleetwood  10.4   8 0.0104
-## Lincoln Continental 10.4   8 0.0104
-## Chrysler Imperial   14.7   8 0.0147
-## Fiat 128            32.4   4 0.0324
-## Honda Civic         30.4   4 0.0304
-## Toyota Corolla      33.9   4 0.0339
-## Toyota Corona       21.5   4 0.0215
-## Dodge Challenger    15.5   8 0.0155
-## AMC Javelin         15.2   8 0.0152
-## Camaro Z28          13.3   8 0.0133
-## Pontiac Firebird    19.2   8 0.0192
-## Fiat X1-9           27.3   4 0.0273
-## Porsche 914-2       26.0   4 0.0260
-## Lotus Europa        30.4   4 0.0304
-## Ford Pantera L      15.8   8 0.0158
-## Ferrari Dino        19.7   6 0.0197
-## Maserati Bora       15.0   8 0.0150
-## Volvo 142E          21.4   4 0.0214
+##                    mpg cyl   mpg2
+## Mazda RX4         21.0   6 0.0210
+## Mazda RX4 Wag     21.0   6 0.0210
+## Datsun 710        22.8   4 0.0228
+## Hornet 4 Drive    21.4   6 0.0214
+## Hornet Sportabout 18.7   8 0.0187
+## Valiant           18.1   6 0.0181
+## Duster 360        14.3   8 0.0143
+## Merc 240D         24.4   4 0.0244
+## Merc 230          22.8   4 0.0228
+## Merc 280          19.2   6 0.0192
+## Merc 280C         17.8   6 0.0178
+## Merc 450SE        16.4   8 0.0164
 ```
+(truncated output)
 
 
 ---
+class: slide-font-25
 ## **Data Structures**: exploring data frames
 
-* Old School way to access a single column in a data frame is to use `$`
+* And now, some Old School techniques for working with data frames
+* Access a single column in a data frame is to use `$`
 
 
 ```r
 &gt; names(mtcars)  ## print the variable names
-```
-
-```
-##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
-## [11] "carb"
-```
-
-```r
 &gt; mtcars$mpg     ## return the mpg variable
 ```
 
+
 ```
-##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3 15.2 10.4
-## [16] 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3 26.0 30.4 15.8 19.7
-## [31] 15.0 21.4
+##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"  
+## [10] "gear" "carb"
+```
+
+```
+##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3
+## [14] 15.2 10.4 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3
+## [27] 26.0 30.4 15.8 19.7 15.0 21.4
 ```
 
 --
@@ -1178,49 +1031,27 @@ An alternative ways to access a data frame's variable(s):
 ```
 
 ```
-##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3 15.2 10.4
-## [16] 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3 26.0 30.4 15.8 19.7
-## [31] 15.0 21.4
+##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3
+## [14] 15.2 10.4 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3
+## [27] 26.0 30.4 15.8 19.7 15.0 21.4
 ```
 
 ```r
-&gt; mtcars[, c("mpg", "cyl")]
+&gt; mtcars[1:10, c("mpg", "cyl")]
 ```
 
 ```
-##                      mpg cyl
-## Mazda RX4           21.0   6
-## Mazda RX4 Wag       21.0   6
-## Datsun 710          22.8   4
-## Hornet 4 Drive      21.4   6
-## Hornet Sportabout   18.7   8
-## Valiant             18.1   6
-## Duster 360          14.3   8
-## Merc 240D           24.4   4
-## Merc 230            22.8   4
-## Merc 280            19.2   6
-## Merc 280C           17.8   6
-## Merc 450SE          16.4   8
-## Merc 450SL          17.3   8
-## Merc 450SLC         15.2   8
-## Cadillac Fleetwood  10.4   8
-## Lincoln Continental 10.4   8
-## Chrysler Imperial   14.7   8
-## Fiat 128            32.4   4
-## Honda Civic         30.4   4
-## Toyota Corolla      33.9   4
-## Toyota Corona       21.5   4
-## Dodge Challenger    15.5   8
-## AMC Javelin         15.2   8
-## Camaro Z28          13.3   8
-## Pontiac Firebird    19.2   8
-## Fiat X1-9           27.3   4
-## Porsche 914-2       26.0   4
-## Lotus Europa        30.4   4
-## Ford Pantera L      15.8   8
-## Ferrari Dino        19.7   6
-## Maserati Bora       15.0   8
-## Volvo 142E          21.4   4
+##                    mpg cyl
+## Mazda RX4         21.0   6
+## Mazda RX4 Wag     21.0   6
+## Datsun 710        22.8   4
+## Hornet 4 Drive    21.4   6
+## Hornet Sportabout 18.7   8
+## Valiant           18.1   6
+## Duster 360        14.3   8
+## Merc 240D         24.4   4
+## Merc 230          22.8   4
+## Merc 280          19.2   6
 ```
 
 
@@ -1230,63 +1061,47 @@ An alternative ways to access a data frame's variable(s):
 
 ```r
 &gt; mtcars$mpg_squared &lt;- mtcars$mpg * mtcars$mpg
-&gt; mtcars[, c("mpg", "mpg_squared")]
+&gt; mtcars[1:10, c("mpg", "mpg_squared")]
 ```
 
 ```
-##                      mpg mpg_squared
-## Mazda RX4           21.0      441.00
-## Mazda RX4 Wag       21.0      441.00
-## Datsun 710          22.8      519.84
-## Hornet 4 Drive      21.4      457.96
-## Hornet Sportabout   18.7      349.69
-## Valiant             18.1      327.61
-## Duster 360          14.3      204.49
-## Merc 240D           24.4      595.36
-## Merc 230            22.8      519.84
-## Merc 280            19.2      368.64
-## Merc 280C           17.8      316.84
-## Merc 450SE          16.4      268.96
-## Merc 450SL          17.3      299.29
-## Merc 450SLC         15.2      231.04
-## Cadillac Fleetwood  10.4      108.16
-## Lincoln Continental 10.4      108.16
-## Chrysler Imperial   14.7      216.09
-## Fiat 128            32.4     1049.76
-## Honda Civic         30.4      924.16
-## Toyota Corolla      33.9     1149.21
-## Toyota Corona       21.5      462.25
-## Dodge Challenger    15.5      240.25
-## AMC Javelin         15.2      231.04
-## Camaro Z28          13.3      176.89
-## Pontiac Firebird    19.2      368.64
-## Fiat X1-9           27.3      745.29
-## Porsche 914-2       26.0      676.00
-## Lotus Europa        30.4      924.16
-## Ford Pantera L      15.8      249.64
-## Ferrari Dino        19.7      388.09
-## Maserati Bora       15.0      225.00
-## Volvo 142E          21.4      457.96
+##                    mpg mpg_squared
+## Mazda RX4         21.0      441.00
+## Mazda RX4 Wag     21.0      441.00
+## Datsun 710        22.8      519.84
+## Hornet 4 Drive    21.4      457.96
+## Hornet Sportabout 18.7      349.69
+## Valiant           18.1      327.61
+## Duster 360        14.3      204.49
+## Merc 240D         24.4      595.36
+## Merc 230          22.8      519.84
+## Merc 280          19.2      368.64
 ```
+
 
 ---
 ## **Data Frames**: more on indexing
 
 When creating an index, we can also use multiple conditions
 
- * to satisfy EITHER condition use `|` (or)
  * to satisfy BOTH conditions use `&amp;` (and)
+ * to satisfy EITHER condition use `|` (or)
+ 
  
 
 
 ```r
-&gt; mtcars$mpg &gt; 20 | mtcars$mpg &lt; 25
+&gt; mtcars[mtcars$mpg &lt; 25 &amp; mtcars$mpg &gt; 21, c("mpg", "cyl")]
 ```
 
 ```
-##  [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [16] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [31] TRUE TRUE
+##                 mpg cyl
+## Datsun 710     22.8   4
+## Hornet 4 Drive 21.4   6
+## Merc 240D      24.4   4
+## Merc 230       22.8   4
+## Toyota Corona  21.5   4
+## Volvo 142E     21.4   4
 ```
 
 
@@ -1297,43 +1112,21 @@ When creating an index, we can also use multiple conditions
 
 
 ```r
-&gt; cbind(mtcars$mpg, mtcars$mpg &lt; 20 | mtcars$mpg &gt; 30)
+&gt; cbind(mtcars$mpg, mtcars$mpg &lt; 15 | mtcars$mpg &gt; 20)[1:10,]
 ```
 
 ```
 ##       [,1] [,2]
-##  [1,] 21.0    0
-##  [2,] 21.0    0
-##  [3,] 22.8    0
-##  [4,] 21.4    0
-##  [5,] 18.7    1
-##  [6,] 18.1    1
+##  [1,] 21.0    1
+##  [2,] 21.0    1
+##  [3,] 22.8    1
+##  [4,] 21.4    1
+##  [5,] 18.7    0
+##  [6,] 18.1    0
 ##  [7,] 14.3    1
-##  [8,] 24.4    0
-##  [9,] 22.8    0
-## [10,] 19.2    1
-## [11,] 17.8    1
-## [12,] 16.4    1
-## [13,] 17.3    1
-## [14,] 15.2    1
-## [15,] 10.4    1
-## [16,] 10.4    1
-## [17,] 14.7    1
-## [18,] 32.4    1
-## [19,] 30.4    1
-## [20,] 33.9    1
-## [21,] 21.5    0
-## [22,] 15.5    1
-## [23,] 15.2    1
-## [24,] 13.3    1
-## [25,] 19.2    1
-## [26,] 27.3    0
-## [27,] 26.0    0
-## [28,] 30.4    1
-## [29,] 15.8    1
-## [30,] 19.7    1
-## [31,] 15.0    1
-## [32,] 21.4    0
+##  [8,] 24.4    1
+##  [9,] 22.8    1
+## [10,] 19.2    0
 ```
 
 
@@ -1406,7 +1199,7 @@ Sanity check
 
 ```r
 &gt; # cbind(mtcars$good_car, hi_mpg, hi_cyl, mtcars$mpg, mtcars$cyl)
-&gt; cbind(mtcars$good_car, hi_mpg, hi_cyl)
+&gt; cbind(mtcars$good_car, hi_mpg, hi_cyl)[1:15,]
 ```
 
 ```
@@ -1426,23 +1219,6 @@ Sanity check
 ## [13,] FALSE  FALSE  FALSE
 ## [14,] FALSE  FALSE  FALSE
 ## [15,] FALSE  FALSE  FALSE
-## [16,] FALSE  FALSE  FALSE
-## [17,] FALSE  FALSE  FALSE
-## [18,]  TRUE   TRUE   TRUE
-## [19,]  TRUE   TRUE   TRUE
-## [20,]  TRUE   TRUE   TRUE
-## [21,]  TRUE   TRUE   TRUE
-## [22,] FALSE  FALSE  FALSE
-## [23,] FALSE  FALSE  FALSE
-## [24,] FALSE  FALSE  FALSE
-## [25,] FALSE  FALSE  FALSE
-## [26,]  TRUE   TRUE   TRUE
-## [27,]  TRUE   TRUE   TRUE
-## [28,]  TRUE   TRUE   TRUE
-## [29,] FALSE  FALSE  FALSE
-## [30,] FALSE  FALSE  FALSE
-## [31,] FALSE  FALSE  FALSE
-## [32,]  TRUE   TRUE   TRUE
 ```
 
 
