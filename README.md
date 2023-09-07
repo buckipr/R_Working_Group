@@ -21,6 +21,10 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 * Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
+   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2023_09/intro_r.html#1)
+
+   - [R Markdown File (.Rmd)](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2023_09_07/intro_r.Rmd)
+
 * Oct. 5th: <img src="https://github.com/rstudio/rmarkdown/blob/main/man/figures/logo.png" width="25"> R Markdown and Dynamic Documents
   
 * Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
@@ -29,7 +33,12 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## **Resources**
 
-* [Intro to R for beginners](https://buckipr.github.io/R_Working_Group/intro_r/intro_r.html#1)
+* **Intro to R**
+
+   - [Sep 2023](https://buckipr.github.io/R_Working_Group/intro_r/2023_09/intro_r.html#1)
+
+   - [Jan 2023](https://buckipr.github.io/R_Working_Group/intro_r/2023_01/intro_r.html#1)
+
 * [Making the transition from Stata to R](transition2R/README.md)
 
 ## **About Us**
