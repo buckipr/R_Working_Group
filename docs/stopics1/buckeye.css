@@ -1,0 +1,145 @@
+/* Colors are defined by the    */
+/* OSU Brand Guidelines         */
+/* https://brand.osu.edu/color/ */
+
+.remark-slide-content { 
+  /* background-color: #666666; */ /*official gray */
+  /* background-color: #b3b3b3; */ /* lighter gray */
+  background-color: #c2c2c2;
+  font-size: 30px;
+  padding: 1em 1em 1em 1em;
+}
+
+.slide-font-25 {
+  font-size: 25px;
+}
+
+.slide-font-20 {
+  font-size: 20px;
+}
+
+h1, h2, h3 {
+  color: #bb0000;
+  line-height: 0.6em;
+  text-shadow: 0 0 10px #ffffff;
+}
+
+a, a > code {
+  color: #953d1c;
+  text-decoration: none;
+}
+
+.footnote {
+  position: absolute;
+  bottom: 3em;
+  padding-right: 4em;
+  font-size: 90%;
+}
+
+.remark-code-line-highlighted     { background-color: #ffff88; }
+
+.inverse {
+  background-color: #272822;
+  color: #d6d6d6;
+  text-shadow: 0 0 20px #333;
+}
+
+.inverse h1, .inverse h2, .inverse h3 {
+  color: #f3f3f3;
+}
+
+.title-slide {
+  /* background-color: #bb0000; */
+  background-image: url(img/ipr_logo_grey_circle.png),
+                    linear-gradient(to bottom right, #666666, #bb0000);
+  background-position: top right , center;
+  background-size: 160px, 100% 100%, cover;
+  background-color: #bb0000, #bb0000;
+}
+
+.title-slide h1, .title-slide h2, .title-slide h3 {
+  color: #ffffff;
+  text-shadow: 0 0 0px #ffffff;
+  /* color: #c2c2c2; */
+  /* text-shadow: 0 0 10px #000000; */
+}
+
+/* title */
+.title-slide h1 {
+  font-size: 50px;
+  line-height: 65px;
+  margin-bottom: 30px;
+}
+
+/* subtitle */
+.title-slide h2 {
+  font-size: 30px;
+  line-height: 39px;
+  margin-bottom: 90px;
+}
+
+/* author & date */
+.title-slide h3:nth-of-type(1) {
+  font-size: 30px;
+}
+
+/* Two-column layout */
+.left-column {
+  color: #777;
+  width: 20%;
+  height: 92%;
+  float: left;
+}
+.left-column h2:last-of-type, .left-column h3:last-child {
+  color: #000;
+}
+.right-column {
+  width: 75%;
+  float: right;
+  padding-top: 1em;
+}
+.pull-left {
+  float: left;
+  width: 47%;
+}
+.pull-right {
+  float: right;
+  width: 47%;
+}
+.pull-right ~ * {
+  clear: both;
+}
+img, video, iframe {
+  max-width: 100%;
+}
+blockquote {
+  border-left: solid 5px lightgray;
+  padding-left: 1em;
+}
+.remark-slide table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+.remark-slide table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+.remark-slide thead, .remark-slide tfoot, .remark-slide tr:nth-child(even) { background: #eee }
+
+@page { margin: 0; }
+@media print {
+  .remark-slide-scaler {
+    width: 100% !important;
+    height: 100% !important;
+    transform: scale(1) !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+}
+
+/* note: requires YAML option: */
+/* nature: navigation: scroll = false */
+.remark-slide-scaler {
+  overflow-y: auto;
+}
+
+}
