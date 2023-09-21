@@ -34,21 +34,15 @@ class: center, middle, inverse, title-slide
 
 * Best Practices?  like all my best ideas, I "borrowed" these from those smarter than I
 
---
-
 * [Motivational words of wisdom](https://github.com/kbroman/datasciquotes)
 
---
-
 * Goals
-  + embrace reproducibility (and lean heavily on automation)
-  + investment (and good habits) &amp;#8680; efficiency
-
---
+  + embrace our imperfections and value reproducibility (while leaning heavily on automation)
+  + make investments (and develop good habits) &amp;#8680; efficiency
 
 * GitHub Repository: [github.com/buckipr/research_efficiency](https://github.com/buckipr/research_efficiency)
 
-* Slides: still need to post these!
+  + link to slides &amp; example files
 
 
 ---
@@ -84,13 +78,9 @@ class: slide-font-25
 
 Before you even look at any data...
 
---
-
 * **COMPARTMENTALIZE** -- create all the folders you will need for the project
 
   + keep data with data, code with code, results with results, etc.
-
---
 
 * create a `README.md` file
 
@@ -205,13 +195,13 @@ Before you even look at any data...
     + for loops and functions
     
     + it is going to be a pain to rename files to account for a new figure so automate this!
-    [(example)](https://github.com/buckipr/research_efficiency/blob/main/example_files/example_automate.do)!
+    [(example)](https://github.com/buckipr/research_efficiency/blob/main/example_files/example_automate.do)
 
 
 ---
 class: slide-font-25
 
-# Even More Coding Tips
+# Even More Coding "Tips"
 
 * Use a master file (e.g. `run_all.do`) to run every step of the process
 [(example)](https://github.com/buckipr/research_efficiency/blob/main/example_files/example_run_all.do)
@@ -220,7 +210,7 @@ class: slide-font-25
 
   + recall that there are differences between Windows and Mac OS
 
-* Avoid spaces in file names
+* Avoid spaces in folder and file names
 
 * Choose a convention and stick to it (e.g., Folder_Name and file_name)
 
@@ -229,7 +219,7 @@ relevant dates)
 
 * One project folder per manuscript?
 
-* Only use 80 columns in your scripts (i.e., start a new line after 80)
+* Only use 80 columns in your scripts (i.e., start a new line after 80 characters + spaces)
 
 
 ---
@@ -245,51 +235,147 @@ class: inverse, center, middle
 
 
 ---
-# Say it with me: AUTOMATE!
+# Exporting Statistical Results
 
-* **Stata**
+* *Reminder*: embrace our imperfections
 
-  + [Markstat for Stata](https://grodri.github.io/markstat/docx)
+* Copying and pasting regression coefficients and asterisks is a job for a really fast (but precise) moron,
+ namely, your computer
 
-  + [Tools starting with Stata 15](https://www.stata.com/stata15/create-word-documents/)
+* Early on, same excellent tools were developed for exporting tables to other formats (e.g., CSV, LaTeX)
 
-  + [Tables in Stata 17](https://www.stata.com/new-in-stata/tables/)
+  + This task has been somewhat complicated by journals asking for MS Word tables
   
-  + [estout](http://repec.org/bocode/e/estout/estout.html) and [tabstat](https://www.stata.com/manuals/rtabstat.pdf)
-  
-* [StatTag](https://sites.northwestern.edu/stattag/)
+  + More recently, **dynamic documents** have evolved into an excellent tool (worthy of investment)
 
 
 ---
-# Dynamic Documents with R
+# Say it with me: AUTOMATE!
+
+**Stata** (the early years)
+
+* [estout](http://repec.org/bocode/e/estout/estout.html) and [tabstat](https://www.stata.com/manuals/rtabstat.pdf) export tables and regression results to CSV
+
+   + [examples](https://github.com/buckipr/research_efficiency/blob/main/export_results/export_stata_results.do)
+
+* The move towards integration
+
+  + A **dynamic document** weaves text, code, and results together into a single file (e.g., MS Word, PowerPoint,
+  LaTeX)
+  
+  + Useful for manuscripts, but also reports!
+  
+  + (But what about track changes?!?)
 
 
-* [R Markdown](https://rmarkdown.rstudio.com/articles_intro.html) -- combine your results and
-  manuscript into a single document
+---
+# Dynamic Documents in Stata
+
+
+* Stata has developed a few tools in the spirit of dynamic documents (but closer to exporting results)
+
+  + [Tools starting with Stata 15](https://www.stata.com/stata15/create-word-documents/)
+
+  + [Tables in Stata 17](https://www.stata.com/stata17/tables/)
   
-* [officeverse](https://ardata-fr.github.io/officeverse/)
+
+* Germ&amp;aacute;n Rodr&amp;iacute;guez created a tool for creating dyn docs in Stata &lt;br&gt; [Markstat for Stata](https://grodri.github.io/markstat/docx)
+
+  + [software requirements for getting started](https://grodri.github.io/markstat/gettingStarted)
+
+* [StatTag](https://sites.northwestern.edu/stattag/) works the other way (include code in your Word doc)
+
+  + MS Word plug-in that works with multiple statistical packages (R, SAS, Stata)
+
+
+---
+# Exporting &amp; Dyn Docs with R
+
+
+* [R Markdown](https://rmarkdown.rstudio.com/articles_intro.html) -- produce Word, PowerPoint, PDF (manuscript &amp; slides), &amp; HTML
   
-* [stargazer](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf)
+  + you can run [Stata code](https://bookdown.org/yihui/rmarkdown-cookbook/eng-stata.html)!
   
-* [kableExtra](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+* [officeverse](https://ardata-fr.github.io/officeverse/) - creating formatted tables for Word
   
-* you can run [Stata code](https://bookdown.org/yihui/rmarkdown-cookbook/eng-stata.html)!
+* [stargazer](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf) - tables for PDF &amp; HTML (&amp; Word?)
+  
+* [kableExtra](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html) - tables for PDF &amp; HTML
+  
+
 
 
 ---
 # Track Changes for Code
 
-* Version Control
+* [**GitHub**](https://github.com) is an on-line service for tracking the history of each file in your project
+(i.e., **version control**)
 
-* Git Hub
+   + each project is stored in a *repository*, which can be made public or private (so only you and
+   your team can access the files)
 
-  + branches
+  + [how much space?](https://docs.github.com/en/github/managing-large-files/what-is-my-disk-quota)
+
+  + unlimited repositories (public and private); "abundant storage"; try to keep it under 1GB per repo
+
+* Software: [GitHub Desktop](https://desktop.github.com/) (but also hooks into fancy IDEs like R Studio 
+and VS Code)
+
+
+---
+# GitHub: additional features
+
+* Branches -- a separate copy of every file in your repository; make changes and (if all goes well)
+merge back with the main branch
+
+    + useful for trying new code/tools that *might* work; sensitivity analysis, 
   
-  + file size
+* You can host your own website through GitHub: [R Working Group](https://buckipr.github.io/R_Working_Group/)
   
-  + public and private repositories
+* Extensive userbase -- easy to find help online and many tools/libraries/packages are hosted on GitHub
+(help with errors and new features)
+
+* Excellent for group projects!
+
+
+---
+class: slide-font-25
+## GitHub: concepts and workflow
+
+* Start by creating a repository on the GitHub website
+
+* **clone** the repository -- creates a copy of all the files on your personal computer
+
+* Make new files and changes to your local copies, then **stage** all the files you want to keep track of
+
+* **commit** all of the files you have staged (you can also add a comment about what was done)
+
+  + this creates a new version (or snap shot) of your project
   
-  + Markdown is supported (automatically renders your README.md)
+  + you can go back and look at previous commits (or revert to that version) and look at differences between
+  commits
+
+* **push** your files to GitHub so that your on-line repository has the latest version of the files
+
+
+---
+## Recap
+
+* Embrace our imperfections and value reproducibility (while leaning heavily on automation)
+
+* Make investments (and develop good habits) &amp;#8680; efficiency
+
+  + Dynamic Documents
+  
+  + GitHub
+
+* Resources from today: &lt;br&gt; [github.com/buckipr/research_efficiency](github.com/buckipr/research_efficiency)
+
+
+---
+class: inverse, center, middle
+
+# &lt;p style="color:red;"&gt; Thank You! &lt;/p&gt;
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
