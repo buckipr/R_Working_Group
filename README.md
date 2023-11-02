@@ -29,6 +29,10 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
   
 * Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
+   - [slides](https://github.com/buckipr/R_Working_Group/blob/main/maps/2023_11/R%20Working%20Group%20Maps%2011-2-2023.R)
+
+   - [R code](https://github.com/buckipr/R_Working_Group/blob/main/maps/2023_11/R%20spatial%20map%20basics%2011-2-2023.R)
+
 * Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
 
 ## **Resources**
