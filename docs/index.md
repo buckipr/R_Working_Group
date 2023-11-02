@@ -18,6 +18,9 @@ layout: default
   
 * Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
+  + [slides](maps/2023_11/R\ Working\ Group\ Maps\ 22-2-2023.pptx)
+  + [R code](maps/2023_11/R\ spatial\ map\ basics\ 11-2-2023.R)
+
 * Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
 
 
