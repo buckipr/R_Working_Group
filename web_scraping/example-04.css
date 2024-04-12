@@ -1,0 +1,20 @@
+/* comment: example of tag selectors */
+p {
+  color: red;           /* the text in all paragraphs will now be red */
+  text-align: center;
+}
+
+h3, h4 {
+  color: orange;
+  background-color: green;
+}
+
+/* example id selector -- only for a single element (id's must be unique) */
+#blue_par {
+  color: blue;
+}
+
+/* example class selector -- for a group of the same elements */
+.brown_par {
+  color: brown;
+}

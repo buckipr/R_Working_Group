@@ -4,7 +4,12 @@ layout: default
 
 ## Welcome to the R Working Group
 
-### **Scedule for Fall 2023**
+### **Schedule for Spring 2024**
+
+* April 12th: Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+  + [slides](webscraping/slides_webscraping.html)
+
+### **Schedule for Fall 2023**
 
 * **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
 

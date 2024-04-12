@@ -1,0 +1,672 @@
+---
+title: "Web Scraping with <br/><br/> ![](img/r-logo2.png){width=200px}"
+author: "Jason Thomas"
+institute: "R Working Group"
+date: "April 12th, 2024"
+output:
+  xaringan::moon_reader:
+    css: ["buckeye.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      navigation:
+        scroll: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(dplyr)
+library(rvest)
+library(tidyverse)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+```
+
+
+# Introduction
+
+* The goal for today is to learn how to extract data from website using R
+
+  + to get there, we will have to learn a little bit about the structure & language of webpages (i.e., HTML, CSS)
+  
+      - no previous knowledge of HTML or CSS is assumend
+  
+  + [rvest](https://rvest.tidyverse.org/) (tidyverse family): R package that will do most of the work
+
+* [https://github.com/buckipr/R_Working_Group/webscraping](https://github.com/buckipr/R_Working_Group/webscraping)
+<br> (slides)
+  + Getting most of the material from Hadley Wickham's excellent book (ch. 24):
+  [R for Data Science](https://r4ds.hadley.nz/webscraping)
+
+
+---
+class: slide-font-25
+# Preliminary Step
+
+Before we start looking at cool websites...
+
+--
+
+* Can you scrape data?
+
+
+---
+class: slide-font-25
+# Preliminary Step
+
+Before we start looking at cool websites...
+
+* Can you scrape data? probably 
+
+--
+
+* `r emoji("thinking")` **Should** you scrape data from a particular website?
+
+--
+
+  + are the data private? did you have to create an account to access them?
+  
+  + is there a "terms of service"? is a copyright involved?
+  
+  + do the data contain personally identifiable information?
+
+--
+
+* If any of these apply, then you should do some research to see if scraping these data is legal.
+
+--
+
+  + If they don't apply, then you should do some research to see if scraping these data is legal.
+
+
+---
+# Overview
+
+Two buckets: "APIs" and non-APIs
+
+--
+
+* (**A**pplication **P**rogramming **I**nterface) -- how software communicates with the outside world
+  
+  + Some APIs are specifically intended for providing data in useful formats (e.g. CSV or JSON)
+  + examples: Twitter, YouTube, Facebook
+
+--
+
+* Why does this matter?  It is much easier to extract data from an API and different tools are used
+  + API: packages `httr` and `jsonlite`
+  + No API `r emoji("weary")` then go with `rvest`
+
+
+---
+class: inverse, center, middle
+
+# HTML
+
+
+---
+# HTML: *big picture*
+
+* **H**yper **Text** **M**arkup **L**anguage
+
+  + different **elements** tell web browsers how to display text, images, structures, etc.
+  + paragraph: `<p> This is a paragraph </p>`
+  + table: `<table>` stuff, stuff, stuff `</table>`
+
+--
+
+* Web scraping involves searching through the elements in an HTML file to
+find the data you want to use
+
+  + `rvest` has a lot of tools for this
+
+--
+
+* Web browsers have a feature (developer tools) that is also very helpful
+for seeing where/how the HTML elements appear on a page
+
+
+
+---
+# HTML: *example 1*
+
+Open an HTML file (or text file) in R Studio (text editor) and enter the
+following content
+
+```
+<!DOCTYPE html>
+<html>
+
+<head>
+<title> My First Page </title>
+</head>
+
+<body>
+<h1>Example Heading</h1>
+<p> <i>Hello</i> R Working Group!</p>
+<p> Welcome to the session on web scraping.</p>
+<p> p.s. R Rocks!!!!</p>
+</body>
+
+</html> 
+```
+
+After saving the file (with an `.html` extension), open it in your favorite
+browser.  (Can you find the text "My First Page"?)
+
+
+---
+# HTML: *elements*
+
+* The **elements** in example 1 contain text surrounded by **tags**
+
+  + `<h1>` (start tag) & `</h1>` (end tag)
+  
+--
+
+* **Block tags** are used to define sections and structure in a web page.
+Here are some common examples:
+  + `<h1>` Heading 1 `</h1>`  (with `<h2>`, ..., & `<h6>` for smaller sizes)
+  + `<section>` & `</section>`
+  + `<p>` paragraph `</p>`
+  + `<table>` (has more tags for rows and headers) `<table>`
+  + `<ul>` unordered list `</ul`> & `<li>` list item `</li>`
+  + `<ol>` ordered list `</ol>`
+
+
+---
+# HTML: *elements* (cont.)
+
+* There are also **inline tags** used for tasks like formatting text and adding links
+
+  + `<b>` bold `</b>`, `<i>` italics `</i>`, and more
+  + `<a href="https://www.w3schools.com/html>` <br>
+  link text appearing on web page <br>
+  `</a>`
+  
+--
+
+* Tags can also have **attributes**, which are useful for helping `rvest`
+find the specific part of a web page you would like to scrape.
+
+  + `id` and `class` are commonly used attributes
+  + they appear inside the `< >` of the start tag
+
+
+---
+# HTML: *example 2*
+
+Example with unordered list
+
+```
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Largest Cities</title>
+</head>
+
+<body>
+<h3>Largest Citites</h3>
+
+<p id='top5'> Here are the top 5 cities with the largest population: </p>
+
+<!-- comment: unordered list -->
+<ul>
+  <li> <span class='asia'> Tokyo (37,115,035) </span> </li>
+  <li> <span class='asia'> Delhi (33,807,403) </span> </li>
+  <li> <span class='asia'> Shanghi (29,867,918) </span> </li>
+  <li> <span class='asia'> Dhaka (23,935,652) </span> </li>
+  <li> <span class='latam'> Sao Paulo (22,806,704) </span> </li>
+</ul>
+
+</body>
+</html> 
+```
+
+---
+# HTML: *example 3*
+
+Now lets add some structure by including a table
+
+```
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Powerful Corporations</title>
+</head>
+
+<body>
+<h1>U.S. Companies</h1>
+<p>These companies are worth a lot of cash and should be studied.</p>
+<br><br><br><br><br>
+
+ <table>
+  <tr>                         <!-- start a table row -->
+    <th>Company</th>           <!-- table header -->
+    <th>Value</th>
+    <th>Country</th>
+  </tr>                        <!-- end a table row -->
+  <tr>
+    <td>Microsoft</td>  <! -- table data -->
+    <td>$3.187 trillion</td>
+    <td>USA</td>
+  </tr>
+  <tr>
+    <td><b>Jason Inc.</b></td>
+    <td>$2.932 trillion</td>
+    <td>USA</td>
+  </tr>
+  <tr>
+    <td>Apple</td>
+    <td>$2.692 trillion</td>
+    <td>USA</td>
+  </tr>
+</table> 
+
+</body>
+</html> 
+```
+
+
+---
+# HTML: *elements & style*
+
+* References & resources on elements:
+
+  + [MDN -- elements and more](https://developer.mozilla.org/en-US/docs/Web/HTML)
+  + [W3 Schools -- elements](https://www.w3schools.com/tags/default.asp)
+  + [W3 Schools -- try it out](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_basic_document)
+
+--
+
+* **C**ascading **S**tyle **S**heets (CSS) is a popular way to systematically set the style for web pages.
+
+  + styling is implemented via **selectors** such as `tag` names or attributes like `id` & `class`
+  + (for a given selector `property:value;` sets how the element is displayed)
+
+* Let's see an example using an "external" css file
+
+---
+# CSS: *example 4*
+
+Open a new CSS file in R Studio (or text file with the .css extension) and insert the following
+
+```
+/* comment: example of tag selectors */
+p {
+  color: red;           /* the text in all paragraphs will now be red */
+  text-align: center;
+}
+
+h3, h4 {
+  color: orange;
+  background-color: green;
+}
+
+/* example id selector -- only for a single element (id's must be unique) */
+#blue_par {
+  color: blue;
+}
+
+/* example class selector -- for a group of the same elements */
+.brown_par {
+  color: brown;
+}
+```
+
+---
+# HTML: *example 4*
+
+Style the following HTML
+
+```
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Example 4</title>
+<link rel='stylesheet' href="example-04.css">
+</head>
+
+<body>
+<h1>Header 1 (normal)</h1>
+<p> This text should be red and centered because we used the tag name <code>&lt;p&gt;</code>.</p>
+
+This text is not inside a paragraph, so it is not center aligned.
+
+<h2>Header 2 (normal)</h2>
+<p id='blue_par'>This text should be blue and centered since we used the id attribute.</p>
+
+<h3>Header 3 (styled)</h3>
+<p class='brown_par'>This text should be brown and centered.</p>
+
+<h4>Header 4 (styled)</h4>
+<p class='brown_par'>This text should also be brown and centered.</p>
+
+</body>
+</html>
+```
+
+
+---
+# HTML: recap
+
+HTML is a language that uses elements to create web pages
+
+* elements are demarcated with tags: `<h1>` & `</h1>`
+
+* tags can also have attributes, e.g., `id` & `class`
+  + `<p id = "par_id">` & `</p>`
+  + `<h1 class='my_header1'>` & `</h1>`
+
+--
+
+* Web scraping involves searching through the elements, tags, & attributes in an HTML file to
+find the data you want to use.
+
+  + `rvest` has a lot of tools for this, so let's take it for a spin
+
+
+---
+class: inverse, center, middle
+
+# `rvest`
+
+
+---
+# `rvest`: *big picture*
+
+`rvest` will allow us to accomplish a lot with only a few functions that navigate HTML
+and extract data
+
+--
+
+* `read_html("http://mypage.org")` -- read in HTML from web address (or local file) and store it as an `xml_document`
+  + `xml` is another language used to organize data
+
+--
+
+* Find elements with:  `html_elements()` & `html_element()`
+  + these are typically used in tandem to create variables and fill in observations
+
+
+---
+# `rvest`: *big picture* (cont.)
+
+* `html_text2()` -- pull out the text from an element (and strip out any extra HTML)
+
+* `html_table()` -- extract tables
+
+* `html_attr()` -- extract attributes
+
+
+---
+# `rvest`: simple example
+
+```{r simple_example}
+library(rvest)
+dir()
+
+example01 <- read_html("example-01.html")
+example01
+```
+
+The page is stored as 2 elements, so we need `rvest` tools to do the un-nesting.
+
+
+---
+class: slide-font-25
+# `rvest`: simple example (cont.)
+
+
+```{r simple_example_cont_a}
+## let's rvest out the paragraphs
+example01 |> html_elements("p")
+```
+
+Here we see the `xml_nodeset` which can (and does!) have nested elements.
+
+```{r simple_example_cont_b}
+## no s!
+example01 |> html_element("p")
+```
+
+Just showing the difference here (when an html_doc is passed to `html_element()` it returns the first
+match)
+
+
+---
+class: slide-font-25
+# `rvest`: simple example (cont.)
+
+Now we'll strip out all the tags (that aren't useful for our research)...
+
+```{r simple_example_cont2_a}
+example01 |> html_elements("p") |>
+  html_text2()
+```
+
+`r emoji("celebrate")``r emoji("cake")``r emoji("celebrate")` Woo-hoo!!  We've got data. Now on to
+the text analysis...
+
+
+---
+# `rvest`: `html_elements` & co.
+
+Hadley Wickham's book ([R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections),
+ch. 24) has an awesome example showing how to use `html_elements()` & `html_element()` to work
+with nested elements.
+
+We will now take a look at this example...
+
+
+---
+# `rvest`: `html_elements()` & co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+```{r wickham_24_1}
+html <- minimal_html("
+  <ul>
+    <li><b>C-3PO</b> is a <i>droid</i> that weighs <span class='weight'>167 kg</span></li>
+    <li><b>R4-P17</b> is a <i>droid</i></li>
+    <li><b>R2-D2</b> is a <i>droid</i> that weighs <span class='weight'>96 kg</span></li>
+    <li><b>Yoda</b> weighs <span class='weight'>66 kg</span></li>
+  </ul>
+  ")
+html
+```
+
+`minimal_html()` is a tool for creating in-line HTML
+
+
+---
+# `rvest`: `html_elements()` & co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+```{r wickham_24_2}
+characters <- html |> html_elements("li")
+characters
+characters |> html_element("b")
+```
+
+
+
+---
+# `rvest`: `html_elements()` & co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+```{r wickham_24_3}
+characters
+characters |> html_element(".weight")
+```
+
+
+---
+# `rvest`: `html_elements()` & co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+```{r wickham_24_4a}
+characters |> 
+  html_element("b") |> 
+  html_text2()
+```
+
+```{r wickham_24_4b}
+characters |> 
+  html_element(".weight") |> 
+  html_text2()
+```
+
+
+
+---
+# `rvest`: `html_attr()`
+
+Now some practice selecting `class` attribute from example 2 (list of cities).
+
+```{r example_02_1}
+html2 <- read_html("example-02.html")
+html2 |> html_elements("li")
+```
+
+---
+# `rvest`: `html_attr()` (cont.)
+
+We can get the data...
+
+
+```{r example_02_2}
+html2 |> html_elements("li") |>
+  html_element("span") |>
+  html_text2()
+```
+
+but attribute data could be useful as well (for a group indicator)
+
+
+---
+# `rvest`: `html_attr()`
+
+
+```{r example_02_3a}
+html2 |> html_elements("li") |>
+  html_element("span") |>
+  html_attr("class")
+```
+
+```{r example_02_3b}
+data.frame("City" = html2 |> html_elements("span") |> html_text2(),
+           "Region" = html2 |> html_elements("span") |> html_attr("class"))
+```
+
+(a little more work is needed to separate city name and pop size)
+
+
+---
+# `rvest`: `html_table()`
+
+Next we'll turn to the table created in example 3
+
+```{r example_03_1}
+html3 <- read_html("example-03.html")
+html3 |> html_table()
+```
+
+* Note that the output is actually a `list`.  If there were 3 tables in the HTML, we would get a
+`list` of length 3.
+
+* Convince yourself of this by adding more tables to `example-03.html` and scraping the data from
+each table.
+
+
+---
+# `rvest`: `html_table()` (cont.)
+
+
+```{r example_03_2}
+tables_ex03 <- html3 |> html_table()
+tab1_ex03 <- as.data.frame(tables_ex03[[1]])
+tab1_ex03
+```
+
+
+---
+class: inverse, center, middle
+
+# Examples from the Web
+
+
+---
+# Copa Libertadores
+
+* The obvious place to start is the Copa Libertadores!
+
+  + as provided by [Wikipedia](https://en.wikipedia.org/wiki/List_of_Copa_Libertadores_finals)
+  
+  
+* Let's try to scrape data from the table to create a data frame with the variables:
+  + year
+  + winner & winner's country
+  + runner-up & runner-up's country
+  + score
+  + venue
+
+
+---
+# Copa Libertadores (cont.)
+
+```{r html_copa_lib}
+html_copa <- read_html("https://en.wikipedia.org/wiki/List_of_Copa_Libertadores_finals")
+```
+
+This example is actually pretty easy `r emoji("blush")`.  Can you figure it out?
+
+
+
+---
+# Examples from the Web
+
+* Now that we have some simple examples under out belt, let's tackle some harder tasks
+
+  + Wickham's book provides another [excellent example](https://r4ds.hadley.nz/webscraping#starwars)
+  that is somewhat gentle and fun (if you like lightsabers)
+
+* When we jump into the real world, it is extremely useful to get familiar with a web browser's
+developer tool
+
+  + Highlight some text on the page that you are interested in, right-click, and select `Inspect`
+  + Firefox: Tools &rarr; Browser Tool &rarr; Web Developer Tools
+  + Chrome: View &rarr; Developer &rarr; Developer Tools
+
+
+---
+# Web Browser's Developer Tools
+
+* The Developer Tools give a structured view of the webpage's HTML
+
+  + a panel should open with the actual HTML so you can simultaneously see the code and how the browser displays it
+
+--
+
+* Even more cool is when you move the cursor over the HTML code, the browser will try to 
+show you the corresponding part of the web page that the HTML produces
+
+--
+
+* As you will see, web pages can have A LOT of HTML with a ton of elements!  So the primary challenge
+is finding the right element you want to scrape from.
+
+  + this requires traversing through many nested elements
+
