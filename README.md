@@ -20,7 +20,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 * April 12th: Web Scraping with R
 
   - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/slides_webscraping.html#1)
-  - [materials](https://github.com/buckipr/R_Working_Group/blob/main/web_scraping/README.md)
+  - [materials](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping)
 
 
 ## **Schedule for Fall 2023**
