@@ -15,6 +15,14 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
   coordinating the R Working Group.  If you are interesetd, please let us know
   (email: thomas DOT 3912 at osu DOT edu)
 
+## **Schedule for Spring 2024**
+
+* April 12th: Web Scraping with R
+
+  - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/slides_webscraping.html#1)
+  - [materials](https://github.com/buckipr/R_Working_Group/blob/main/web_scraping/README.md)
+
+
 ## **Schedule for Fall 2023**
 
 * **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm

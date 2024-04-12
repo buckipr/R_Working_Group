@@ -7,7 +7,7 @@ layout: default
 ### **Schedule for Spring 2024**
 
 * April 12th: Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-  + [slides](webscraping/slides_webscraping.html)
+  + [slides](web_scraping/slides_webscraping.html)
 
 ### **Schedule for Fall 2023**
 
