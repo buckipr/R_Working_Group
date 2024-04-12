@@ -21,7 +21,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 * March 1st: Using Survey Weights in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* April 12th (new date): Web Scraping with R
+* April 12th (new date): Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
   - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/slides_webscraping.html#1)
   - [materials](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping)
