@@ -4,30 +4,23 @@ layout: default
 
 ## Welcome to the R Working Group
 
+
 ### **Schedule for Spring 2024**
-
-* April 12th: Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-  + [slides](web_scraping/slides_webscraping.html)
-
-### **Schedule for Fall 2023**
 
 * **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
 
-* Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* February 2nd: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
   + [slides](intro_r/2023_09/intro_r.html)
 
   + [R Markdown](intro_r/2023_09/intro_r.Rmd)
 
-* Oct. 5th: <img src="https://pkgs.rstudio.com/rmarkdown/reference/figures/logo.png" width="25"> R Markdown and Dynamic Documents
-  
-* Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* March 1st: Using Survey Weights in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-  + [slides](<maps/2023_11/R%20Working%20Group%20Maps%2011-2-2023.pptx>)
+* April 12th (rescheduled from the 5th): Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+  + [slides](web_scraping/slides_webscraping.html)
 
-  + [R code](<maps/2023_11/R%20spatial%20map%20basics%2011-2-2023.R>)
-
-* Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
+* May 3rd: Hierarchical Models with RStan
 
 
 ### **What's New**

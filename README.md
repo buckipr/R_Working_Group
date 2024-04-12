@@ -5,43 +5,29 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* The Fall schedule has been posted!  Workshops will be on the first Thursday of each month
-  from 12:30 to 2pm, with a "lunch and learn" approach.  The first half hour will be for
-  socializing, answering random R questions, sharing new ideas, etc.  Then, starting around 1pm,
-  we'll get down to business with the session topic for that day.  We hope to have some type
-  of food or treat, but still working on the details...
+* The Web Scraping with R session has been resheduled for April 12th (same time and location).
+
+* The Spring schedule has been posted!  Workshops will be on the first Friday of each month
+  from 12:30 to 2pm.
 
 * We are looking to get more people (students, staff, & faculty) involved with planning and
   coordinating the R Working Group.  If you are interesetd, please let us know
   (email: thomas DOT 3912 at osu DOT edu)
 
+
 ## **Schedule for Spring 2024**
 
-* April 12th: Web Scraping with R
+* February 2nd: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* March 1st: Using Survey Weights in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+
+* April 12th (new date): Web Scraping with R
 
   - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/slides_webscraping.html#1)
   - [materials](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping)
 
+* May 3rd: Hierarchical Models with RStan
 
-## **Schedule for Fall 2023**
-
-* **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
-
-* Sept. 7th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-
-   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2023_09/intro_r.html#1)
-
-   - [R Markdown File (.Rmd)](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2023_09_07/intro_r.Rmd)
-
-* Oct. 5th: <img src="https://github.com/rstudio/rmarkdown/blob/main/man/figures/logo.png" width="25"> R Markdown and Dynamic Documents
-  
-* Nov. 2nd: Making Maps in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-
-   - [slides (pptx)](https://github.com/buckipr/R_Working_Group/raw/main/maps/2023_11/R%20Working%20Group%20Maps%2011-2-2023.pptx)
-
-   - [R code](https://github.com/buckipr/R_Working_Group/blob/main/maps/2023_11/R%20spatial%20map%20basics%2011-2-2023.R)
-
-* Dec. 7th: Maximizing Productivity and Optimizing Your Workflow
 
 ## **Resources**
 
