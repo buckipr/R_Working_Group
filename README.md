@@ -5,28 +5,30 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* The Web Scraping with R session has been resheduled for April 12th (same time and location).
+* New OSU course (Fall '24) [Data Vizualization with R](https://www.rdataviz.com/syllabus/syllabus.html)
 
-* The Spring schedule has been posted!  Workshops will be on the first Friday of each month
-  from 12:30 to 2pm.
+* OSU's Code Club [will restart at the end of August](https://biodash.github.io/codeclub-schedule/)
+
+* *Cool new R package*: [SUMMER -- Small-Area-Estimation Unit/Area Models and Methods for Estimation in R](https://cran.r-project.org/web/packages/SUMMER/index.html)
 
 * We are looking to get more people (students, staff, & faculty) involved with planning and
   coordinating the R Working Group.  If you are interesetd, please let us know
   (email: thomas DOT 3912 at osu DOT edu)
 
 
-## **Schedule for Spring 2024**
+## **Preliminary Schedule for Authum 2024**
 
-* February 2nd: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* March 1st: Using Survey Weights in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Sept 27th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-* April 12th (new date): Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Oct 11th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-  - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/slides_webscraping.html#1)
-  - [materials](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping)
+* Oct 25th: [R Markdown](https://rmarkdown.rstudio.com) and Dynamic Documents
 
-* May 3rd: Hierarchical Models with RStan
+* Nov 8th: Maximum Likelihood with<img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 1)
+
+* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 2)
 
 
 ## **Resources**

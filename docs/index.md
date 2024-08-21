@@ -5,31 +5,31 @@ layout: default
 ## Welcome to the R Working Group
 
 
-### **Schedule for Spring 2024**
+### **Preliminary Schedule for Autumn 2024**
 
-* **Location & Time**: Townshend Hall 038 (with Zoom option) from 12:30 to 2pm
+**Location & Time**: Townshend Hall 038 (with Zoom option) from 12:00 to 1:30pm
 
-* February 2nd: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-  + [slides](intro_r/2023_09/intro_r.html)
+* Sept 27th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-  + [R Markdown](intro_r/2023_09/intro_r.Rmd)
+* Oct 11th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* March 1st: Using Survey Weights in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Oct 25th: [R Markdown](https://rmarkdown.rstudio.com) and Dynamic Documents
 
-* April 12th (rescheduled from the 5th): Web Scraping with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-  + [slides](web_scraping/slides_webscraping.html)
+* Nov 8th: Maximum Likelihood with<img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 1)
 
-* May 3rd: Hierarchical Models with RStan
+* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 2)
 
 
 ### **What's New**
 
-* The Fall schedule has been posted!  Workshops will be on the first Thursday of each month
-  from 12:30 to 2pm, with a "lunch and learn" approach.  The first half hour will be for
-  socializing, answering random R questions, sharing new ideas, etc.  Then, starting around 1pm,
-  we'll get down to business with the session topic for that day.  We hope to have some type
-  of food or treat, but still working on the details...
+* New OSU course (Fall '24) [Data Vizualization with R](https://www.rdataviz.com/syllabus/syllabus.html)
+
+* OSU's Code Club [will restart at the end of August](https://biodash.github.io/codeclub-schedule/)
+
+* *Cool new R package*: [SUMMER -- Small-Area-Estimation Unit/Area Models and Methods for Estimation in R](https://cran.r-project.org/web/packages/SUMMER/index.html)
+
 
 ### **Resources**
 
@@ -40,13 +40,4 @@ layout: default
 
 * [Making the transition from Stata to R](transition2R/transition2R.html)
 
-
-### **OLD Schedule for Spring Semester 2023**
-
-
-* Jan 20th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-* Feb 3rd: Regression models in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-* Feb 17th: Data management in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> using [dplyr](https://dplyr.tidyverse.org/)
-* Mar 3rd: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
-* Mar 24th: R Markdown and Dynamic Documents
-* Apr 28th: Advanced Programming in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* [OSU's Code Club](https://biodash.github.io/codeclub-about/)
