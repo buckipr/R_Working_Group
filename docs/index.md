@@ -7,19 +7,19 @@ layout: default
 
 ### **Preliminary Schedule for Autumn 2024**
 
-**Location & Time**: Townshend Hall 038 (with Zoom option) from 12:00 to 1:30pm
+**Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
 * Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Sept 27th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
+* Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research 
 
-* Oct 11th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Oct 11th: Autumn Break (no workshop)
 
-* Oct 25th: [R Markdown](https://rmarkdown.rstudio.com) and Dynamic Documents
+* Oct 25th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-* Nov 8th: Maximum Likelihood with<img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 1)
+* Nov 8th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 2)
+* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
 
 ### **What's New**

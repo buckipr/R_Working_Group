@@ -16,20 +16,23 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
   (email: thomas DOT 3912 at osu DOT edu)
 
 
-## **Preliminary Schedule for Authum 2024**
+## **Schedule for Authum 2024**
+
+We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
 
 * Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Sept 27th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
+* Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research
 
-* Oct 11th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* Oct 11th: Autumn Break (no workshop)
 
-* Oct 25th: [R Markdown](https://rmarkdown.rstudio.com) and Dynamic Documents
+* Oct 25th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
 
-* Nov 8th: Maximum Likelihood with<img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 1)
+* Nov 8th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> (part 2)
+* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
+(Zoom option is also available)
 
 ## **Resources**
 
