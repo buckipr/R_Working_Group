@@ -21,7 +21,7 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
 
 * Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2024_09_13/intro_r.html#1)
+   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2024_09_13/intro_r_np.html#1)
    - [other files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2024_09_13)
 
 * Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research
