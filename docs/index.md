@@ -10,6 +10,8 @@ layout: default
 **Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
 * Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+    + [slides](intro_r/2024_09_13/intro_r_np.html)
+    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2024_09_13)
 
 * Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research 
 
@@ -35,6 +37,7 @@ layout: default
 
 * **Intro to R**
 
+  + [Sept 2024](intro_r/2024_09_13/intro_r_np.html)
   + [Sept 2023](intro_r/2023_09/intro_r.html)
   + [Jan 2023](intro_r/2023_01/intro_r.html)
 

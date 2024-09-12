@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to    </title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jason Thomas" />
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+    <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="libs/datatables-binding-0.33/datatables.js"></script>
+    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+    <link rel="stylesheet" href="style_r_intro_09_2024.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Introduction to <br/><br/> <img src="img/r-logo.png" width="200" />
+]
+.author[
+### Jason Thomas
+]
+.institute[
+### R Working Group
+]
+.date[
+### Sept. 13th, 2024
+]
+
+---
+
+
+
+
+
+# Welcome to the R Working Group
+
+* Website [https://buckipr.github.io/R_Working_Group/](https://buckipr.github.io/R_Working_Group/)
+
+* We are Slackers &lt;br&gt; (email Jason at thomas.3912 for more details)
+
+
+* Plan for this semester:
+
+    + dynamic documents, plotting, regression analysis, intermediate topics
+
+* Plan for next semester?
+
+
+---
+# Goals for this session
+
+* Learn about...
+
+    + basic R syntax
+    
+    + different R objects (things that hold data) &amp; **indexing** them
+    
+    + useful functions for working with data
+
+  
+* Become familiar with [R Studio](https://posit.co/download/rstudio-desktop/) &amp; 
+  develop good coding habits 
+
+    * R Studio is an *additional* program that provides many useful features
+    for working with R
+    
+    * (you need to download and install both [R](https://cran.r-project.org/) and 
+    [R Studio](https://posit.co/download/rstudio-desktop/))
+
+
+---
+class: inverse, center, middle
+
+# R Studio
+
+
+---
+# R Studio
+
+* Let's dive in by starting R Studio and opening a new R script
+
+    + menu bar: &amp;nbsp; `File` &amp;rarr; `New File` &amp;rarr; `R Script`
+    + (in R: &amp;nbsp; `File` &amp;rarr; `New Script`)
+
+* You should now have 4 panes open (like on the next slide)
+
+    + **Source** -- Our script where we will type and save our comments &amp; commands
+    + **Console** -- Where we can give R commands and where the output will appear
+    + **Output** -- File explorer, plots, help files, and more!
+    + **Environments** -- Useful information about the R session
+
+
+---
+.center[&lt;img src="img/rstudio-panes-labeled.jpeg" style="width: 75%" /&gt;]
+
+.center[.bottom[downloaded from [user guide on postit.co](https://docs.posit.co/ide/user/ide/guide/ui/ui-panes.html)]]
+
+
+---
+class:slide-font-25
+# R Studio: Good Habits
+
+* Add a comment to our new script:
+    
+    ``` r
+    #------------------------------------------------------------------------
+    # File name: first_r_script.R
+    # last modified: 2024-09-13
+    # (start comment with # and R ignores the rest of the line)
+    #------------------------------------------------------------------------
+    3 + 3 # this useful part is for humans (R will add &amp; ignore the rest)
+    ```
+
+* Save our script
+
+    + menu bar: &amp;nbsp; `File` &amp;rarr; `Save As...`
+
+* Set our **working directory**
+
+    + this is where R will start looking for &amp; saving files (e.g., data files or plots)
+    
+    + menu bar: &amp;nbsp; `Session` &amp;rarr; `Set Working Directory` &amp;rarr; &lt;br&gt;
+    &amp;emsp; &amp;emsp; &amp;emsp; &amp;emsp; `Choose Directory...`
+
+
+---
+class: inverse, center, middle
+
+# Basic R Syntax
+
+---
+class:slide-font-25
+# Basic R Syntax
+
+* R syntax takes the form
+
+
+``` r
+# object_name &lt;- object_value  
+mean_age &lt;- 33
+```
+
+* The symbol "`&lt;-`" is called the assignment operator
+
+    + we are creating a new variable called `mean_age` and assigning it a value of 33
+
+    + `mean_age = 33` will also work (but `&lt;-` is the convention)
+
+* Useful keyboard shortcut to produce `&lt;-`
+    
+    + &lt;kbd&gt;Alt&lt;/kbd&gt; + &lt;kbd&gt;-&lt;/kbd&gt; (Windows)
+    
+    + &lt;kbd&gt;option&lt;/kbd&gt; + &lt;kbd&gt;-&lt;/kbd&gt; (Mac)
+
+---
+class: slide-font-25
+# Basic R Syntax (cont.)
+
+If we enter the name of a variable in the `Console`, then R will list the value(s)
+
+``` r
+&gt; Mean_age2 &lt;- 22  ## note: object names are case-sensitive
+&gt; Mean_age2
+```
+
+```
+## [1] 22
+```
+
+BUT we are in the business of good habits...
+
+* type this syntax into our script and (with the cursor on the same line) press the following keys together:
+
+    + On a Mac: &amp;nbsp;  &lt;kbd&gt;command&lt;/kbd&gt; + &lt;kbd&gt;return&lt;/kbd&gt;
+    
+    + In Windows: &amp;nbsp; &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;kbd&gt;Enter&lt;/kbd&gt; &amp;emsp; (in R Studio)  &lt;br&gt; 
+    &amp;emsp; &amp;emsp; &amp;emsp; &amp;emsp; &amp;ensp; &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;kbd&gt;R&lt;/kbd&gt; &amp;emsp; &amp;emsp; &amp;ensp; (in the R app)
+
+* these keyboard shortcuts will run the syntax on the line in the `Console` &lt;br&gt; 
+(or you can highlight a region)
+
+
+---
+class: slide-font-25
+# Basic R Syntax: functions
+
+We have seen a simple object for holding data, but R has many useful **functions**
+
+``` r
+ls()                         # list all the objects in memory
+rm(Mean_age2)                # remove the object called Mean_age2
+rm(list=ls())                # deletes all objects (CAREFUL!!!)
+getwd()                      # print the working directory (wd)
+setwd("Thesis/Analysis")     # set the wd to the folder Thesis/Analysis
+dir()                        # list the files in the current directory
+dir("../")                   # list the files in the parent directory
+save.image("my_data.RData")  # save all the objects in memory
+# ???                        # what if you only want to save 1 thing??
+load("my_data.RData")        # load all the objects in the data file
+```
+
+*Quick note*:
+
+* suppose you create an object called `abc` that holds the value 2
+* then you load `data.RData` that also has an object named `abc` but holds the value 99
+* the first version of the object (`abc` holding 2) will get replaced
+
+
+---
+class: codefs-50
+# Basic R Syntax: help files
+
+* Google searches are a very effective way to find help
+
+    + and so is asking the R Working Group 😎
+
+* R documentation can be accessed in the `Help` tab in the `Output` pane
+
+* Some additional syntax and functions
+
+
+``` r
+?read.csv                     # show the help file for the function read.csv
+help.search("weighted mean")  # search help files for the phrase 'weighted mean'
+```
+
+* What does the `save` function do, and how do you use it?
+
+---
+class: inverse, center, middle
+
+# Data Structures in R
+
+
+---
+
+## **Data Structures**: motivation
+
+We are not going to solve the world's problems with a single number...
+
+
+``` r
+&gt; all_ages &lt;- c(22, 33, 44, 55)  # c() concatenates numbers together
+&gt; all_ages
+```
+
+```
+## [1] 22 33 44 55
+```
+
+``` r
+&gt; mean(all_ages)                 # calculate the mean
+```
+
+```
+## [1] 38.5
+```
+
+``` r
+&gt; all_ed &lt;- c("HS", "Col", "Grad Sch", "HS")
+&gt; all_ed
+```
+
+```
+## [1] "HS"       "Col"      "Grad Sch" "HS"
+```
+
+
+---
+## **Data Structures**: motivation (cont.)
+
+R handles different *types* of data as well
+
+
+``` r
+&gt; important_data &lt;- c("OSU", "R", "Group", 4)
+&gt; important_data
+```
+
+```
+## [1] "OSU"   "R"     "Group" "4"
+```
+
+
+Wait, what is going on here?
+
+* we are mixing different types of data &amp; R assumes that we just forgot to
+wrap the 4 in quotation marks
+    
+* sometimes R's assumptions are useful, sometimes they are not! 🤔
+    
+
+---
+## **Data Structures**: motivation (cont.)
+
+Here is another example with missing data
+
+
+``` r
+&gt; test_scores &lt;- c(88, 99, 110, 66, NA)  # NA is for missing values
+&gt; mean_scores &lt;- mean(test_scores)
+&gt; mean_scores / 100
+```
+
+```
+## [1] NA
+```
+
+ 😾 Ugh! Why didn't R tell me there was a problem when I tried to calculate the mean?!?
+
+* another R assumption
+    
+* can you figure out how to calculate the mean for non-missing values? (help file
+is helpful 😄)
+
+
+---
+## **Data Structures**: vectors
+
+* We have been creating **vectors** when we use `c()` to concatenate data
+
+* Here are some more useful functions for working with vectors
+
+
+``` r
+&gt; # test that we have a vector
+&gt; is.vector(test_scores)  # returns another data type: TRUE or FALSE (called logical)
+```
+
+```
+## [1] TRUE
+```
+
+``` r
+&gt; summary(test_scores)    # numerical summary (less helpful for strings)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##   66.00   82.50   93.50   90.75  101.75  110.00       1
+```
+
+
+---
+## **Data Structures**: vectors (cont.)
+
+
+``` r
+&gt; length(test_scores)     # how many elements in the vector
+```
+
+```
+## [1] 5
+```
+
+``` r
+&gt; is.na(test_scores)      # test if each element is NA
+```
+
+```
+## [1] FALSE FALSE FALSE FALSE  TRUE
+```
+
+``` r
+&gt; TRUE + TRUE + FALSE     # useful trick with logical objects (TRUE/FALSE)
+```
+
+```
+## [1] 2
+```
+
+``` r
+&gt; n_missing &lt;- sum(is.na(test_scores))
+&gt; n_missing
+```
+
+```
+## [1] 1
+```
+
+
+
+---
+## **Data Structures**: indexing vectors
+
+We can access the `\(i^{th}\)` element in a vector with the syntax `vector_name[ i ]` 
+
+
+``` r
+&gt; test_scores[1]    # first element
+```
+
+```
+## [1] 88
+```
+
+``` r
+&gt; test_scores[2]    # second element
+```
+
+```
+## [1] 99
+```
+
+
+``` r
+&gt; 1:3   # a vector of c(1, 2, 3)
+```
+
+```
+## [1] 1 2 3
+```
+
+``` r
+&gt;       # so what will test_scores[3:1] give us?
+```
+
+
+---
+## **Data Structures**: indexing vectors (cont.)
+
+
+The syntax &amp;ensp; `3:1` &amp;ensp; gives the vector &amp;ensp; `c(3, 2, 1)`, so...
+
+
+``` r
+&gt; test_scores[3:1]  # returns 3rd element, then the 2nd, then the first
+```
+
+```
+## [1] 110  99  88
+```
+
+``` r
+&gt; test_scores       # sanity check
+```
+
+```
+## [1]  88  99 110  66  NA
+```
+
+* So what will the following command do? 🤔
+
+
+``` r
+test_scores[c(3, 5, 11)]
+```
+
+
+---
+## **Data Structures**: changing vectors
+
+
+We can use indexing to change vectors as well, e.g., reassign the first element
+
+
+``` r
+&gt; test_scores[1]  &lt;- NA # change the first element to NA
+&gt; test_scores[1]
+```
+
+```
+## [1] NA
+```
+
+Again, we can use vectors to index as well:
+
+
+``` r
+index_missing_scores &lt;- is.na(test_scores)  # create an index vector of TRUE &amp; FALSE
+test_scores[index_missing_scores] &lt;- -99    # change NA to -99
+```
+
+Let's walk through this... &lt;br&gt;
+(🦉 but note a good habit would be to create a new vector,
+`new_test_scores`, so we can retain the original data!)
+
+
+---
+class: slide-font-25
+## **Data Structures**: changing vectors (cont.)
+
+
+``` r
+&gt; # create an index vector of TRUE &amp; FALSE
+&gt; index_missing_scores &lt;- is.na(test_scores)
+&gt; index_missing_scores
+```
+
+```
+## [1]  TRUE FALSE FALSE FALSE  TRUE
+```
+
+
+``` r
+&gt; # attach these 2 vectors together as columns
+&gt; cbind(index_missing_scores, test_scores)
+```
+
+```
+##      index_missing_scores test_scores
+## [1,]                    1          NA
+## [2,]                    0          99
+## [3,]                    0         110
+## [4,]                    0          66
+## [5,]                    1          NA
+```
+
+* with &amp;nbsp; `cbind` &amp;nbsp; we are actually creating a new **data structure** called a **matrix**
+
+* as we will see, matrices can only hold the same *data type*, so R changes `TRUE`/`FALSE`
+to `1`/`0` (respectively)
+
+
+---
+## **Data Structures**: changing vectors (cont.)
+
+
+``` r
+&gt; test_scores[index_missing_scores]  #  access all of the indices with TRUE 
+```
+
+```
+## [1] NA NA
+```
+
+
+``` r
+&gt; # recode NA to -99
+&gt; test_scores[index_missing_scores] &lt;- -99
+&gt; test_scores
+```
+
+```
+## [1] -99  99 110  66 -99
+```
+
+
+``` r
+&gt; # useful tool for finding the location/position of certain values
+&gt; which(test_scores == -99)
+```
+
+```
+## [1] 1 5
+```
+
+---
+## Strategy for changing vectors
+
+When you want to change a vector, do the *delta 2-step*: 
+
+1. create an index vector that identifies the elements you want to change 
+
+    * what data type should this vector hold?
+    * `logical`, i.e. `TRUE`s and `FALSE`s
+
+2. assign new values to the vector using your vector of indices
+
+
+---
+## **Data Structures**: changing vectors (tips)
+
+Create an index with multiple conditions
+
+  + to satisfy BOTH conditions use `&amp;` (and)
+  + to satisfy EITHER condition use `|` (or)
+    
+
+``` r
+&gt; cbind(test_scores,
++       test_scores &gt; 0 &amp; test_scores &lt; 90,
++       test_scores &lt; 0 | test_scores &gt; 90)
+```
+
+```
+##      test_scores    
+## [1,]         -99 0 1
+## [2,]          99 0 1
+## [3,]         110 0 1
+## [4,]          66 1 0
+## [5,]         -99 0 1
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: changing vectors (tips)
+
+Check if values belong to a set with: `%in%`.  For example, here are
+some letters
+
+
+``` r
+&gt; letters[1:10]
+```
+
+```
+##  [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j"
+```
+
+We can check if characters (e.g. "1" or "b") are included in the vector `letters`
+with:
+
+
+``` r
+&gt; cbind(c("1", "g", "b", "&amp;") ,
++       c("1", "g", "b", "&amp;") %in% letters)
+```
+
+```
+##      [,1] [,2]   
+## [1,] "1"  "FALSE"
+## [2,] "g"  "TRUE" 
+## [3,] "b"  "TRUE" 
+## [4,] "&amp;"  "FALSE"
+```
+
+
+---
+## **Data Structures**: more than vectors
+
+* We are not going to become 💰 famous 💰 by working with
+a single vector
+
+* However, we have learned a powerful way to work with vectors, **indexing**, that extends to
+other types of **data structures**
+
+* A **matrix** made a brief appearance earlier, but before going further let's review a useful framework
+for thinking about **data structures**
+
+
+---
+## **Data Structures**: overview
+
+R has different structures for holding data, which can be 
+organized by... 
+
+1. How many dimensions does the structure have? 
+
+
+2. Do the types of data need to be the same?
+
+
+* Example: **vectors**
+
+    + only 1 dimension (it is just a single row or a column)
+    + we saw earlier that R changes the elements so they all have the same data type (e.g., `4` &amp;rarr; `"4"`)
+
+* We'll now (re)introduce different data structures, and learn about
+different data types along the way.
+
+
+---
+
+## **Data Structures**: overview (cont.)
+
+* **Vectors**
+  1. 1 dimension
+  1. same data type
+    + special case: **factor** (predefined categories)
+
+* **Matrices**
+  1. rows and columns
+  1. same data type
+
+* **Arrays** 
+  1. any number of dimensions
+  1. same data type
+
+---
+
+## **Data Structures**: overview (cont.)
+
+* **Data Frames**
+  1. rows and columns
+  1. different data types
+  - particularly useful for holding a data set with quantitative &amp; qualitative variables
+
+* **Lists**
+  1. 1 dimension
+  1. different data types (or structures!)
+  - actually, this is just a special type of vector (can you verify this?)
+
+
+---
+## **Data Structures**: working with data frames
+
+* For the rest of this session we will focus on **Data frames**, the R structure
+typically used for data sets (i.e., variables as columns and an observation for each row). 
+
+* Let's get some practice working with data frames using one
+of R's example data sets
+
+
+``` r
+&gt; data(mtcars)            ## load one of R's example data sets mtcars
+&gt; ls()
+```
+
+```
+## [1] "all_ages"             "all_ed"               "important_data"      
+## [4] "index_missing_scores" "Mean_age2"            "mean_scores"         
+## [7] "mtcars"               "n_missing"            "test_scores"
+```
+
+``` r
+&gt; is.data.frame(mtcars)   ## check that mtcars is a data frame
+```
+
+```
+## [1] TRUE
+```
+
+
+---
+## **Data Structures**: reading in data sets
+
+Before we proceed with `mtcars`, a quick example of how to read in a data set.
+
+
+``` r
+&gt; # write data to a CSV file called 'copy_mtcars.csv' in the working directory
+&gt; write.csv(mtcars, "copy_mtcars.csv")      
+&gt; mtcars2 &lt;- read.csv("copy_mtcars.csv")  # load data set from CSV file
+&gt; ls()
+```
+
+```
+##  [1] "all_ages"             "all_ed"               "important_data"      
+##  [4] "index_missing_scores" "Mean_age2"            "mean_scores"         
+##  [7] "mtcars"               "mtcars2"              "n_missing"           
+## [10] "test_scores"
+```
+
+``` r
+&gt; is.data.frame(mtcars2)
+```
+
+```
+## [1] TRUE
+```
+
+---
+## **Data Structures**: exploring data frames
+
+* Since **data frames** have 2 dimensions, the index requires 2 pieces of
+info: `[row index, column index]`
+
+
+``` r
+&gt; dim(mtcars)
+## [1] 32 11
+```
+
+``` r
+&gt; mtcars[1, 1]  # 1st observation in 1st variable
+## [1] 21
+```
+
+* Many times, however, we just work with one variable/column at a time, so all our skills
+working with vectors still apply
+
+
+``` r
+&gt; # if we leave out the row part of the address, we get all rows and a vector
+&gt; is.vector(mtcars[, 1])
+```
+
+```
+## [1] TRUE
+```
+
+
+---
+## **Data Structures**: `dplyr`
+
+* `dplyr` is part of [`tidyverse`](https://www.tidyverse.org/)
+
+  + `ggplot2`, `forcats`, `tibble`, `readr`, `stringr`,  `tidyr`, `purrr`
+  + may also want to check out [`tidycensus`](https://walker-data.com/tidycensus/articles/basic-usage.html)
+
+* `dplyr` logic: "By constraining your options, it helps you think about your data manipulation challenges."
+
+  + 5 commands will take you a long way
+  + readability and simplifying code (with pipes)
+
+
+
+``` r
+&gt; install.packages("dplyr")  ## only run once (not in script)
+&gt; library(dplyr)
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` arrange rows
+
+
+``` r
+&gt; # only look at a few columns
+&gt; names(mtcars)
+&gt; mtcars %&gt;% 
+&gt;   select(mpg, cyl) %&gt;%      # choose which columns to work with
+&gt;   arrange(mpg, desc(cyl))   # sort the rows (default = ascending)
+```
+
+
+```
+##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
+## [11] "carb"
+```
+
+```
+##                      mpg cyl
+## Cadillac Fleetwood  10.4   8
+## Lincoln Continental 10.4   8
+## Camaro Z28          13.3   8
+## Duster 360          14.3   8
+## Chrysler Imperial   14.7   8
+## Maserati Bora       15.0   8
+## Merc 450SLC         15.2   8
+## AMC Javelin         15.2   8
+## Dodge Challenger    15.5   8
+## Ford Pantera L      15.8   8
+```
+(truncated output)
+
+
+---
+## **Data Structures**: `dplyr` filter row
+
+
+``` r
+&gt; # only look at a few rows
+&gt; mtcars %&gt;% 
++   select(mpg, cyl) %&gt;%
++   filter(cyl == 6)       # only show rows that match a condition
+```
+
+```
+##                 mpg cyl
+## Mazda RX4      21.0   6
+## Mazda RX4 Wag  21.0   6
+## Hornet 4 Drive 21.4   6
+## Valiant        18.1   6
+## Merc 280       19.2   6
+## Merc 280C      17.8   6
+## Ferrari Dino   19.7   6
+```
+
+keyboard shortcuts in RStudio for the pipe (`%&gt;%`)
+  
+  + MacOS: &amp;nbsp;  &lt;kbd&gt;command&lt;/kbd&gt; + &lt;kbd&gt;shift&lt;/kbd&gt; + &lt;kbd&gt;M&lt;/kbd&gt;
+  + Windows: &amp;nbsp; &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;kbd&gt;Shift&lt;/kbd&gt; + &lt;kbd&gt;M&lt;/kbd&gt;
+
+
+---
+## **Data Structures**: `dplyr` filter more rows
+
+
+``` r
+&gt; # only look at a few rows
+&gt; mtcars %&gt;% 
++   select(mpg, cyl) %&gt;%
++   filter(cyl &gt; 4 &amp; mpg &gt; 22)    # why does this output look so strange?
+```
+
+```
+## [1] mpg cyl
+## &lt;0 rows&gt; (or 0-length row.names)
+```
+
+
+---
+## **Data Structures**: `dplyr` filter more rows
+
+
+``` r
+&gt; # only look at a few rows
+&gt; mtcars %&gt;% 
++   select(mpg, cyl) %&gt;%
++   filter(cyl &gt; 4 &amp; mpg &gt; 18)
+```
+
+```
+##                    mpg cyl
+## Mazda RX4         21.0   6
+## Mazda RX4 Wag     21.0   6
+## Hornet 4 Drive    21.4   6
+## Hornet Sportabout 18.7   8
+## Valiant           18.1   6
+## Merc 280          19.2   6
+## Pontiac Firebird  19.2   8
+## Ferrari Dino      19.7   6
+```
+
+
+---
+## **Data Structures**: `dplyr` take a slice
+
+
+``` r
+&gt; # only look at a few rows (similar to filter)
+&gt; mtcars %&gt;% 
++   select(mpg, cyl) %&gt;%
++   slice(c(1, 9, 20))     # print rows 1, 9, and 20
+```
+
+```
+##                 mpg cyl
+## Mazda RX4      21.0   6
+## Merc 230       22.8   4
+## Toyota Corolla 33.9   4
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` take another slice
+
+A more complicated version
+
+
+``` r
+&gt; # only look at a few rows
+&gt; mtcars %&gt;% 
++   select(mpg, cyl) %&gt;%
++   slice(                                
++     grep( "Mazda", row.names(mtcars) )  # return row #s that contain Mazda
++     )
+```
+
+```
+##               mpg cyl
+## Mazda RX4      21   6
+## Mazda RX4 Wag  21   6
+```
+
+  + `grep()` is a powerful tool that can match text (with regular expressions!!)
+
+  + also look at [`stringr`](https://stringr.tidyverse.org/) package -- useful
+when working with text/string variables (e.g. country name, college major, etc.)
+
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` make new column
+
+
+``` r
+&gt; # create new column named mpg2
+&gt; mtcars %&gt;% 
+&gt;   select(mpg, cyl) %&gt;%
+&gt;   mutate(mpg2 = mpg/1000)    # create a new variable called mpg2
+```
+
+
+```
+##                    mpg cyl   mpg2
+## Mazda RX4         21.0   6 0.0210
+## Mazda RX4 Wag     21.0   6 0.0210
+## Datsun 710        22.8   4 0.0228
+## Hornet 4 Drive    21.4   6 0.0214
+## Hornet Sportabout 18.7   8 0.0187
+## Valiant           18.1   6 0.0181
+## Duster 360        14.3   8 0.0143
+## Merc 240D         24.4   4 0.0244
+## Merc 230          22.8   4 0.0228
+## Merc 280          19.2   6 0.0192
+## Merc 280C         17.8   6 0.0178
+## Merc 450SE        16.4   8 0.0164
+```
+(truncated output)
+
+NOTE: WE ARE NOT SAVING THE NEW VARIABLE!! HOW WOULD WE DO THIS?
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` recode a variable
+
+
+``` r
+&gt; new_mtcars &lt;- mtcars %&gt;% 
+&gt;   select(mpg, cyl) %&gt;%
+&gt;   mutate(mpg3 =          # create new variable mpg3
+&gt;            case_when(    # fill in mpg3 with recoding of mpg
+&gt;              mpg &lt; 15.5 ~ "very low",
+&gt;              mpg &gt;= 15.5 &amp; mpg &lt; 20 ~ "low",
+&gt;              mpg &gt;= 20 &amp; mpg &lt; 23 ~ "high",
+&gt;              mpg &gt;= 23 ~ "very high"
+&gt;            )
+&gt;   )
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` recoded variable
+<div class="datatables html-widget html-fill-item" id="htmlwidget-4864d0644f0083e4ac69" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-4864d0644f0083e4ac69">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["Mazda RX4","Mazda RX4 Wag","Datsun 710","Hornet 4 Drive","Hornet Sportabout","Valiant","Duster 360","Merc 240D","Merc 230","Merc 280","Merc 280C","Merc 450SE","Merc 450SL","Merc 450SLC","Cadillac Fleetwood","Lincoln Continental","Chrysler Imperial","Fiat 128","Honda Civic","Toyota Corolla","Toyota Corona","Dodge Challenger","AMC Javelin","Camaro Z28","Pontiac Firebird","Fiat X1-9","Porsche 914-2","Lotus Europa","Ford Pantera L","Ferrari Dino","Maserati Bora","Volvo 142E"],[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4],["high","high","high","high","low","low","very low","very high","high","low","low","low","low","very low","very low","very low","very low","very high","very high","very high","high","low","very low","very low","low","very high","very high","very high","low","low","very low","high"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>mpg<\/th>\n      <th>mpg3<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"mpg","targets":1},{"name":"mpg3","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+class: slide-font-25
+## **Data Structures**: `dplyr` more recoding
+
+
+``` r
+&gt; new_mtcars |&gt;              # another pipe you may come across
+&gt;   mutate(mpg4 = 
+&gt;            case_match(     # recode categorical to numeric
+&gt;              mpg3,
+&gt;              "very low" ~ 0,
+&gt;              c("low", "high") ~ 1,
+&gt;              .default = 2  # if no conditions are met, then use 2
+&gt;            )
+&gt;   ) |&gt;
+&gt;   select(mpg4, mpg3)
+```
+
+
+```
+##                   mpg4      mpg3
+## Mazda RX4            1      high
+## Mazda RX4 Wag        1      high
+## Datsun 710           1      high
+## Hornet 4 Drive       1      high
+## Hornet Sportabout    1       low
+## Valiant              1       low
+## Duster 360           0  very low
+## Merc 240D            2 very high
+```
+
+(truncated output)
+
+---
+## Summarizing data with `dplyr`
+
+`summarize` will create a *new* data frame by applying a function (e.g., mean
+sd, n, n_distinct) to a column in your data
+
+
+``` r
+&gt; mtcars %&gt;%
++   summarize(mean(cyl), sd(cyl), mean(mpg), col4 = sd(mpg))
+```
+
+```
+##   mean(cyl)  sd(cyl) mean(mpg)     col4
+## 1    6.1875 1.785922  20.09062 6.026948
+```
+
+  * usually the result is a single row, but `quantile` is a notable exception
+  but this is getting phased out (so this will give you a warning)
+  
+
+``` r
+&gt; mtcars %&gt;%
+&gt;   summarize(qt_mpg = quantile(mpg, c(.25, .75)),
+&gt;             qt_wt = quantile(wt, c(.25, .75)))
+```
+  * (there are better ways of doing this)
+  
+  
+---
+class: slide-font-25
+## Summarizing data with `dplyr` (cont.)
+
+The true benefit of `summarize` comes with grouping your data:
+
+
+``` r
+&gt; mtcars |&gt; 
++   group_by(cyl, vs) |&gt;  # calculate stats within groups defined by cyl &amp; vs
++   summarize(mu_hp = mean(hp), n = n())
+```
+
+```
+## `summarise()` has grouped output by 'cyl'. You can override using the `.groups`
+## argument.
+```
+
+```
+## # A tibble: 5 × 4
+## # Groups:   cyl [3]
+##     cyl    vs mu_hp     n
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+## 1     4     0  91       1
+## 2     4     1  81.8    10
+## 3     6     0 132.      3
+## 4     6     1 115.      4
+## 5     8     0 209.     14
+```
+
+* note: every call to `summarize()` removes a layer of grouping
+
+
+---
+class: slide-font-20, codefs-70
+## Summarizing data with `dplyr` (extras)
+
+*  Careful with reusing names to label your summarized variables
+
+
+``` r
+&gt; mtcars |&gt; 
++   summarize(hp = mean(hp), sd_hp = sd(hp))  ## why don't we get the std dev?!?
+```
+
+```
+##         hp sd_hp
+## 1 146.6875    NA
+```
+
+* `ungroup()` will apply functions to the entire data set
+
+
+``` r
+&gt; mtcars |&gt; select(mpg, hp, cyl) |&gt;
++   group_by(cyl) |&gt; mutate(mu_mpg = mean(mpg)) |&gt; 
++   ungroup() |&gt; mutate(grand_mu_mpg = mean(mpg))
+```
+
+```
+## # A tibble: 32 × 5
+##      mpg    hp   cyl mu_mpg grand_mu_mpg
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;        &lt;dbl&gt;
+##  1  21     110     6   19.7         20.1
+##  2  21     110     6   19.7         20.1
+##  3  22.8    93     4   26.7         20.1
+##  4  21.4   110     6   19.7         20.1
+##  5  18.7   175     8   15.1         20.1
+##  6  18.1   105     6   19.7         20.1
+##  7  14.3   245     8   15.1         20.1
+##  8  24.4    62     4   26.7         20.1
+##  9  22.8    95     4   26.7         20.1
+## 10  19.2   123     6   19.7         20.1
+## # ℹ 22 more rows
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: exploring data frames
+
+* And now, some Old School techniques for working with data frames
+* Access a single column in a data frame is to use `$`
+
+
+``` r
+&gt; names(mtcars)  ## print the variable names
+&gt; mtcars$mpg     ## return the mpg variable
+```
+
+
+```
+##  [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"  
+## [10] "gear" "carb"
+```
+
+```
+##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3
+## [14] 15.2 10.4 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3
+## [27] 26.0 30.4 15.8 19.7 15.0 21.4
+```
+
+* Now we will (re)introduce several functions for exploring data frames
+* We will also see a more advanced example of indexing
+
+
+
+---
+## **Data Frames**: exploring columns (cont.)
+
+
+``` r
+&gt; dim(mtcars)    ## print the number of rows and columns
+```
+
+```
+## [1] 32 11
+```
+
+``` r
+&gt; str(mtcars)    ## print structure of data frame
+```
+
+```
+## 'data.frame':	32 obs. of  11 variables:
+##  $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
+##  $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...
+##  $ disp: num  160 160 108 258 360 ...
+##  $ hp  : num  110 110 93 110 175 105 245 62 95 123 ...
+##  $ drat: num  3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...
+##  $ wt  : num  2.62 2.88 2.32 3.21 3.44 ...
+##  $ qsec: num  16.5 17 18.6 19.4 17 ...
+##  $ vs  : num  0 0 1 1 0 1 0 1 1 1 ...
+##  $ am  : num  1 1 1 0 0 0 0 0 0 0 ...
+##  $ gear: num  4 4 4 3 3 3 3 4 4 4 ...
+##  $ carb: num  4 4 1 1 2 1 4 2 2 4 ...
+```
+
+
+---
+## **Data Frames**: summarizing columns
+
+
+``` r
+&gt; summary(mtcars)
+```
+
+```
+##       mpg             cyl             disp             hp       
+##  Min.   :10.40   Min.   :4.000   Min.   : 71.1   Min.   : 52.0  
+##  1st Qu.:15.43   1st Qu.:4.000   1st Qu.:120.8   1st Qu.: 96.5  
+##  Median :19.20   Median :6.000   Median :196.3   Median :123.0  
+##  Mean   :20.09   Mean   :6.188   Mean   :230.7   Mean   :146.7  
+##  3rd Qu.:22.80   3rd Qu.:8.000   3rd Qu.:326.0   3rd Qu.:180.0  
+##  Max.   :33.90   Max.   :8.000   Max.   :472.0   Max.   :335.0  
+##       drat             wt             qsec             vs        
+##  Min.   :2.760   Min.   :1.513   Min.   :14.50   Min.   :0.0000  
+##  1st Qu.:3.080   1st Qu.:2.581   1st Qu.:16.89   1st Qu.:0.0000  
+##  Median :3.695   Median :3.325   Median :17.71   Median :0.0000  
+##  Mean   :3.597   Mean   :3.217   Mean   :17.85   Mean   :0.4375  
+##  3rd Qu.:3.920   3rd Qu.:3.610   3rd Qu.:18.90   3rd Qu.:1.0000  
+##  Max.   :4.930   Max.   :5.424   Max.   :22.90   Max.   :1.0000  
+##        am              gear            carb      
+##  Min.   :0.0000   Min.   :3.000   Min.   :1.000  
+##  1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:2.000  
+##  Median :0.0000   Median :4.000   Median :2.000  
+##  Mean   :0.4062   Mean   :3.688   Mean   :2.812  
+##  3rd Qu.:1.0000   3rd Qu.:4.000   3rd Qu.:4.000  
+##  Max.   :1.0000   Max.   :5.000   Max.   :8.000
+```
+
+
+---
+## **Data Frames**: exploring columns (cont.)
+
+An alternative ways to access a data frame's variable(s):
+
+
+``` r
+&gt; mtcars[["mpg"]]
+```
+
+```
+##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3
+## [14] 15.2 10.4 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3
+## [27] 26.0 30.4 15.8 19.7 15.0 21.4
+```
+
+``` r
+&gt; mtcars[1:10, c("mpg", "cyl")]
+```
+
+```
+##                    mpg cyl
+## Mazda RX4         21.0   6
+## Mazda RX4 Wag     21.0   6
+## Datsun 710        22.8   4
+## Hornet 4 Drive    21.4   6
+## Hornet Sportabout 18.7   8
+## Valiant           18.1   6
+## Duster 360        14.3   8
+## Merc 240D         24.4   4
+## Merc 230          22.8   4
+## Merc 280          19.2   6
+```
+
+
+---
+## **Data Frames**: creating new variables
+
+
+``` r
+&gt; mtcars$mpg_squared &lt;- mtcars$mpg * mtcars$mpg
+&gt; mtcars[1:10, c("mpg", "mpg_squared")]
+```
+
+```
+##                    mpg mpg_squared
+## Mazda RX4         21.0      441.00
+## Mazda RX4 Wag     21.0      441.00
+## Datsun 710        22.8      519.84
+## Hornet 4 Drive    21.4      457.96
+## Hornet Sportabout 18.7      349.69
+## Valiant           18.1      327.61
+## Duster 360        14.3      204.49
+## Merc 240D         24.4      595.36
+## Merc 230          22.8      519.84
+## Merc 280          19.2      368.64
+```
+
+
+---
+## **Data Frames**: more on indexing
+
+Recall that when creating an index, we can also use multiple conditions
+
+ * to satisfy BOTH conditions use `&amp;` (and)
+ * to satisfy EITHER condition use `|` (or)
+ 
+ 
+
+
+``` r
+&gt; mtcars[mtcars$mpg &lt; 25 &amp; mtcars$mpg &gt; 21, c("mpg", "cyl")]
+```
+
+```
+##                 mpg cyl
+## Datsun 710     22.8   4
+## Hornet 4 Drive 21.4   6
+## Merc 240D      24.4   4
+## Merc 230       22.8   4
+## Toyota Corona  21.5   4
+## Volvo 142E     21.4   4
+```
+
+
+---
+## **Data Frames**: more on indexing (cont.)
+
+(remember: variables are just vectors, so we can use what we learned earlier)
+
+
+``` r
+&gt; cbind(mtcars$mpg, mtcars$mpg &lt; 15 | mtcars$mpg &gt; 20)[1:10,]
+```
+
+```
+##       [,1] [,2]
+##  [1,] 21.0    1
+##  [2,] 21.0    1
+##  [3,] 22.8    1
+##  [4,] 21.4    1
+##  [5,] 18.7    0
+##  [6,] 18.1    0
+##  [7,] 14.3    1
+##  [8,] 24.4    1
+##  [9,] 22.8    1
+## [10,] 19.2    0
+```
+
+
+---
+## **Data Frames**: more on indexing (cont.)
+
+And we can use multiple variables
+
+
+``` r
+&gt; table(mtcars$mpg &gt; 30 &amp; mtcars$cyl == 6)
+```
+
+```
+## 
+## FALSE 
+##    32
+```
+
+``` r
+&gt; table(mtcars$mpg &gt; 30 &amp; mtcars$cyl == 4)
+```
+
+```
+## 
+## FALSE  TRUE 
+##    28     4
+```
+
+
+---
+## **Data Frames**: final indexing example
+
+
+``` r
+&gt; hi_mpg &lt;- mtcars$mpg &gt; mean(mtcars$mpg)
+&gt; hi_cyl &lt;- mtcars$cyl == 4
+&gt; table(hi_mpg, hi_cyl)
+```
+
+```
+##        hi_cyl
+## hi_mpg  FALSE TRUE
+##   FALSE    18    0
+##   TRUE      3   11
+```
+
+
+---
+## **Data Frames**: final indexing example (cont.)
+
+
+``` r
+&gt; mtcars$good_car &lt;- FALSE
+&gt; mtcars$good_car[hi_mpg &amp; hi_cyl] &lt;- TRUE
+&gt; table(mtcars$good_car)
+```
+
+```
+## 
+## FALSE  TRUE 
+##    21    11
+```
+
+---
+## **Data Frames**: final indexing example (cont.)
+
+Sanity check
+
+
+``` r
+&gt; # cbind(mtcars$good_car, hi_mpg, hi_cyl, mtcars$mpg, mtcars$cyl)
+&gt; cbind(mtcars$good_car, hi_mpg, hi_cyl)[1:15,]
+```
+
+```
+##             hi_mpg hi_cyl
+##  [1,] FALSE   TRUE  FALSE
+##  [2,] FALSE   TRUE  FALSE
+##  [3,]  TRUE   TRUE   TRUE
+##  [4,] FALSE   TRUE  FALSE
+##  [5,] FALSE  FALSE  FALSE
+##  [6,] FALSE  FALSE  FALSE
+##  [7,] FALSE  FALSE  FALSE
+##  [8,]  TRUE   TRUE   TRUE
+##  [9,]  TRUE   TRUE   TRUE
+## [10,] FALSE  FALSE  FALSE
+## [11,] FALSE  FALSE  FALSE
+## [12,] FALSE  FALSE  FALSE
+## [13,] FALSE  FALSE  FALSE
+## [14,] FALSE  FALSE  FALSE
+## [15,] FALSE  FALSE  FALSE
+```
+
+
+---
+## **Recap &amp; Moving Forward**
+
+* You should now be familiar with a few of R's data structures
+
+  + (and for knowing when they should be used: # of dimensions &amp; data types)
+  
+* We have also been introduced to some useful functions for manipulating, summarizing,
+and exploring data
+
+  + There are many more(!) and users contribute **R packages** that implement a wide
+  range of tools, models, and methods: [list of some packages on CRAN](https://cran.r-project.org/)
+  
+
+---
+## **Recap &amp; Moving Forward** (cont.)
+
+* R comes installed with many packages that you can explore &amp; access with the `library()`
+function
+
+```r
+# library()              # list all the packages installed on your computer
+library(stats)           # load the stats package
+# help(package="stats")  # look at the package documentation
+```
+
+* In future session, we will explore some of these packages that are particularly useful
+for
+
+    + making dynamic documents: [rmarkdown](https://rmarkdown.rstudio.com/)
+    + making plots: [ggplot2](https://ggplot2.tidyverse.org/)
+
+* Please join us 😄
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
