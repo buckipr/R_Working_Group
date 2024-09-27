@@ -1,0 +1,82 @@
+---
+title: "PDF Example"
+author: "Jason Thomas"
+date: "1/7/2020"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+linkcolor: red
+bibliography: vaLitReview.bib
+geometry: margin = 1in
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{xcolor}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+read_chunk("rmarkdown_advanced.R")
+```
+
+
+First some citations from a paper.  @mahapatra07 discuss ways to assess
+the importance of CRVS.  Demographers should love CRVS for several reasons [@mahapatra07].  Mahpatra ([-@mahapatra07])and
+colleagues have discussed these points.
+
+* include a cache example
+
+## Generate some data
+
+```{r generate_data}
+```
+
+An example of in-line code: the third observation in x is `r x[3]`.
+
+## Regression Model
+
+```{r model_1}
+```
+
+
+## Tables
+```{r table}
+library(kableExtra)
+dt <- mtcars[1:5, 1:6]
+kable(dt, "latex", booktabs = T)%>%kable_styling(latex_options = "striped")
+```
+
+## More Examples with tables
+
+* [Manual for kableExtra](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf)
+
+* Another useful R package is [`stargazer`](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf)
+
+## Stata, I miss you!
+
+```{stata, engine.path = "/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp", error = TRUE, highlight.output = TRUE}
+sysuse auto
+su price
+```
+
+```{stata, engine.path = "/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp", error = TRUE, highlight.output = TRUE}
+sysuse auto
+scatter weight mpg
+graph export "stata_plot.pdf", replace
+```
+
+![]("./stata_plot")
+
+# References

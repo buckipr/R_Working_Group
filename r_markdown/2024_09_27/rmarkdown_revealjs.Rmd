@@ -1,0 +1,82 @@
+---
+title: "Slides with Revealjs"
+subtitle: "R Markdown Example"
+author: "Bandit Healer"
+date: "`r format(Sys.Date(), format='%A, %B %d %Y')`"
+output:
+  revealjs::revealjs_presentation:
+    transition: fade
+    background_transition: concave
+    reveal_options:
+      slideNumber: true
+      previewLinks: true
+---
+
+## R Markdown
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+. . .
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Code and Output
+
+Let's see a summary of the `mtcars` data.  Note how the output doesn't fit on the slide.
+
+. . .
+
+```{r}
+summary(mtcars)
+```
+
+## Slide with Plot
+
+PLOT!
+
+```{r, echo=FALSE, fig.align='right'}
+plot(cars)
+```
+
+
+## Another Slide with Plot
+
+small plot
+
+```{r, echo=FALSE, fig.height=3, fig.width=3}
+plot(cars)
+```
+
+
+## Slide in, Fade out {data-transition="slide-in fade-out"}
+
+
+## Convex in, Concave out {data-transition="convex-in concave-out"}
+
+# Inlude Some Horizontal Slides
+
+## Horizontal 1
+
+## Horizontal 2
+
+# Include a 2nd Set of Horizontal Slides
+
+
+## Leaflet
+
+
+## CSS color background {data-background=#ff0000}
+
+## Full size image background {data-background="img/IPR-Vert.png"}
+
+## Video background {data-background-video="img/background.mp4"}
+
+## A background page {data-background-iframe="https://buckipr.github.io/R_Working_Group"}
+

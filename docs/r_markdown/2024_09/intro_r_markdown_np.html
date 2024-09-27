@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to     Markdown</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="   Jason Thomas    R Working Group" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="style_r_markdown.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Introduction to <br><br> <img src="img/Rlogo-dark2.png" width="100" /> Markdown
+]
+.author[
+### <br><br><br>Jason Thomas <br> <br>R Working Group
+]
+.date[
+### <br>September 27th, 2024
+]
+
+---
+
+
+
+
+
+
+# Work Flow
+
+.center[![](img/work_flow.png)]
+
+
+---
+# Work Flow in the Real World
+
+.center[![](img/work_flow_2.png)]
+
+
+---
+background-image: url("img/baton.jpg")
+background-color: black
+
+&lt;p style="color:red; font-weight:bold; font-size:40px; text-align: center"&gt;
+"THIS IS NOT YOUR RACE!"&lt;br&gt;-- &lt;code&gt;R Markdown&lt;/code&gt;&lt;/p&gt;
+
+
+---
+class: slide-font-25
+# Motivation
+
+* Let's use a *single* document to weave empirical results into our substantive text
+
+  - reduce the number of steps to create the final document and efficiently
+  reproduce those steps
+
+  - create paper/project reports on what you have done and *why*
+      + why didn't I use a log transformation?
+      + do the results change much if education is included in the model?
+      + useful reference when writing the "final" version
+
+* You can also include the actual code that produces your results
+
+  - show others (future you, coathors, students, advisors)
+  exactly what you have done
+
+
+---
+# Motivation (cont.)
+
+* Versatility with a single program
+
+  - use different programs (e.g., Stata, Python)
+  
+  - create different types of output (PDF, Word, webpage) with one-click publishing
+  
+  - include web/document links, references, equations, HTML
+
+* (un-motivation) But do I *really* want to write my paper in R Studio?!?
+
+  - my co-authors love track changes!
+  
+  - Word makes it so easy to add comments
+
+
+---
+# Outline 
+
+* **Setup** -- software &amp; installation
+
+* **Getting Started** with R Markdown files (file_name.Rmd)
+  + YAML header (set title info, format, and options)
+  + Basic markdown syntax
+  + Including code/results (inline &amp; chunks)
+  
+* **Examples**
+
+* **Advanced Features**
+
+
+---
+class: wide-slide
+
+.pull-left2[![](img/RStudio-Logo.svg)]
+
+.pull-right2[
+**A separate (IDE) program that makes** &lt;br&gt; **R-life easier**
+  * file templates, code completion, syntax highlighting, smart indentation
+  * one-click publication
+
+**Additional packages &amp; software**
+  * [https://pandoc.org/](https://pandoc.org/) free software that translates
+  between formats (ships with R Studio)
+  * R packages
+    - `knitr`: weave code into substantive text
+    - `rmarkdown`: translates markdown (+ code &amp; results) into pdf/html/word/powerpoint
+    - `tinytex`: install small version of `\(\LaTeX\)`
+]
+
+
+---
+## Installation
+
+* Mac users will install **X Quartz** program from [https://www.xquartz.org/](https://www.xquartz.org/), which is used by Mac to show plots
+
+* Open R Studio, then copy and paste the following command into the **Console** pane.  
+ 
+  
+  ``` r
+  install.packages(c("rmarkdown", "tinytex", "rprojroot", "Rcpp"), repos = "http://cran.r-project.org")
+  ```
+
+*Note*: this assumes you do not have `\(\LaTeX\)` installed on your computer
+(needed to create PDF files with R Markdown).
+
+
+---
+## R Packages (cont.)
+
+* Install a small version of LaTeX (using the tinytex package).  This will take a few minutes...
+  
+* Windows users may see a warning about needing to install the Rtools program, and 2 warnings complaining about missing files associated with `luatex.dll`
+
+  - but these can all be ignored.
+
+  
+  ``` r
+  tinytex::install_tinytex()
+  ```
+
+
+---
+## R Packages (cont.)
+
+* If you would like to test your `tinytex` installation, close R Studio, then re-open it and run the following command
+
+  
+  ``` r
+  tinytex:::is_tinytex()  ## should return TRUE
+  ```
+
+* Note the 3 colons after `tinytex`.   If the above command returns a value of `TRUE`, then you are all set.
+
+
+---
+## Warning Messages
+
+* Here are 3 screenshots of the informational and (2) warning messages that Windows users can safely ignore.
+
+&lt;br/&gt;&lt;br/&gt;
+
+.center[![informational message](img/error_msg1.PNG)]
+
+
+---
+## Warning Messages 1
+
+(can safely ignore)
+
+&lt;br/&gt;&lt;br/&gt;
+
+.center[![1st warning message](img/error_msg2.PNG)]
+
+
+---
+## Warning Messages 2
+
+(can safely ignore)
+
+&lt;br/&gt;&lt;br/&gt;
+
+.center[![2nd warning message](img/error_msg3.PNG)]
+
+
+---
+class: wide-slide, slide-font-25
+## Getting started
+
+.pull-left[
+
+* In R Studio, `File` &amp;rarr; `New File` &amp;rarr; `R Markdown...`
+&lt;br&gt; (file names have an .Rmd extension: `file_name.Rmd`)
+
+  + A new window will pop up asking what type of document (regular doc,
+  presentation, etc) and format you want (pdf, Word, HTML)
+  + You can also include title info
+
+* For this example, we'll go with Document &amp; PDF (since I have `tinytex`
+installed)
+]
+
+.pull-right[![window for selecting .Rmd template](img/open_rmd.png)]
+
+
+---
+# Getting started - template
+
+The .Rmd template file includes 3 types of input
+
+1. YAML -- first 5 lines
+
+  + title info, options for producing output
+
+1. Code -- chunks and in-line code
+
+  + run R code and produce output
+
+1. Regular text with markdown syntax for formatting
+
+  + text for humans with formatting to improve exposition
+
+
+---
+# YAML ain't markup language!
+
+YAML blocks appear at the top of the document and are fenced in with 3 dashes
+
+
+``` yaml
+---
+title: "Untitled"
+output: pdf_document
+date: "2024-09-27"
+---
+```
+
+There are many options for choosing what the final output will look like
+and how to produce it...
+
+  * styling (colors to use, include TOC, etc.)
+  * pick which programs, packages, templates to use (e.g., beamer, xaringan)
+  * external files to use (CSS, bibliographies)
+
+
+---
+# YAML: more detailed example
+
+
+
+``` yaml
+---
+title: |
+  | PDF Example
+  | with really long title
+subtitle: (LaTex Rocks)
+author: "Jason Thomas"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+linkcolor: red
+bibliography: vaLitReview.bib
+geometry: margin = 1in
+header-includes:
+- \usepackage{colortbl}
+---
+```
+
+* the `date` field can be included when choosing template
+
+.center[![](img/rmd_date.png)]
+
+
+---
+# R Code: code chunks
+
+There are 2 ways to include R code, the first is **code chunks**
+
+
+```` r
+  ```{r chunk_label, eval=FALSE, include=TRUE, echo=TRUE}
+  data(mtcars)
+  summary(mtcars)
+  ```
+````
+
+
+* `chunk_label` is optional
+  + must be unique (common error is 2 chunks with the same label)
+
+* keyboard shortcuts
+
+  + Windows: &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;kbd&gt;Alt&lt;/kbd&gt; + &lt;kbd&gt;I&lt;/kbd&gt;
+  + Mac: &lt;kbd&gt;command&lt;/kbd&gt; + &lt;kbd&gt;option&lt;/kbd&gt; + &lt;kbd&gt;I&lt;/kbd&gt;
+
+
+
+---
+# Code Chunk Options
+
+* **eval**: "Whether to evaluate the code chunk."
+
+* **echo**: "Whether to display the source code in the output document."
+
+* **include**: "Whether to include the chunk output in the output document."
+
+[reference](https://yihui.org/knitr/options/#code-evaluation)
+
+
+---
+# R Code: inline code
+
+* The second way to include R output is the *inline* option
+
+
+``` r
+   The samples size is `r nrow(mtcars)`.  The mean miles per gallon (MPG)
+   is `r round(mean(mtcars$mpg), 2)` and there are
+   `r nrow(mtcars[mtcars$mpg &lt; mean(mgcars), ])` cars with an MPG below the
+   mean.
+```
+
+
+The sample size is 32.  The mean miles per gallon is 20
+and there are 32 cars with an MPG below the mean.
+
+
+
+
+---
+class: slide-font-25
+# Markdown
+
+Syntax for adding styling to your documents
+
+* \*\***this is bold**\*\* and \**this is italicized*\*
+
+* lists with asterisks, dashes, plus sign (nested lists with indentation)
+
+# \# header 1
+
+## \#\# header 2
+
+* Test drive: [`https://markdownlivepreview.com`](https://markdownlivepreview.com/)
+
+* Web links: `[link name](link url)`:
+  - e.g. `[Rmarkdown](https://rmarkdown.rstudio.com/)`
+  - [Rmarkdown](https://rmarkdown.rstudio.com/)
+
+
+---
+# Formats
+
+* MS Word &amp; Powerpoint
+
+
+* PDF: (requires `\(\LaTeX\)`)
+
+  - presentations are created with the Beamer package in `\(\LaTeX\)`
+
+
+* HTML
+
+  - [`flexdashboard`](https://rmarkdown.rstudio.com/flexdashboard/examples.html)
+  
+  - [`xaringan`](https://slides.yihui.org/xaringan/#1)
+
+  - [`reveal.js`](https://bookdown.org/yihui/rmarkdown/revealjs.html)
+
+
+---
+# Extensions
+
+Useful packages for making tables:
+
+* [stargazer](https://cran.r-project.org/web/packages/stargazer/index.html) (PDF)
+
+* [flextable](https://ardata-fr.github.io/flextable-book/) (MS Word)
+
+* [furniture](https://cran.r-project.org/web/packages/furniture/vignettes/Furniture.html) (MS Word)
+
+* [kableExtra](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html) (PDF &amp; HTML)
+
+
+
+---
+# On to the examples...
+
+* MS Word: [see here for formatting](https://bookdown.org/yihui/rmarkdown/word-document.html)
+
+* MS Powerpoint (possible to include speaker notes)
+
+* PDF with `\(\LaTeX\)`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

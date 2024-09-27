@@ -1,0 +1,64 @@
+---
+title: "R Markdown"
+subtitle: "Powerpoint Example"
+author: "Jason Thomas"
+date: "1/7/2020"
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(size = "footnotesize")
+```
+
+## R Markdown
+
+Some issues:
+
+- best way to format is with a reference template
+  - happy to provide examples if interested
+- no simple and elegant way to include incremental lists
+  - might be possible with pre-formatted template
+
+## Slide with Columns
+
+:::::::::::::: {.columns}
+::: {.column}
+The figure on the right shows
+
+- cool finding 1
+- cool finding 2
+- cool finding 3
+
+:::
+::: {.column}
+```{r column plot}
+plot(pressure)
+```
+:::
+::::::::::::::
+
+## Slide with Bullets
+
+- Bullet 1
+  - sub point 1
+    - sub sub point 1
+      - sub sub sub point 1
+  - sub point 2
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+(another reason to use HTML slides)
+
+```{r cars, tidy=TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+

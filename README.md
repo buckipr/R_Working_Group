@@ -25,6 +25,8 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
    - [other files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2024_09_13)
 
 * Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research
+   - [slides](https://buckipr.github.io/R_Working_Group/r_markdown/2024_09/intro_r_markdown_np.html#1)
+   - [other files](https://github.com/buckipr/R_Working_Group/tree/main/r_markdown/2024_09_27)
 
 * Oct 11th: Autumn Break (no workshop)
 

@@ -1,0 +1,137 @@
+---
+title: R Markdown Example to Word
+subtitle: (and other stuff)
+author:
+  - Jason Thomas^[Inst. Pop. Research, OSU]
+  - Leo Messi^[Barca, Argentinian Natl. Team]
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(furniture)
+library(flextable)
+library(knitr)
+library(dplyr)
+data("airquality")
+data(mtcars)
+fig_count <- 1
+```
+
+## Intro
+
+Here is an example of `R markdown` to MS Word.
+
+## flextable
+
+```{r flex1}
+ft <- flextable(airquality[ sample.int(10),])
+ft <- add_header_row(ft,
+  colwidths = c(4, 2),
+  values = c("Air quality", "Time")
+)
+ft <- theme_vanilla(ft)
+ft <- add_footer_lines(ft, "Daily air quality measurements in New York, May to September 1973.")
+ft <- color(ft, part = "footer", color = "#666666")
+ft <- set_caption(ft, caption = "New York Air Quality Measurements")
+ft
+```
+
+```{r flex2}
+myft <- flextable(head(mtcars), 
+  col_keys = c("am", "carb", "gear", "mpg", "drat" )) %>%
+  italic(j = 3) %>%
+  color(~ drat > 3.5, ~ drat, color = "red") %>%
+  bold(~ drat > 3.5, ~ drat, bold = TRUE) %>%
+  add_header_row(values = c("some measures", "other measures"),
+  colwidths = c(3, 2)) %>%
+  align(i = 1, part = "header", align = "center") %>%
+  theme_zebra()
+myft
+```
+
+
+```{r flex2_1}
+myft <- flextable(head(mtcars), 
+  col_keys = c("am", "carb", "gear", "mpg", "drat" ))
+myft <- italic(myft, j = 3)
+myft <- color(myft, ~ drat > 3.5, ~ drat, color = "red")
+myft <- bold(myft, ~ drat > 3.5, ~ drat, bold = TRUE)
+myft <- add_header_row(
+  x = myft, values = c("some measures", "other measures"),
+  colwidths = c(3, 2))
+myft <- align(myft, i = 1, part = "header", align = "center")
+myft <- theme_vanilla(myft)
+myft
+```
+
+```{r flex3}
+mod1 <- lm(mpg ~ hp + cyl, data=mtcars)
+mod2 <- lm(mpg ~ hp + cyl + gear, data=mtcars)
+mod3 <- lm(mpg ~ hp + cyl + gear + disp, data=mtcars)
+model_names <- c("mod1", "mod2", "mod3")
+models <- matrix(NA, nrow=length(coef(mod3)), ncol=length(model_names))
+for (i in 1:length(model_names)) { # i = 1
+  tmp_mod <- get(model_names[i])
+  tmp_coefs <- coef(tmp_mod)
+  models[1:length(tmp_coefs), i] <- round(coef(tmp_mod), 2)
+}
+model_labels <- c("Model 1", "Model 2", "Model 3")
+df_models <- as.data.frame(models)
+names(df_models) <- model_labels
+df_models$Covariates <- names(coef(mod3))
+df_models <- df_models[, c(4, 1:3)]
+myft_reg <- flextable(df_models) %>%
+  theme_tron()
+myft_reg
+```
+
+## Table with Furniture
+
+```{r tableF}
+table1(mtcars, type = c("simple", "condensed"), output = "pandoc")
+```
+
+```{r descriptives furniture ex3}
+vNames <- c("Miles per gallon", "Number of cylinders",
+            "Gross horsepower")
+table1(mtcars, mpg, cyl, hp, var_names = vNames,
+       splitby = ~am,
+       caption = "**Means and SD for subset of variables**",
+       type = c("simple", "condensed"),
+       output = "pandoc")
+```
+
+```{r cross tab tableX}
+crossTab <- tableX(mtcars, cyl, am, type = "count")
+kable(crossTab)
+```
+
+# Plot with Reference
+
+```{r label_fig1, include=FALSE}
+fig_lab_mpg_hp <- fig_count
+fig_count <- fig_count + 1
+```
+This section has an example of including a plot.  More specifically Figure `r fig_lab_mpg_hp`.  But I think the officer package might have a better solution.
+
+```{r cars, fig.cap = paste0("Figure ", fig_lab_mpg_hp, ": MPG vs HP")}
+plot(mpg ~ hp, data = mtcars)
+```
+
+# Equations
+
+$\hat{y_i} = \alpha + \beta_1 * X_{i,1} + \beta_2 * X_{i,2} + \epsilon_i$
+
+and check out
+
+* [equationmatic](https://bookdown.org/yihui/rmarkdown-cookbook/equatiomatic.html)
+
+# YAML & other stuff
+
+* [author affilation](https://bookdown.org/yihui/rmarkdown-cookbook/multiple-authors.html)
+* [diagrams](https://bookdown.org/yihui/rmarkdown-cookbook/diagrams.html)
+* officeverse
