@@ -15,7 +15,7 @@ layout: default
 
 * Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research 
     + [slides](r_markdown/2024_09/intro_r_markdown_np.html)
-    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/r_markdown/2024_09)
+    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/r_markdown/2024_09_27)
 
 * Oct 11th: Autumn Break (no workshop)
 
