@@ -20,6 +20,8 @@ layout: default
 * Oct 11th: Autumn Break (no workshop)
 
 * Oct 25th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
+    + [slides](ggplot2/2024_10/ggplot2_np.html)
+    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2024_10)
 
 * Nov 8th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
