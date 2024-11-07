@@ -1,0 +1,422 @@
+---
+title: Introduction to <br><br> Regression in ![](img/Rlogo.png){width=120px}
+author: "<br><br><br>Jason Thomas <br> <br>R Working Group"
+date: "<br>November 8th, 2024"
+output:
+  xaringan::moon_reader:
+    css: ["style_regression.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      navigation:
+        scroll: false
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(tidyverse)
+library(DT)
+library(flextable)
+library(gtsummary)
+library(stargazer)
+library(furniture)
+library(prediction)
+library(margins)
+library(dotwhisker)
+library(MASS)
+library(nnet)
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(tidy=FALSE, prompt=FALSE, error=TRUE,
+                      fig.align = 'center')
+data(mtcars)
+```
+
+
+# Regression
+
+This workshop covers steps for conducting statistical analyses in `R`
+and preparing tables and figures.
+
+* Presenting descriptive statistics & bivariate relationships
+
+* Linear Regression
+
+  + models for continuous, categorical, & counts
+
+* formula: `y ~ x1 + x2, options`
+
+* now what?  tables & plots
+
+
+---
+
+We need a few R packages which can be installed with the following command:
+
+```{r, echo=TRUE, eval=FALSE}
+install.packages(c("flextable", "gtsummary" "stargazer", "furniture",
+                   "margins", "prediction", "dotwhisker")
+```
+
+and the packages can be loaded with:
+
+```{r, eval=FALSE}
+library(flextable)
+library(gtsummary)
+library(stargazer)
+library(furniture)
+library(prediction)
+library(margins)
+library(dotwhisker)
+library(MASS)
+library(nnet)
+```
+
+
+---
+# Useful Resources
+
+* [`flextable` reference](https://ardata-fr.github.io/flextable-book/index.html)
+
+* `kableExtra` is also a great tool for making HTML & LaTeX tables
+
+  + [HTML vignette](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+  + [LaTeX vignette](http://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf)
+  + (you can copy/paste HTML tables into Word)
+
+* [`stargazer` vignette](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf)
+
+* [`margins` vignette](https://www.rdocumentation.org/packages/margins/versions/0.3.23)
+
+* [`dotwhisker` vignette](https://cran.r-project.org/web/packages/dotwhisker/vignettes/dotwhisker-vignette.html)
+
+
+---
+class: inverse, center, middle
+
+# Descriptive Statistics
+
+
+---
+# Descriptive statistics
+
+* There are several packages which will do some/most/all of the work for you
+
+  + LaTeX & HTML  -- `stargazer`
+  + Word -- `flextable`, `gtsummary`, `furniture`
+  <br> (use R Markdown & Knit to Word doc)
+
+* However, the best route may be to create the table yourself and then
+convert to a flextable (for Word)
+
+  + or `write.csv()` to CSV file (for Excel/Word)
+
+
+---
+# Descriptive stats: html & latex
+
+`stargazer` example (LOTS of options!)
+
+
+```{r, echo=TRUE, eval=FALSE, results='asis'}
+stargazer(mtcars, title = "Table 1. XXX", type = "html", # or "latex"
+          out = "descriptives.html",
+          summary.stat = c("mean", "sd", "min", "max"),
+          notes = paste("Number of observations =", nrow(mtcars)))
+# open the file descriptives.html, then copy and paste to excel
+```
+
+(table on next slide)
+
+---
+# Descriptive stats: html & latex
+
+```{r, echo=FALSE, eval=TRUE, results='asis'}
+stargazer(mtcars, title = "Table 1. XXX", type = "html", out = "descriptives.html",
+          dep.var.caption = "Variable",
+          summary.stat = c("mean", "sd", "min", "max"),
+          notes = paste("Number of observations =", nrow(mtcars)))
+```
+
+
+---
+# Descriptive stat: Word
+
+`flextable` & `gtsummary`
+
+```{r, echo=TRUE, eval=FALSE, results='asis'}
+mtcars |>
+  tbl_summary(
+    type = all_continuous() ~ "continuous",
+      statistic = all_continuous() ~ "mean") |>
+  as_flex_table()
+```
+
+(table on next slide)
+
+---
+# Descriptive stat: Word
+
+```{r, echo=FALSE, eval=TRUE, results='asis'}
+mtcars |>
+  tbl_summary(
+    type = all_continuous() ~ "continuous",
+      statistic = all_continuous() ~ "{mean}") |>
+  as_flex_table()
+```
+
+
+---
+# Descriptive stat: Word
+
+by group with multiple stats
+
+```{r, echo=TRUE, eval=FALSE, results='asis'}
+mtcars |>
+  tbl_summary(
+    by = vs,
+    type = all_continuous() ~ "continuous2",
+    statistic = all_continuous() ~ c("{mean} ({sd})")) |>
+  as_flex_table()
+```
+
+(table on next slide)
+
+---
+# Descriptive stat: Word
+
+```{r, echo=FALSE, eval=TRUE, results='asis'}
+mtcars |>
+  tbl_summary(
+    by = vs,
+    type = all_continuous() ~ "continuous2",
+    statistic = all_continuous() ~ c("{mean} ({sd})")) |>
+  as_flex_table()
+```
+
+
+
+---
+# Descriptive stat: Word
+
+`furniture`
+
+```{r, echo=TRUE, eval=FALSE, results='asis'}
+vNames <- c("Miles per gallon", "Number of cylinders",
+            "Gross horsepower")
+table1(mtcars, mpg, cyl, hp, var_names = vNames,
+       splitby = ~am,
+       caption = "**Means and SD for subset of variables**",
+       type = c("simple", "condensed"),
+       total= TRUE,
+       output = "pandoc")
+```
+
+(table on next slide)
+
+---
+# Descriptive stat: Word
+
+```{r, echo=FALSE, eval=TRUE, results='asis'}
+vNames <- c("Miles per gallon", "Number of cylinders",
+            "Gross horsepower")
+table1(mtcars, mpg, cyl, hp, var_names = vNames,
+       splitby = ~am,
+       caption = "**Means and SD for subset of variables**",
+       type = c("simple", "condensed"),
+       total= TRUE,
+       output = "markdown") # use markdown for slides
+```
+
+
+---
+class: slide-font-25
+# Exercises
+
+* Build a table of descriptive statistics for the `mtcars` data set
+  
+* Include useful variable names for the rows (e.g., miles per gallon)
+
+* In the first column include the mean (2 decimal places) with std deviation
+  in the row below with parenthesis around it 
+
+* In the second column include the number of missing observations (go ahead
+and randomly assign NAs to make it more interesting)
+
+* Make another version of this table but with groups of columns for
+"low" horsepower (hp), "high" horsepower, and the the whole sample ("low" and
+"high" together)
+
+  + can you build a function to do this more generally?
+
+
+
+---
+class: inverse, center, middle
+
+# Linear Regression
+
+
+---
+# Linear regression
+
+* use `lm()` function
+
+  + returns an object that we will make further use of 
+
+* formula (this is general)
+
+* data
+
+* other useful options
+
+
+---
+class: slide-font-25
+# Linear regression
+
+**Data** duncan.csv
+
+* unit of analysis: occupations
+
+* `prestige`: % of respondents who rated the occupation as "good" or "excellent"
+
+* `educ`: % of workers in the occupation who had a HS degree
+
+* `income`: % of workers in the occupation who earned more than $3,500
+
+* `occ_type`: indicator for type of occupation
+    + blue collar (bc)
+    + professional and managerial (prof)
+    + and white collar (wc)
+
+
+---
+# Linear regression
+```{r, echo=TRUE, eval=TRUE}
+# load and summarize the data
+duncan <- read.csv("duncan.csv")
+summary(duncan)
+```
+
+`occ_type` is a categorical variable that we will want to treat as a factor
+or with indicator variables
+
+
+---
+# Linear regression
+
+Preparing categorical predictors/independent variables
+
+```{r, echo=TRUE, eval=TRUE}
+table(duncan$occ_type)
+
+# factor
+duncan$occ <- factor(
+  duncan$occ_type,
+  levels = c("prof", "wc", "bc"), # first is reference group
+  labels = c("professional", "white_collar", "blue_collar"))
+
+# indicator variables (dummies)
+duncan$prof <- ifelse(duncan$occ_type == "prof", 1, 0 )
+duncan$wc <- ifelse(duncan$occ_type == "wc", 1, 0 )
+duncan$bc <- ifelse(duncan$occ_type == "bc", 1, 0 )
+```
+
+
+---
+# Linear regression
+
+fit the model and print the results
+
+```{r, echo=TRUE, eval=TRUE}
+model1 <- lm(prestige ~ income + educ + occ, data = duncan)
+model1
+```
+
+
+---
+# Linear regression
+
+even more results
+
+```{r, echo=TRUE, eval=TRUE}
+summary(model1)
+```
+
+
+---
+# Linear regression
+
+Regression objects (and their summaries!) are `lists` that hold a lot more...
+
+```{r, echo=TRUE, eval=TRUE}
+names(model1)
+names(summary(model1))
+```
+
+The $R^2$ for model 1 is `r round(summary(model1)$r.squared, 3)` (and
+lives in summary(model1)$r.squared).
+
+
+---
+# Linear regression
+
+```{r, echo=TRUE, eval=TRUE, out.width="50%"}
+plot(model1$fitted, duncan$prestige, xlab="fitted", ylab="observed")
+abline(a=0, b=1, col = "red")
+```
+
+
+---
+# Linear regression
+
+```{r, echo=TRUE, eval=TRUE, out.width="50%"}
+plot(duncan$income, duncan$prestige, xlab="income", ylab="prestige")
+abline(coef = coef(model1), col = "red", lwd = 2)
+```
+
+---
+# Exercises
+
+* Why does the regression line look "off"? (the predicted values seem to be
+systematically too too low at higher levels of income)
+
+* Make the previous figure with `ggplot()` with the different occupation types
+(professional, blue collar, white collar) color coded, and no uncertainty
+around the regression line
+
+* Add a loess() line to the previous plot (with a different color)
+
+
+
+
+---
+# Exercise
+
+Can you make this plot from model 1 results?
+
+```{r, echo=FALSE, eval=TRUE, out.width="50%"}
+plot(duncan$income, duncan$prestige,
+     main = "Uncertainty for Model 1\n(prof w/ mean education)",
+     xlab = "income", ylab = "prestige", type = "n", bty="n")
+library(mvtnorm)
+betas <- rmvnorm(n = 500, mean=model1$coef,
+                 sigma = summary(model1)$cov.unscaled*(summary(model1)$sigma^2))
+alpha <- betas %*% c(1, 0, mean(duncan$educ), 0, 0)
+for(i in 1:nrow(betas)) {
+  abline(a = alpha[i], b = betas[i, 2], col = "grey")
+}
+abline(coef=coef(model1)*c(1,1,1,0,0) + c(mean(duncan$educ)*coef(model1)[3], 0, 0, 0, 0),
+       col = "red", lwd = 3)
+```
+(hint: `mvtnorm` is your friend)
+
+---
+# Misc
+
+* what about the [effects package](https://cran.r-project.org/web/packages/effects/index.html)?
+
