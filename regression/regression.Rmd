@@ -25,6 +25,7 @@ library(gtsummary)
 library(stargazer)
 library(furniture)
 library(prediction)
+library(lm.beta)
 library(margins)
 library(dotwhisker)
 library(MASS)
@@ -101,7 +102,9 @@ to tables
 
 * What to do with **count data**
 
-* missing anything??
+* note: some of the tables/output may appear to run off the
+end of the slide, but you should be able to scroll down and see
+everything
 
 
 ---
@@ -110,7 +113,7 @@ We need a few R packages which can be installed with the following command:
 
 ```{r, echo=TRUE, eval=FALSE}
 install.packages(c("flextable", "gtsummary" "stargazer", "furniture",
-                   "margins", "prediction", "dotwhisker")
+                   "margins", "prediction", "lm.beta", "dotwhisker"))
 ```
 
 and the packages can be loaded with:
@@ -122,6 +125,7 @@ library(stargazer)
 library(furniture)
 library(prediction)
 library(margins)
+library(lm.beta)
 library(dotwhisker)
 library(MASS)
 library(nnet)
@@ -196,7 +200,7 @@ stargazer(mtcars, title = "Table 1. XXX", type = "html", out = "descriptives.htm
 
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 `flextable` & `gtsummary`
 
@@ -211,7 +215,7 @@ mtcars |>
 (table on next slide)
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 ```{r, echo=FALSE, eval=TRUE, results='asis'}
 mtcars |>
@@ -223,7 +227,7 @@ mtcars |>
 
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 by group with multiple stats
 
@@ -239,7 +243,7 @@ mtcars |>
 (table on next slide)
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 ```{r, echo=FALSE, eval=TRUE, results='asis'}
 mtcars |>
@@ -253,7 +257,7 @@ mtcars |>
 
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 `furniture`
 
@@ -271,7 +275,7 @@ table1(mtcars, mpg, cyl, hp, var_names = vNames,
 (table on next slide)
 
 ---
-# Descriptive stat: Word
+# Descriptive stats: Word
 
 ```{r, echo=FALSE, eval=TRUE, results='asis'}
 vNames <- c("Miles per gallon", "Number of cylinders",
@@ -313,24 +317,10 @@ class: inverse, center, middle
 
 
 ---
-# Linear regression
-
-* use `lm()` function
-
-  + returns an object that we will make further use of 
-
-* formula (this is general)
-
-* data
-
-* other useful options
-
-
----
 class: slide-font-25
 # Linear regression
 
-**Data** duncan.csv
+**Example data set** duncan.csv
 
 * unit of analysis: occupations
 
@@ -538,7 +528,7 @@ stargazer(model1, model2, model3, model4, type = "html", out = "models.html",
 (table is on the next slide)
 
 ---
-class: codefs-50
+class: slide-font-20
 # Linear regression: table
 
 ```{r, eval=TRUE, echo=FALSE, results="asis"}
@@ -563,6 +553,8 @@ class: codefs-50
 # Linear regression: table
 
 example with flextable?
+`r emoji("crying_cat_face")` `r emoji("crying_cat_face")`
+`r emoji("crying_cat_face")`
 
 
 ---
@@ -580,19 +572,29 @@ summary(mod1_bc_wc)
 
 
 ---
-# Linear regression: margins
+# Linear regression
 
-Predicted values of prestige ( $\hat{y}$ ) using the `margins` package
+**Standardized regression coefficients** can be obtained with the `lm.beta` package
+
+```{r, echo=TRUE, eval=TRUE}
+summary(lm.beta(model1))
+```
+
+
+---
+# Linear regression: predictions
+
+Predicted values of prestige ( $\hat{y}$ ) using the `predictions` package
 
 ```{r, echo=TRUE, eval=TRUE}
 p1 <- prediction(model1,
-  at = list(occ = c("blue_collar", "professional", "white_collar")))
+  at = list(occ = c("professional", "white_collar", "blue_collar")))
 summary(p1)
 ```
 
 
 ---
-# Linear regression: margins
+# Linear regression: predictions
 
 Now as a plot
 
@@ -600,7 +602,7 @@ Now as a plot
 # set up the input with the expected format/names
 yhat1 <- summary(p1)[, 1:5]
 names(yhat1) <- c('term', 'estimate', 'std.error', 'statistic', 'p.value')
-yhat1$term <- c('Blue Collar', 'Professional', 'White Collar')
+yhat1$term <- c('Professional', 'White Collar', 'Blue Collar')
 
 # now the plot
 dwplot(yhat1) ## based on normal distribution!
@@ -610,18 +612,18 @@ dwplot(yhat1) ## based on normal distribution!
 
 
 ---
-# Linear regression: margins
+# Linear regression: predictions
 
 ```{r, echo=FALSE, eval=TRUE}
 yhat1 <- summary(p1)[, 1:5]
 names(yhat1) <- c('term', 'estimate', 'std.error', 'statistic', 'p.value')
-yhat1$term <- c('Blue Collar', 'Professional', 'White Collar')
+yhat1$term <- c('Professional', 'White Collar', 'Blue Collar')
 dwplot(yhat1)
 ```
 
 
 ---
-# Linear regression: margins
+# Linear regression: predictions
 
 We could code this up ourselves with the CIs based on t-distribution...
 
@@ -633,14 +635,15 @@ cbind(yhat1[, 2] - qt(0.975, df = 39) * yhat1[, 3],
 ```
 
 
+
 ---
 # Marginal effects: AME
 
 Average marginal effects
 
 ```{r, echo=TRUE, eval=TRUE}
-marg1 <- margins(model1)
-summary(marg1)
+marg2 <- margins(model2)
+summary(marg2)
 ```
 
 
@@ -650,7 +653,7 @@ summary(marg1)
 Plotting the AME
 
 ```{r, echo=TRUE, eval=FALSE}
-plot(marg1)
+plot(marg2)
 
 ## use the following code to save the plot as a pdf file
 ## pdf('marg1_plot.pdf')
@@ -668,7 +671,23 @@ plot(marg1)
 # Marginal effects: AME
 
 ```{r, echo=FALSE, eval=TRUE}
-plot(marg1)
+plot(marg2)
+```
+
+
+
+---
+# Linear regression
+
+Model comparison
+
+```{r, echo=TRUE, eval=TRUE}
+anova(model1, model2)
+```
+
+```{r, echo=TRUE, eval=TRUE}
+# information criterion
+BIC(model1, model2) # or AIC(model1, model2) if you prefer
 ```
 
 ---
@@ -686,17 +705,15 @@ with categorical dependent variables (and counts)
 * To choose a specific model, we specify the family and line:
 
 ```{r, eval=FALSE}
-binomial(link = "logit")
-gaussian(link = "identity")
+binomial(link = "logit")     # or link = "probit"
+gaussian(link = "identity")  # linear regression lm()
 Gamma(link = "inverse")
 inverse.gaussian(link = "1/mu^2")
-poisson(link = "log")
+poisson(link = "log")  # or link = "cloglog
 quasi(link = "identity", variance = "constant")
-quasibinomial(link = "logit")  # negbinom?
+quasibinomial(link = "logit")
 quasipoisson(link = "log")
 ```
-
-* Links include: "logit", "probit", "cauchit", "cloglog", "identity", "log", "sqrt", "1/mu^2", "inverse"
 
 
 ---
@@ -732,6 +749,15 @@ confint.default(logit1, level = 0.99) # based on standard errors
 ---
 # Logistic regression
 
+Odds ratios
+
+```{r, echo=TRUE, eval=TRUE}
+exp(cbind(coef(logit1), confint.default(logit1, level = 0.95)))
+```
+
+---
+# Logistic regression
+
 predicted probabilities
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -745,6 +771,15 @@ df_predict
 logit1_pred <- predict(logit1, newdata = df_predict, type = "response")
 logit1_pred
 ```
+
+---
+# Logistic regression
+
+Average marginal effects
+```{r, echo=TRUE, eval=TRUE}
+margins(logit1, type = "response")
+```
+
 
 
 ---
@@ -777,7 +812,8 @@ summary(probit2)
 
 
 ---
-# Multinomial 
+# Multinomial regression
+
 ```{r, echo=TRUE, eval=TRUE}
 hsbdemo <- read.csv('hsbdemo.csv')
 summary(hsbdemo)
@@ -785,7 +821,7 @@ summary(hsbdemo)
 
 
 ---
-# Multinomial 
+# Multinomial regression
 ```{r, echo=TRUE, eval=TRUE}
 mnlog1 <- multinom(factor(prog) ~ factor(ses) + write, data = hsbdemo)
 summary(mnlog1)
@@ -830,6 +866,6 @@ summary(nbreg1)
 ---
 # To Do
 
-* check out the [effects package](https://cran.r-project.org/web/packages/effects/index.html)?
+* still need to check out the 
+[effects package](https://cran.r-project.org/web/packages/effects/index.html)?
 
-* comparing regression models (nested and non-nested)
