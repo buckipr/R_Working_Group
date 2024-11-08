@@ -36,20 +36,72 @@ data(mtcars)
 ```
 
 
-# Regression
+class: slide-font-25
+# Introduction
 
-This workshop covers steps for conducting statistical analyses in `R`
-and preparing tables and figures.
+This workshop covers steps for fitting regression models in
+<img src="img/Rlogo.png" width="64"> and preparing tables and figures.
 
-* Presenting descriptive statistics & bivariate relationships
+* Our workhorse will be the `lm()` function (and a few cousins, like `glm`)
 
-* Linear Regression
+* The basic recipe includes a *formula* for your model
 
-  + models for continuous, categorical, & counts
+  + `y ~ x1 + x2 + x3*x4`
+  <br><br> (dependent variable `y` regressed on `x`'s)
+  
+\begin{eqnarray}
+  \hat{y} &=& \alpha + \beta_1 x_1 + \beta_2 x_2 + \\ 
+          && \;\;\; \beta_3 x_3 + \beta_4 x_4 + \beta_5 (x_3 \, x_4)
+\end{eqnarray}
+  
+* Instead of `y` and `x`, you use the names of the variables in your data frame
 
-* formula: `y ~ x1 + x2, options`
 
-* now what?  tables & plots
+---
+# Introduction
+
+* We can fit **generalized linear models** with `glm()` and a few more options
+
+  + *family* will indicate the type of outcome (e.g., binomial or count),
+  + *link* is an additional option that allows you to choose between members
+  of the same family (e.g., logit vs. probit)
+  + (more on this later)
+
+* Yes, chef, but what is the recipe for...
+  
+  + Post-processing results? no problem
+  + Figures? no problem
+  + Tables? work in progress
+
+
+---
+# Introduction
+
+* There has been significant progress in the tools for transfering results
+to tables
+
+  + depends on output format (e.g., Word/Excel vs. LaTeX)
+
+* The main sticking point is with regression models
+
+  + still need a tool for linking with Word/Excel
+  + though we can build our own...
+
+
+---
+# Plan of attack
+
+* Present our **descriptive statistics**
+
+* **Linear regression**
+
+  + models, tables, & plots
+
+* Modeling **categorical outcomes**
+
+* What to do with **count data**
+
+* missing anything??
 
 
 ---
@@ -77,12 +129,13 @@ library(nnet)
 
 
 ---
+class: slide-font-25
 # Useful Resources
 
 * [`flextable` reference](https://ardata-fr.github.io/flextable-book/index.html)
+  + [`crosstable`](https://danchaltiel.github.io/crosstable/) -- works with flextable
 
 * `kableExtra` is also a great tool for making HTML & LaTeX tables
-
   + [HTML vignette](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
   + [LaTeX vignette](http://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf)
   + (you can copy/paste HTML tables into Word)
@@ -253,7 +306,6 @@ and randomly assign NAs to make it more interesting)
   + can you build a function to do this more generally?
 
 
-
 ---
 class: inverse, center, middle
 
@@ -330,7 +382,7 @@ duncan$bc <- ifelse(duncan$occ_type == "bc", 1, 0 )
 ---
 # Linear regression
 
-fit the model and print the results
+Fit the model and print the results
 
 ```{r, echo=TRUE, eval=TRUE}
 model1 <- lm(prestige ~ income + educ + occ, data = duncan)
@@ -341,7 +393,7 @@ model1
 ---
 # Linear regression
 
-even more results
+Even more results
 
 ```{r, echo=TRUE, eval=TRUE}
 summary(model1)
@@ -392,10 +444,8 @@ around the regression line
 * Add a loess() line to the previous plot (with a different color)
 
 
-
-
 ---
-# Exercise
+# Exercises
 
 Can you make this plot from model 1 results?
 
@@ -415,8 +465,371 @@ abline(coef=coef(model1)*c(1,1,1,0,0) + c(mean(duncan$educ)*coef(model1)[3], 0, 
 ```
 (hint: `mvtnorm` is your friend)
 
+
 ---
-# Misc
+# Linear regression
 
-* what about the [effects package](https://cran.r-project.org/web/packages/effects/index.html)?
+We can build more complicated models by updating simpler (nested) models
 
+```{r}
+# recall: 
+# model1 <- lm(prestige ~ income + educ + occ, data = duncan)
+
+# add interaction to model 1
+model2 <- update(model1, . ~ . + income*educ, #<<
+                 data = duncan)
+```
+
+
+---
+class: codefs-50
+# Linear regression
+
+```{r}
+summary(model2)
+```
+
+
+---
+class: codefs-50
+# Linear regression
+
+We can **transform** variables inside `lm()` *if* we use a function
+<br> e.g., `log()` or `sqrt()`
+
+```{r}
+model3 <- lm(prestige ~ educ*occ + log(income), data = duncan)
+summary(model3)
+```
+
+
+---
+class: codefs-50
+# Linear regression
+
+For polynomial terms (e.g, squared, cubed) we need to create transformed
+variable before calling `lm()`
+
+```{r}
+duncan$income_sq <- duncan$income^2
+model4 <- lm(prestige ~ educ*occ + income_sq, data = duncan)
+summary(model4)
+```
+
+
+---
+# Linear regression: table
+
+```{r, eval=FALSE, results="asis"}
+cov_labels <- c("Education", "log(Income)", "Income squared",
+                "Income", "Income * Education", "White Collar", 
+                "Education * White Collar", "Blue Collar",
+                "Education * Blue Collar", "Intercept")
+stargazer(model1, model2, model3, model4, type = "html", out = "models.html",
+          model.numbers = FALSE, dep.var.caption = "", dep.var.labels.include = FALSE,
+          column.labels = c("Model 1", "Model 2", "Model 3", "Model 4"),
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          table.layout = "-c-!t-s-n",
+          covariate.labels = cov_labels,
+          order = c(2, 6, 7, 1, 5, 3, 8, 4, 9, 10),
+          digits = 2, keep.stat = c("rsq", "n"))
+```
+
+(table is on the next slide)
+
+---
+class: codefs-50
+# Linear regression: table
+
+```{r, eval=TRUE, echo=FALSE, results="asis"}
+cov_labels <- c("Education", "log(Income)", "Income^{2}",
+                "Income", "Income * Education", "White Collar", 
+                "Education * White Collar", "Blue Collar",
+                "Education * Blue Collar", "Intercept")
+stargazer(model1, model2, model3, model4,
+          type = "html", out = "models.html",
+          model.numbers = FALSE, dep.var.caption = "",
+          dep.var.labels.include = FALSE,
+          column.labels = c("Model 1", "Model 2", "Model 3", "Model 4"),
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          table.layout = "-c-!t-s-n",
+          covariate.labels = cov_labels,
+          order = c(2, 6, 7, 1, 5, 3, 8, 4, 9, 10),
+          digits = 2, keep.stat = c("rsq", "n"))
+```
+
+---
+class: codefs-50
+# Linear regression: table
+
+example with flextable?
+
+
+---
+class: codefs-50
+# Linear regression
+
+Another useful option will **subset** the data
+
+```{r, echo=TRUE}
+duncan$occ_bc_wc <- duncan$occ_type == "bc" | duncan$occ_type == "wc"
+mod1_bc_wc <- lm(prestige ~ income + educ, data = duncan, 
+              subset = occ_bc_wc) #<<
+summary(mod1_bc_wc)
+```
+
+
+---
+# Linear regression: margins
+
+Predicted values of prestige ( $\hat{y}$ ) using the `margins` package
+
+```{r, echo=TRUE, eval=TRUE}
+p1 <- prediction(model1,
+  at = list(occ = c("blue_collar", "professional", "white_collar")))
+summary(p1)
+```
+
+
+---
+# Linear regression: margins
+
+Now as a plot
+
+```{r, echo=TRUE, eval=FALSE}
+# set up the input with the expected format/names
+yhat1 <- summary(p1)[, 1:5]
+names(yhat1) <- c('term', 'estimate', 'std.error', 'statistic', 'p.value')
+yhat1$term <- c('Blue Collar', 'Professional', 'White Collar')
+
+# now the plot
+dwplot(yhat1) ## based on normal distribution!
+```
+
+(plot on the next slide)
+
+
+---
+# Linear regression: margins
+
+```{r, echo=FALSE, eval=TRUE}
+yhat1 <- summary(p1)[, 1:5]
+names(yhat1) <- c('term', 'estimate', 'std.error', 'statistic', 'p.value')
+yhat1$term <- c('Blue Collar', 'Professional', 'White Collar')
+dwplot(yhat1)
+```
+
+
+---
+# Linear regression: margins
+
+We could code this up ourselves with the CIs based on t-distribution...
+
+
+```{r, echo=TRUE, eval=TRUE}
+summary(p1)
+cbind(yhat1[, 2] - qt(0.975, df = 39) * yhat1[, 3],
+      yhat1[, 2] + qt(0.975, df = 39) * yhat1[, 3])
+```
+
+
+---
+# Marginal effects: AME
+
+Average marginal effects
+
+```{r, echo=TRUE, eval=TRUE}
+marg1 <- margins(model1)
+summary(marg1)
+```
+
+
+---
+# Marginal effects: AME
+
+Plotting the AME
+
+```{r, echo=TRUE, eval=FALSE}
+plot(marg1)
+
+## use the following code to save the plot as a pdf file
+## pdf('marg1_plot.pdf')
+## plot(marg1)
+## dev.off()
+
+## alternative functions, to pdf(), include bmp(), jpeg(),
+## png(), and tiff()
+```
+
+(plot on next slide)
+
+
+---
+# Marginal effects: AME
+
+```{r, echo=FALSE, eval=TRUE}
+plot(marg1)
+```
+
+---
+class: inverse, center, middle
+
+# Categorical Outcomes
+
+
+---
+# GLM
+
+* Generalized linear model and the `glm()` function provide tools for working
+with categorical dependent variables (and counts)
+
+* To choose a specific model, we specify the family and line:
+
+```{r, eval=FALSE}
+binomial(link = "logit")
+gaussian(link = "identity")
+Gamma(link = "inverse")
+inverse.gaussian(link = "1/mu^2")
+poisson(link = "log")
+quasi(link = "identity", variance = "constant")
+quasibinomial(link = "logit")  # negbinom?
+quasipoisson(link = "log")
+```
+
+* Links include: "logit", "probit", "cauchit", "cloglog", "identity", "log", "sqrt", "1/mu^2", "inverse"
+
+
+---
+# Logistic regression
+
+```{r, echo=TRUE, eval=TRUE}
+grad_school <- read.csv('grad_school.csv')
+summary(grad_school)
+```
+
+
+---
+# Logistic regression
+
+```{r, echo=TRUE, eval=TRUE}
+logit1 <- glm(admit ~ gre + gpa + factor(rank), data = grad_school,
+              family = binomial(link = "logit")) #<<
+summary(logit1)
+```
+
+
+---
+# Logistic regression
+
+confidence intervals
+
+```{r, echo=TRUE, eval=TRUE}
+# confint(logit1, level = 0.99)  # based on profile likelihood
+confint.default(logit1, level = 0.99) # based on standard errors
+```
+
+
+---
+# Logistic regression
+
+predicted probabilities
+
+```{r, echo=TRUE, eval=TRUE}
+df_predict <- with(grad_school, 
+                   data.frame(gre = mean(gre), gpa = mean(gpa), 
+                              rank = factor(1:4)))
+df_predict
+```
+
+```{r, echo=TRUE, eval=TRUE}
+logit1_pred <- predict(logit1, newdata = df_predict, type = "response")
+logit1_pred
+```
+
+
+---
+# Probit model
+```{r, echo=TRUE, eval=TRUE}
+probit1 <- glm(admit ~ gre + gpa + factor(rank), data = grad_school,
+              family = binomial(link = "probit")) #<<
+summary(probit1)
+```
+
+
+---
+# Probit model
+```{r, echo=TRUE, eval=TRUE}
+# change reference category
+grad_school$f_rank <- factor(grad_school$rank)
+levels(grad_school$f_rank)
+grad_school$f_rank <- relevel(grad_school$f_rank, ref = "3")
+table(grad_school$f_rank)
+```
+
+
+---
+# Probit model
+```{r, echo=TRUE, eval=TRUE}
+probit2 <- glm(admit ~ gre + gpa + f_rank, data = grad_school,
+              family = binomial(link = "probit"))
+summary(probit2)
+```
+
+
+---
+# Multinomial 
+```{r, echo=TRUE, eval=TRUE}
+hsbdemo <- read.csv('hsbdemo.csv')
+summary(hsbdemo)
+```
+
+
+---
+# Multinomial 
+```{r, echo=TRUE, eval=TRUE}
+mnlog1 <- multinom(factor(prog) ~ factor(ses) + write, data = hsbdemo)
+summary(mnlog1)
+```
+
+
+---
+class: inverse, center, middle
+
+# Modeling Counts
+
+
+---
+# Poisson model
+
+```{r, echo=TRUE, eval=TRUE}
+school_absence <- read.csv('school_absence.csv')
+summary(school_absence)
+```
+
+
+---
+# Poisson model
+
+```{r, echo=TRUE, eval=TRUE}
+pois1 <- glm(daysabs ~ math + factor(prog), data = school_absence,
+             family=poisson(link = "log"))  #<<
+summary(pois1)
+```
+
+
+---
+# Negative Binomial
+
+```{r, echo=TRUE, eval=TRUE}
+nbreg1 <- glm.nb(daysabs ~ math + factor(prog), data = school_absence)
+summary(nbreg1)
+```
+
+
+
+---
+# To Do
+
+* check out the [effects package](https://cran.r-project.org/web/packages/effects/index.html)?
+
+* comparing regression models (nested and non-nested)
