@@ -5,7 +5,7 @@ layout: default
 ## Welcome to the R Working Group
 
 
-### **Preliminary Schedule for Autumn 2024**
+### **Schedule for Spring 2025**
 
 **Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
