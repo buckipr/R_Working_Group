@@ -28,7 +28,7 @@ layout: default
 * [Spring Workshop:](https://imageomics.github.io/2025-02-11-osu-online/) OSU Software Carpentries: Version Control with Git and R for Scientific Reproducibility
   + Dates: Feb 11 & 14 (online)
   + [Registration for R Session](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-0)
-  + [Registration for Git Session]https://library.osu.edu/events/version-control-with-git-virtual-event-0
+  + [Registration for Git Session](https://library.osu.edu/events/version-control-with-git-virtual-event-0)
 
 * [aifeducation:](https://fberding.github.io/aifeducation/) New R package for those interested in learning about and using
 artificial intelligence.
