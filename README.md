@@ -5,9 +5,13 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* New OSU course (Fall '24) [Data Vizualization with R](https://www.rdataviz.com/syllabus/syllabus.html)
+* [Spring Workshop:](https://imageomics.github.io/2025-02-11-osu-online/) OSU Software Carpentries: Version Control with Git and R for Scientific Reproducibility
+  + Dates: Feb 11 & 14 (online)
+  + [Registration for R Session](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-0)
+  + [Registration for Git Session]https://library.osu.edu/events/version-control-with-git-virtual-event-0
 
-* OSU's Code Club [will restart at the end of August](https://biodash.github.io/codeclub-schedule/)
+* [aifeducation:](https://fberding.github.io/aifeducation/) New R package for those interested in learning about and using
+artificial intelligence.
 
 * *Cool new R package*: [SUMMER -- Small-Area-Estimation Unit/Area Models and Methods for Estimation in R](https://cran.r-project.org/web/packages/SUMMER/index.html)
 
@@ -15,34 +19,31 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
   coordinating the R Working Group.  If you are interesetd, please let us know
   (email: thomas DOT 3912 at osu DOT edu)
 
-
-## **Schedule for Authum 2024**
+## **Schedule for Spring 2025**
 
 We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
 
-* Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2024_09_13/intro_r_np.html#1)
-   - [other files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2024_09_13)
+* Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research
-   - [slides](https://buckipr.github.io/R_Working_Group/r_markdown/2024_09/intro_r_markdown_np.html#1)
-   - [other files](https://github.com/buckipr/R_Working_Group/tree/main/r_markdown/2024_09_27)
+* Feb 7th: Web Scraping
 
-* Oct 11th: Autumn Break (no workshop)
+* Feb 22nd: Text Analysis - data preparation
 
-* Oct 25th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
-   - [slides](https://buckipr.github.io/R_Working_Group/ggplot2/2024_10/ggplot2_np.html#1)
-   - [other files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2024_10)
+* March 7th: Text Analysis - topic modeling
 
-* Nov 8th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* March 21st: Survey Weights I
 
-* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* April 4th: Survey Weights II
+
+* April 18th: Introduction to Bayesian statistics
 
 (Zoom option is also available)
 
 ## **Resources**
 
 * **Intro to R**
+
+   - [Sept 2024](https://buckipr.github.io/R_Working_Group/intro_r/2024_09_13/intro_r_np.html#1)
 
    - [Sep 2023](https://buckipr.github.io/R_Working_Group/intro_r/2023_09/intro_r.html#1)
 

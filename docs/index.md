@@ -9,30 +9,29 @@ layout: default
 
 **Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
-* Sept 13th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-    + [slides](intro_r/2024_09_13/intro_r_np.html)
-    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2024_09_13)
+* Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Sept 27th: [R Markdown](https://rmarkdown.rstudio.com) & Reproducible Research 
-    + [slides](r_markdown/2024_09/intro_r_markdown_np.html)
-    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/r_markdown/2024_09_27)
+* Feb 7th: Web Scraping
 
-* Oct 11th: Autumn Break (no workshop)
+* Feb 22nd: Text Analysis - data preparation
 
-* Oct 25th: Making plots in <img src="https://www.r-project.org/logo/Rlogo.png" width="25"> with [ggplot2](https://ggplot2.tidyverse.org/)
-    + [slides](ggplot2/2024_10/ggplot2_np.html)
-    + [other files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2024_10)
+* March 7th: Text Analysis - topic modeling
 
-* Nov 8th: Regressions in <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* March 21st: Survey Weights I
 
-* Nov 22nd: Maximum Likelihood with <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+* April 4th: Survey Weights II
 
+* April 18th: Introduction to Bayesian statistics
 
 ### **What's New**
 
-* New OSU course (Fall '24) [Data Vizualization with R](https://www.rdataviz.com/syllabus/syllabus.html)
+* [Spring Workshop:](https://imageomics.github.io/2025-02-11-osu-online/) OSU Software Carpentries: Version Control with Git and R for Scientific Reproducibility
+  + Dates: Feb 11 & 14 (online)
+  + [Registration for R Session](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-0)
+  + [Registration for Git Session]https://library.osu.edu/events/version-control-with-git-virtual-event-0
 
-* OSU's Code Club [will restart at the end of August](https://biodash.github.io/codeclub-schedule/)
+* [aifeducation:](https://fberding.github.io/aifeducation/) New R package for those interested in learning about and using
+artificial intelligence.
 
 * *Cool new R package*: [SUMMER -- Small-Area-Estimation Unit/Area Models and Methods for Estimation in R](https://cran.r-project.org/web/packages/SUMMER/index.html)
 
