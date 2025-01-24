@@ -10,6 +10,7 @@ layout: default
 **Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
 * Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+  + [link to R markdown file](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2025_01_24/rmarkdown.Rmd)
 
 * Feb 7th: Web Scraping
 

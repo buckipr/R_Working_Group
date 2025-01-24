@@ -1,0 +1,244 @@
+---
+title: "Introduction to R"
+author: "R Working Group"
+date: "2025-01-24"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Two for the Price of One!
+
+Buckle your seat belt because we are trying something *NEW* for this introduction
+to R.  Your brain is probably saying
+
+"This does not look like the normal script file!"
+
+and your brain is correct!  Welcome to the world of R Markdown!  Ready for a
+magic trick?  See that little ball of yarn & knitting needle (next to the word
+Knit)?  Click it and **behold**!
+
+<br>
+
+<br>
+
+<br>
+
+
+## Goals
+
+* Load Data into R
+
+* Create New Variables
+
+* Exploratory Data Analysis
+
+* Tables & Plots?
+
+<br>
+
+<br>
+
+<br>
+
+
+## R Markdown (quick tour)
+
+### Markdown
+
+Not a lot here (we've already seen most of the magic).  For more check out:
+[markdown link](https://markdownlivepreview.com/)
+
+### R Markdown
+
+Code chunk options:
+
+* `echo=FALSE` -- display the R code
+* `include=TRUE` -- include the results produced by running the R code
+
+**Exercises**
+
+* Shortcuts
+  + What is the keyboard shortcut for inserting a code chunk?
+  + Is there a keyboard shortcut for running all the code in a chunk?
+* How do you include?
+  + Why would you ever want to do this?
+* Can you make a nested list with spaces between all of the items?
+  + How many levels can you create in a nested list?
+* Code Chunks
+  + What does the code chunk option `eval=FALSE` do?
+  + How do you keep warning messages from being included in your output?
+  + Include a link to a good resource
+* What the heck is YAML?  Find 3 super cool things you can do with it...
+  1. thing 1:
+  1. thing 2:
+  1. thing 3:
+* Markdown
+  + How do you add a page break?
+  + Can you include a footnote in your doc?  an endnote?  a link
+  to another section in your doc?!?
+  + *Can you include citations/references?!?*
+* Anything else???
+
+<br>
+
+<br>
+
+<br>
+
+
+## Loading Data into R (and kicking it out)
+
+Let's load a practice data set from the web, then do some stuff.
+
+```{r gradsch_data}
+# comment: Load example data set 
+gradsch_data <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+gradsch_data
+```
+
+As you will learn, Jason is fairly lazy and thus the commentary will now cease
+since his poor fingers are likely too be quite fatigued by this point! (sob, sob)
+
+
+```{r take_2}
+head(gradsch_data) ## much better
+## dim() is also useful == (nrow(), ncol())
+```
+
+
+```{r take_3}
+summary(gradsch_data) ## now you are just showing off!
+```
+
+```{r admit}
+table(gradsch_data$admit)
+```
+
+#### Ignore for now
+
+(but run the chunks!  we'll use the results later)
+
+```{r interestify}
+gradsch_data$admit[c(11, 22, 33, 44, 55, 66)] <- NA
+gradsch_data$gre[c(55, 66, 77, 88, 99, 111)] <- NA
+gradsch_data$gre[193] <- 29875
+gradsch_data$gpa[c(122, 133, 144, 155, 166, 177, 188)] <- NA
+gradsch_data$rank[c(11, 22, 77, 99, 122, 133, 177, 199, 222, 333)] <- NA
+```
+
+#### Outro
+
+```{r outro}
+getwd()  ## this is where the file will be save (change with setwd("path"))
+dir()    ## print the contents of the current directory
+write.csv(gradsch_data, file = "gs.csv")
+```
+
+**Exercises**
+
+* Change the next (sub)item so that it includes the actual number of observations
+(instead of "a lot").
+  + There are N = `r print("a lot")` observations in this data set.
+* What does the function `str` do?
+* How do you exprot data to a CSV file so that first column or row numbers is
+not included?
+* Read in the data set `gd.csv`
+  + Print out the first observation for rank
+  + Print out the third observation all variables
+  + Create a new data set that only includes the first 4 observations
+* Anything else???
+
+<br>
+
+<br>
+
+<br>
+
+
+## Create New Variables
+
+```{r new_vars}
+gradsch_data$top_rank <- NA
+table(gradsch_data$top_rank, gradsch_data$rank, useNA = "always")
+```
+
+```{r top_rank}
+gradsch_data$rank == 4
+gradsch_data$top_rank[ gradsch_data$rank == 4 ] <- 1
+# now assign 0 if rank == 1, 2, or 3
+# make a table to check your coding
+```
+
+
+```{r super_star}
+summary(gradsch_data$gre)
+summary(gradsch_data$gpa)
+
+# super_star = 1 if above mean gre AND gpa
+gradsch_data$ss <- 0
+gradsch_data$gre > mean(gradsch_data$gpa) # can you fix this? (2 problems)
+
+# table(gradsch_data$gre > mean(gradsch_data$gpa),
+#       gradsch_data$gpa > mean(gradsch_data$gpa),
+#       useNA = "always")
+# indicator <- gradsch_data$gre > mean(gradsch_data$gpa) &
+#       gradsch_data$gre > mean(gradsch_data$gpa)
+## use our indicator to finish coding super_star
+## what happened to the NA's?
+```
+
+**Exercises**
+
+* What does the function `is.na` do?  Use this function to create a new variable
+`ss2` where all the missing value are coded to 0.
+* "Or" is implemented in R with a vertical bar |.  Create a new variable called
+star that takes a value of 1 if the student's gre is above the 3rd quantile OR
+the students gpa is above the 3rd quantile (and 0 otherwise).
+* Create a new data frame that only includes complete cases (i.e. no missing data)
+* Anything else???
+
+<br>
+
+<br>
+
+<br>
+
+
+## Exploratory Data Analysis
+
+
+**Exercises**
+
+* What are the 5 most useful functions in `dplyr`?
+  + Describe what each function does and take it for a spin
+  + What is pipe? (in the R language)  Is it useful?
+* Anything else???
+
+<br>
+
+<br>
+
+<br>
+
+
+## Tables & Plots
+
+**Exercises**
+
+* The function `lm()` will run a linear regression.
+  + Regress admit on gpa (model 1).
+  + Regress admit on gre (model 2).
+  + Regress admit on gpa + gre (model 3).
+  + Regress admit on gpa + gre + gpa-gre interaction (model 4).
+  + Make a table of your regression results (coefficients and standard errors).
+  + Write the table to a CSV file (that would make an journal editor proud).
+* Guess what the function `()` does.
+  + Plot gre vs. gpa.
+  + Add a red lines that indicate the mean of gpa and the mean of gre.
+  + If the student was admitted, change the plotting character to "A",
+  and if the student was not addmitted, change the plotting character to "N"
+  + Repeat these steps with `ggplot2`
+* Anything else???
