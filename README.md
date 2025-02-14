@@ -25,7 +25,8 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
 
 * Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 
-* Feb 7th: Web Scraping
+* Feb 7th: Web Scraping (rescheduled for Feb 14th)
+    - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r.html#1)
 
 * Feb 22nd: Text Analysis - data preparation
 

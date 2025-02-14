@@ -12,7 +12,10 @@ layout: default
 * Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
   + [link to R markdown file](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2025_01_24/rmarkdown.Rmd)
 
-* Feb 7th: Web Scraping
+* Feb 7th: Web Scraping (rescheduled for Feb 14th)
+  + [slides](web_scraping/webscraping_r.html)
+  + [files](https://github.com/buckipr/R_Working_Group/blob/main/web_scraping/)
+
 
 * Feb 22nd: Text Analysis - data preparation
 

@@ -1,11 +1,11 @@
 ---
-title: "Web Scraping with <br/><br/> ![](img/r-logo2.png){width=200px}"
+title: "Web Scraping with <br/><br/> ![](img/Rlogo.png){width=200px}"
 author: "Jason Thomas"
 institute: "R Working Group"
-date: "April 12th, 2024"
+date: "Feb 14th, 2025"
 output:
   xaringan::moon_reader:
-    css: ["buckeye.css"]
+    css: ["style_web_scraping.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -96,7 +96,7 @@ Two buckets: "APIs" and non-APIs
 --
 
 * Why does this matter?  It is much easier to extract data from an API and different tools are used
-  + API: packages `httr` and `jsonlite`
+  + API: packages `httr2` and `jsonlite`
   + No API `r emoji("weary")` then go with `rvest`
 
 
@@ -109,7 +109,7 @@ class: inverse, center, middle
 ---
 # HTML: *big picture*
 
-* **H**yper **Text** **M**arkup **L**anguage
+* **H**yper **T**ext **M**arkup **L**anguage
 
   + different **elements** tell web browsers how to display text, images, structures, etc.
   + paragraph: `<p> This is a paragraph </p>`
@@ -132,7 +132,7 @@ for seeing where/how the HTML elements appear on a page
 ---
 # HTML: *example 1*
 
-Open an HTML file (or text file) in R Studio (text editor) and enter the
+Open an HTML file (or text file) in R Studio (or text editor) and enter the
 following content
 
 ```
@@ -162,17 +162,17 @@ browser.  (Can you find the text "My First Page"?)
 
 * The **elements** in example 1 contain text surrounded by **tags**
 
-  + `<h1>` (start tag) & `</h1>` (end tag)
+  + `<h1>` (start tag) and `</h1>` (end tag)
   
 --
 
 * **Block tags** are used to define sections and structure in a web page.
 Here are some common examples:
   + `<h1>` Heading 1 `</h1>`  (with `<h2>`, ..., & `<h6>` for smaller sizes)
-  + `<section>` & `</section>`
+  + `<section>` and `</section>`
   + `<p>` paragraph `</p>`
   + `<table>` (has more tags for rows and headers) `<table>`
-  + `<ul>` unordered list `</ul`> & `<li>` list item `</li>`
+  + `<ul>` unordered list `</ul`> and `<li>` list item `</li>`
   + `<ol>` ordered list `</ol>`
 
 
@@ -221,6 +221,8 @@ Example with unordered list
   <li> <span class='asia'> Dhaka (23,935,652) </span> </li>
   <li> <span class='latam'> Sao Paulo (22,806,704) </span> </li>
 </ul>
+
+<p> We should add country specific tables as well!</p>
 
 </body>
 </html> 
@@ -357,11 +359,11 @@ This text is not inside a paragraph, so it is not center aligned.
 
 HTML is a language that uses elements to create web pages
 
-* elements are demarcated with tags: `<h1>` & `</h1>`
+* elements are demarcated with tags: `<h1>` and `</h1>`
 
-* tags can also have attributes, e.g., `id` & `class`
-  + `<p id = "par_id">` & `</p>`
-  + `<h1 class='my_header1'>` & `</h1>`
+* tags can also have attributes, e.g., `id` and `class`
+  + `<p id = "par_id">` and `</p>`
+  + `<h1 class='my_header1'>` and `</h1>`
 
 --
 
@@ -380,17 +382,19 @@ class: inverse, center, middle
 ---
 # `rvest`: *big picture*
 
-`rvest` will allow us to accomplish a lot with only a few functions that navigate HTML
-and extract data
+`rvest` will allow us to accomplish a lot with only a few functions that
+navigate HTML and extract data
 
 --
 
 * `read_html("http://mypage.org")` -- read in HTML from web address (or local file) and store it as an `xml_document`
+
   + `xml` is another language used to organize data
 
 --
 
 * Find elements with:  `html_elements()` & `html_element()`
+
   + these are typically used in tandem to create variables and fill in observations
 
 
@@ -431,7 +435,6 @@ example01 |> html_elements("p")
 Here we see the `xml_nodeset` which can (and does!) have nested elements.
 
 ```{r simple_example_cont_b}
-## no s!
 example01 |> html_element("p")
 ```
 
@@ -498,7 +501,6 @@ characters |> html_element("b")
 ```
 
 
-
 ---
 # `rvest`: `html_elements()` & co.
 
@@ -530,7 +532,6 @@ characters |>
 ```
 
 
-
 ---
 # `rvest`: `html_attr()`
 
@@ -540,6 +541,7 @@ Now some practice selecting `class` attribute from example 2 (list of cities).
 html2 <- read_html("example-02.html")
 html2 |> html_elements("li")
 ```
+
 
 ---
 # `rvest`: `html_attr()` (cont.)
@@ -572,6 +574,32 @@ data.frame("City" = html2 |> html_elements("span") |> html_text2(),
 ```
 
 (a little more work is needed to separate city name and pop size)
+
+
+---
+# `rvest`: CSS Selectors
+
+Recall that CSS Selectors can style elements with **id**:
+
+```{r example_02_4a}
+html2 <- read_html("example-02.html")
+html2 |> html_elements("p")
+```
+
+```{r example_02_4b}
+html2 |> html_elements("#top5")
+```
+
+
+---
+# `rvest`: CSS Selectors (cont)
+
+as well as with **classes**
+
+```{r example_02_4c}
+html2 |> html_elements("li") |>
+  html_elements(".asia")
+```
 
 
 ---
