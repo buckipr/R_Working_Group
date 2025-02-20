@@ -17,7 +17,7 @@ layout: default
   + [files](https://github.com/buckipr/R_Working_Group/blob/main/web_scraping/)
 
 
-* Feb 22nd: Text Analysis - data preparation
+* Feb 21st: Text Analysis - data preparation
 
 * March 7th: Text Analysis - topic modeling
 
