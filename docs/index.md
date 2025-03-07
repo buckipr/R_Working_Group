@@ -24,7 +24,7 @@ was probably a bit too much (and is better suited for 2 sessions).
 * Feb 21st: Text Analysis - data preparation
 
 * March 7th: Text Analysis - topic modeling
-  + [slides](text_analysis/topic_models.html)
+  + [slides](text_analysis/topic_models_np.html)
   + [files](https://github.com/buckipr/R_Working_Group/blob/main/text_analysis/)
 
 * March 21st: Survey Weights I
