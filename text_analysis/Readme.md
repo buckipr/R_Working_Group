@@ -37,19 +37,23 @@ a bunch of text/long string) runs off the slide.  I found some code
 
 (this is included in the Rmd file, but should probably go in css)
 
+
+````
 ```{css, echo=FALSE}
 .wrap code[class="remark-code"] {
   text-wrap: wrap;
 }
 ```
+````
+
 
 and then, use this class to wrap around the code chunk that produces
 the super long string
 
-```
+````
 .wrap[
-\`\`\`{r, split=TRUE}
+```{r, split=TRUE}
 JSS_papers[1, "description"]  ## abstract for 1st article
-\`\`\`
-]
 ```
+]
+````
