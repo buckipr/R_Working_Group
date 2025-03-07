@@ -24,6 +24,8 @@ artificial intelligence.
 We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
 
 * Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+    - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_01_24/r_intro_np.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_01_24)
 
 * Feb 7th: Web Scraping (rescheduled for Feb 14th)
     - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r.html#1)

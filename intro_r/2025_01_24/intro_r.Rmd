@@ -1,0 +1,265 @@
+---
+title: "Introduction to <br/><br/> ![](img/Rlogo.png){width=200px}"
+author: "Jason Thomas"
+institute: "R Working Group"
+date: "Jan. 24th, 2025"
+output:
+  xaringan::moon_reader:
+    css: ["style_intro_r.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(dplyr)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+
+```
+
+
+class:slide-font-25
+# Welcome to the R Working Group
+
+* Website [https://buckipr.github.io/R_Working_Group/](https://buckipr.github.io/R_Working_Group/)
+
+* We are Slackers <br> (email Jason at thomas.3912 for an invite)
+
+--
+
+* Let's jump right in
+    + Go to the GitHub page &rarr; intro_R &rarr; 2025_01_24
+    + Download the rmarkdown.Rmd file.
+
+--
+
+* Install R packages
+    + Open R Studio: Tools &rarr; Install Packages...
+--
+    + install: rmarkdown
+    + (maybe dplyr, haven, and ggplot2 as well)
+--
+    + (in R: Packages & Data &rarr; Package Installer)
+
+---
+class: inverse, center, middle
+
+# R Studio
+
+
+---
+# R Studio
+
+* Let's dive in by starting R Studio and opening a new R script
+
+    + menu bar: &nbsp; `File` &rarr; `New File` &rarr; `R Script`
+    + (in R: &nbsp; `File` &rarr; `New Script`)
+--
+
+* You should now have 4 panes open (like on the next slide)
+
+    + **Source** -- Our script where we will type and save our comments & commands
+    + **Console** -- Where we can give R commands and where the output will appear
+    + **Output** -- File explorer, plots, help files, and more!
+    + **Environments** -- Useful information about the R session
+
+
+---
+.center[<img src="img/rstudio-panes-labeled.jpeg" style="width: 75%" />]
+
+.center[.bottom[downloaded from [user guide on postit.co](https://docs.posit.co/ide/user/ide/guide/ui/ui-panes.html)]]
+
+
+---
+class:slide-font-25
+# R Studio: Good Habits
+
+* Add a comment to our new script:
+    ```{r, eval=FALSE, prompt=FALSE}
+    #------------------------------------------------------------------------
+    # File name: first_r_script.R
+    # last modified: 2024-09-13
+    # (start comment with # and R ignores the rest of the line)
+    #------------------------------------------------------------------------
+    3 + 3 # this useful part is for humans (R will add & ignore the rest)
+    ```
+--
+
+* Save our script
+
+    + menu bar: &nbsp; `File` &rarr; `Save As...`
+--
+
+* Set our **working directory**
+
+    + this is where R will start looking for & saving files (e.g., data files or plots)
+    
+    + menu bar: &nbsp; `Session` &rarr; `Set Working Directory` &rarr; <br>
+    &emsp; &emsp; &emsp; &emsp; `Choose Directory...`
+
+
+---
+class: inverse, center, middle
+
+# Basic R Syntax
+
+---
+class:slide-font-25
+# Basic R Syntax
+
+* R syntax takes the form
+
+```{r, eval=FALSE, prompt=FALSE}
+# object_name <- object_value  
+mean_age <- 33
+```
+
+--
+
+* The symbol "`<-`" is called the assignment operator
+
+    + we are creating a new variable called `mean_age` and assigning it a value of 33
+
+    + `mean_age = 33` will also work (but `<-` is the convention)
+
+--
+
+* Useful(?) keyboard shortcut to produce `<-`
+    
+    + <kbd>Alt</kbd> + <kbd>-</kbd> (Windows)
+    
+    + <kbd>option</kbd> + <kbd>-</kbd> (Mac)
+
+---
+class: slide-font-20
+# Basic R Syntax (cont.)
+
+If we enter the name of a variable in the `Console`, then R will list the value(s)
+```{r}
+Mean_age2 <- 22  ## note: object names are case-sensitive
+mean_age2
+```
+
+--
+```{r}
+Mean_age2
+```
+
+--
+BUT we are in the business of good habits...
+
+* type this syntax into our script and (with the cursor on the same line) press the following keys together:
+
+    + On a Mac: &nbsp;  <kbd>command</kbd> + <kbd>return</kbd>
+    
+    + In Windows: &nbsp; <kbd>Ctrl</kbd> + <kbd>Enter</kbd> &emsp; (in R Studio)  <br> 
+    &emsp; &emsp; &emsp; &emsp; &ensp; <kbd>Ctrl</kbd> + <kbd>R</kbd> &emsp; &emsp; &ensp; (in the R app)
+
+* these keyboard shortcuts will run the syntax on the line in the `Console` <br> 
+(or you can highlight a region)
+
+
+---
+class: codefs-50
+# Basic R Syntax: help files
+
+* Google searches are a very effective way to find help
+
+    + and so is asking the R Working Group `r emoji("sunglasses")`
+--
+
+* R documentation can be accessed in the `Help` tab in the `Output` pane
+
+--
+
+* Some additional syntax and functions
+
+```{r, eval=FALSE, prompt=FALSE}
+?read.csv                     # show the help file for the function read.csv
+help.search("weighted mean")  # search help files for the phrase 'weighted meant
+```
+
+
+--
+
+* What does the `save` function do, and how do you use it?  What about `save.image`?
+
+---
+class: inverse, center, middle
+
+# Data Structures in R
+
+
+---
+
+## **Data Structures**: motivation
+
+We are not going to solve the world's problems with a single number...
+
+```{r}
+all_ages <- c(22, 33, 44, 55)  # c() concatenates numbers together
+all_ages
+```
+
+--
+
+```{r}
+mean(all_ages)                 # calculate the mean
+```
+
+--
+
+```{r}
+all_ed <- c("HS", "Col", "Grad Sch", "HS")
+all_ed
+```
+
+
+---
+## **Data Structures**: indexing vectors
+
+We can access the $i^{th}$ element in a vector with the syntax `vector_name[ i ]` 
+
+--
+
+```{r}
+test_scores <- c(88, 92, 67, 79, 72, 85, 96)
+test_scores[1]    # first element
+test_scores[2]    # second element
+```
+
+--
+```{r}
+1:3   # a vector of c(1, 2, 3)
+      # so what will test_scores[3:1] give us?
+```
+
+
+---
+## **Data Structures**: indexing vectors (cont.)
+
+What will the following command do? `r emoji("thinking")`
+
+```{r, eval=FALSE, prompt=FALSE}
+test_scores[c(3, 5, 11)]
+```
+
+
+---
+## **Data Structures**: changing vectors
+
+
+We can use indexing to change vectors as well, e.g., reassign the first element
+
+```{r}
+test_scores[1]  <- NA # change the first element to NA
+test_scores[1]
+```
+
+--
+
+Now on to the rmarkdown file

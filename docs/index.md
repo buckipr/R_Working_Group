@@ -10,6 +10,10 @@ layout: default
 **Location & Time**: 38 Townshend Hall (with Zoom option) from 12:00 to 1:30pm
 
 * Jan 24th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+  + This version of the R Intro is a bit different (from past iterations),
+as we tried to simultaneously introduce both the R language and R Markdown.  It
+was probably a bit too much (and is better suited for 2 sessions).
+  + [slides](intro_r/2025_01_24/intro_r_np.html)
   + [link to R markdown file](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2025_01_24/rmarkdown.Rmd)
 
 * Feb 7th: Web Scraping (rescheduled for Feb 14th)
