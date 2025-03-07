@@ -20,7 +20,7 @@ layout: default
 * Feb 21st: Text Analysis - data preparation
 
 * March 7th: Text Analysis - topic modeling
-  + [slides](text_analysis/topic_modeling.html)
+  + [slides](text_analysis/topic_models.html)
   + [files](https://github.com/buckipr/R_Working_Group/blob/main/text_analysis/)
 
 * March 21st: Survey Weights I
