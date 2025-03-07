@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Web Scraping with    </title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jason Thomas" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link rel="stylesheet" href="buckeye.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Web Scraping with <br/><br/> <img src="img/r-logo2.png" width="200" />
+]
+.author[
+### Jason Thomas
+]
+.institute[
+### R Working Group
+]
+.date[
+### April 12th, 2024
+]
+
+---
+
+
+
+
+
+# Introduction
+
+* The goal for today is to learn how to extract data from website using R
+
+  + to get there, we will have to learn a little bit about the structure &amp; language of webpages (i.e., HTML, CSS)
+  
+      - no previous knowledge of HTML or CSS is assumend
+  
+  + [rvest](https://rvest.tidyverse.org/) (tidyverse family): R package that will do most of the work
+
+* [https://github.com/buckipr/R_Working_Group/webscraping](https://github.com/buckipr/R_Working_Group/webscraping)
+&lt;br&gt; (materials)
+  + Getting most of the material from Hadley Wickham's excellent book (ch. 24):
+  [R for Data Science](https://r4ds.hadley.nz/webscraping)
+
+
+---
+class: slide-font-25
+# Preliminary Step
+
+Before we start looking at cool websites...
+
+* Can you scrape data?
+
+
+---
+class: slide-font-25
+# Preliminary Step
+
+Before we start looking at cool websites...
+
+* Can you scrape data? probably 
+
+* 🤔 **Should** you scrape data from a particular website?
+
+  + are the data private? did you have to create an account to access them?
+  
+  + is there a "terms of service"? is a copyright involved?
+  
+  + do the data contain personally identifiable information?
+
+* If any of these apply, then you should do some research to see if scraping these data is legal.
+
+  + If they don't apply, then you should do some research to see if scraping these data is legal.
+
+
+---
+# Overview
+
+Two buckets: "APIs" and non-APIs
+
+* (**A**pplication **P**rogramming **I**nterface) -- how software communicates with the outside world
+  
+  + Some APIs are specifically intended for providing data in useful formats (e.g. CSV or JSON)
+  + examples: Twitter, YouTube, Facebook
+
+* Why does this matter?  It is much easier to extract data from an API and different tools are used
+  + API: packages `httr` and `jsonlite`
+  + No API 😩 then go with `rvest`
+
+
+---
+class: inverse, center, middle
+
+# HTML
+
+
+---
+# HTML: *big picture*
+
+* **H**yper **Text** **M**arkup **L**anguage
+
+  + different **elements** tell web browsers how to display text, images, structures, etc.
+  + paragraph: `&lt;p&gt; This is a paragraph &lt;/p&gt;`
+  + table: `&lt;table&gt;` stuff, stuff, stuff `&lt;/table&gt;`
+
+* Web scraping involves searching through the elements in an HTML file to
+find the data you want to use
+
+  + `rvest` has a lot of tools for this
+
+* Web browsers have a feature (developer tools) that is also very helpful
+for seeing where/how the HTML elements appear on a page
+
+
+
+---
+# HTML: *example 1*
+
+Open an HTML file (or text file) in R Studio (text editor) and enter the
+following content
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt; My First Page &lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;h1&gt;Example Heading&lt;/h1&gt;
+&lt;p&gt; &lt;i&gt;Hello&lt;/i&gt; R Working Group!&lt;/p&gt;
+&lt;p&gt; Welcome to the session on web scraping.&lt;/p&gt;
+&lt;p&gt; p.s. R Rocks!!!!&lt;/p&gt;
+&lt;/body&gt;
+
+&lt;/html&gt; 
+```
+
+After saving the file (with an `.html` extension), open it in your favorite
+browser.  (Can you find the text "My First Page"?)
+
+
+---
+# HTML: *elements*
+
+* The **elements** in example 1 contain text surrounded by **tags**
+
+  + `&lt;h1&gt;` (start tag) &amp; `&lt;/h1&gt;` (end tag)
+  
+* **Block tags** are used to define sections and structure in a web page.
+Here are some common examples:
+  + `&lt;h1&gt;` Heading 1 `&lt;/h1&gt;`  (with `&lt;h2&gt;`, ..., &amp; `&lt;h6&gt;` for smaller sizes)
+  + `&lt;section&gt;` &amp; `&lt;/section&gt;`
+  + `&lt;p&gt;` paragraph `&lt;/p&gt;`
+  + `&lt;table&gt;` (has more tags for rows and headers) `&lt;table&gt;`
+  + `&lt;ul&gt;` unordered list `&lt;/ul`&gt; &amp; `&lt;li&gt;` list item `&lt;/li&gt;`
+  + `&lt;ol&gt;` ordered list `&lt;/ol&gt;`
+
+
+---
+# HTML: *elements* (cont.)
+
+* There are also **inline tags** used for tasks like formatting text and adding links
+
+  + `&lt;b&gt;` bold `&lt;/b&gt;`, `&lt;i&gt;` italics `&lt;/i&gt;`, and more
+  + `&lt;a href="https://www.w3schools.com/html&gt;` &lt;br&gt;
+  link text appearing on web page &lt;br&gt;
+  `&lt;/a&gt;`
+  
+* Tags can also have **attributes**, which are useful for helping `rvest`
+find the specific part of a web page you would like to scrape.
+
+  + `id` and `class` are commonly used attributes
+  + they appear inside the `&lt; &gt;` of the start tag
+
+
+---
+# HTML: *example 2*
+
+Example with unordered list
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;Largest Cities&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;h3&gt;Largest Citites&lt;/h3&gt;
+
+&lt;p id='top5'&gt; Here are the top 5 cities with the largest population: &lt;/p&gt;
+
+&lt;!-- comment: unordered list --&gt;
+&lt;ul&gt;
+  &lt;li&gt; &lt;span class='asia'&gt; Tokyo (37,115,035) &lt;/span&gt; &lt;/li&gt;
+  &lt;li&gt; &lt;span class='asia'&gt; Delhi (33,807,403) &lt;/span&gt; &lt;/li&gt;
+  &lt;li&gt; &lt;span class='asia'&gt; Shanghi (29,867,918) &lt;/span&gt; &lt;/li&gt;
+  &lt;li&gt; &lt;span class='asia'&gt; Dhaka (23,935,652) &lt;/span&gt; &lt;/li&gt;
+  &lt;li&gt; &lt;span class='latam'&gt; Sao Paulo (22,806,704) &lt;/span&gt; &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;/body&gt;
+&lt;/html&gt; 
+```
+
+---
+# HTML: *example 3*
+
+Now lets add some structure by including a table
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;Powerful Corporations&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;h1&gt;U.S. Companies&lt;/h1&gt;
+&lt;p&gt;These companies are worth a lot of cash and should be studied.&lt;/p&gt;
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+ &lt;table&gt;
+  &lt;tr&gt;                         &lt;!-- start a table row --&gt;
+    &lt;th&gt;Company&lt;/th&gt;           &lt;!-- table header --&gt;
+    &lt;th&gt;Value&lt;/th&gt;
+    &lt;th&gt;Country&lt;/th&gt;
+  &lt;/tr&gt;                        &lt;!-- end a table row --&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Microsoft&lt;/td&gt;  &lt;! -- table data --&gt;
+    &lt;td&gt;$3.187 trillion&lt;/td&gt;
+    &lt;td&gt;USA&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;&lt;b&gt;Jason Inc.&lt;/b&gt;&lt;/td&gt;
+    &lt;td&gt;$2.932 trillion&lt;/td&gt;
+    &lt;td&gt;USA&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Apple&lt;/td&gt;
+    &lt;td&gt;$2.692 trillion&lt;/td&gt;
+    &lt;td&gt;USA&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt; 
+
+&lt;/body&gt;
+&lt;/html&gt; 
+```
+
+
+---
+# HTML: *elements &amp; style*
+
+* References &amp; resources on elements:
+
+  + [MDN -- elements and more](https://developer.mozilla.org/en-US/docs/Web/HTML)
+  + [W3 Schools -- elements](https://www.w3schools.com/tags/default.asp)
+  + [W3 Schools -- try it out](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_basic_document)
+
+* **C**ascading **S**tyle **S**heets (CSS) is a popular way to systematically set the style for web pages.
+
+  + styling is implemented via **selectors** such as `tag` names or attributes like `id` &amp; `class`
+  + (for a given selector `property:value;` sets how the element is displayed)
+
+* Let's see an example using an "external" css file
+
+---
+# CSS: *example 4*
+
+Open a new CSS file in R Studio (or text file with the .css extension) and insert the following
+
+```
+/* comment: example of tag selectors */
+p {
+  color: red;           /* the text in all paragraphs will now be red */
+  text-align: center;
+}
+
+h3, h4 {
+  color: orange;
+  background-color: green;
+}
+
+/* example id selector -- only for a single element (id's must be unique) */
+#blue_par {
+  color: blue;
+}
+
+/* example class selector -- for a group of the same elements */
+.brown_par {
+  color: brown;
+}
+```
+
+---
+# HTML: *example 4*
+
+Style the following HTML
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;Example 4&lt;/title&gt;
+&lt;link rel='stylesheet' href="example-04.css"&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;h1&gt;Header 1 (normal)&lt;/h1&gt;
+&lt;p&gt; This text should be red and centered because we used the tag name &lt;code&gt;&amp;lt;p&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+
+This text is not inside a paragraph, so it is not center aligned.
+
+&lt;h2&gt;Header 2 (normal)&lt;/h2&gt;
+&lt;p id='blue_par'&gt;This text should be blue and centered since we used the id attribute.&lt;/p&gt;
+
+&lt;h3&gt;Header 3 (styled)&lt;/h3&gt;
+&lt;p class='brown_par'&gt;This text should be brown and centered.&lt;/p&gt;
+
+&lt;h4&gt;Header 4 (styled)&lt;/h4&gt;
+&lt;p class='brown_par'&gt;This text should also be brown and centered.&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+```
+
+
+---
+# HTML: recap
+
+HTML is a language that uses elements to create web pages
+
+* elements are demarcated with tags: `&lt;h1&gt;` &amp; `&lt;/h1&gt;`
+
+* tags can also have attributes, e.g., `id` &amp; `class`
+  + `&lt;p id = "par_id"&gt;` &amp; `&lt;/p&gt;`
+  + `&lt;h1 class='my_header1'&gt;` &amp; `&lt;/h1&gt;`
+
+* Web scraping involves searching through the elements, tags, &amp; attributes in an HTML file to
+find the data you want to use.
+
+  + `rvest` has a lot of tools for this, so let's take it for a spin
+
+
+---
+class: inverse, center, middle
+
+# `rvest`
+
+
+---
+# `rvest`: *big picture*
+
+`rvest` will allow us to accomplish a lot with only a few functions that navigate HTML
+and extract data
+
+* `read_html("http://mypage.org")` -- read in HTML from web address (or local file) and store it as an `xml_document`
+  + `xml` is another language used to organize data
+
+* Find elements with:  `html_elements()` &amp; `html_element()`
+  + these are typically used in tandem to create variables and fill in observations
+
+
+---
+# `rvest`: *big picture* (cont.)
+
+* `html_text2()` -- pull out the text from an element (and strip out any extra HTML)
+
+* `html_table()` -- extract tables
+
+* `html_attr()` -- extract attributes
+
+
+---
+# `rvest`: simple example
+
+
+``` r
+&gt; library(rvest)
+&gt; dir()
+```
+
+```
+##  [1] "buckeye.css"             "example-01.html"        
+##  [3] "example-02.html"         "example-03.html"        
+##  [5] "example-04.css"          "example-04.html"        
+##  [7] "img"                     "libs"                   
+##  [9] "nytimes.R"               "slides_webscraping.html"
+## [11] "slides_webscraping.Rmd"  "webscraping_r_np.Rmd"   
+## [13] "webscraping_r.html"      "webscraping_r.Rmd"
+```
+
+``` r
+&gt; example01 &lt;- read_html("example-01.html")
+&gt; example01
+```
+
+```
+## {html_document}
+## &lt;html&gt;
+## [1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+## [2] &lt;body&gt;\n&lt;h1&gt;Example Heading&lt;/h1&gt;\n&lt;p&gt; &lt;i&gt;Hello&lt;/i&gt; R Working Group!&lt;/p&gt;\n ...
+```
+
+The page is stored as 2 elements, so we need `rvest` tools to do the un-nesting.
+
+
+---
+class: slide-font-25
+# `rvest`: simple example (cont.)
+
+
+
+``` r
+&gt; ## let's rvest out the paragraphs
+&gt; example01 |&gt;
++     html_elements("p")
+```
+
+```
+## {xml_nodeset (3)}
+## [1] &lt;p&gt; &lt;i&gt;Hello&lt;/i&gt; R Working Group!&lt;/p&gt;
+## [2] &lt;p&gt; Welcome to the session on web scraping.&lt;/p&gt;
+## [3] &lt;p&gt; p.s. R Rocks!!!!&lt;/p&gt;
+```
+
+Here we see the `xml_nodeset` which can (and does!) have nested elements.
+
+
+``` r
+&gt; ## no s!
+&gt; example01 |&gt;
++     html_element("p")
+```
+
+```
+## {html_node}
+## &lt;p&gt;
+## [1] &lt;i&gt;Hello&lt;/i&gt;
+```
+
+Just showing the difference here (when an html_doc is passed to `html_element()` it returns the first
+match)
+
+
+---
+class: slide-font-25
+# `rvest`: simple example (cont.)
+
+Now we'll strip out all the tags (that aren't useful for our research)...
+
+
+``` r
+&gt; example01 |&gt;
++     html_elements("p") |&gt;
++     html_text2()
+```
+
+```
+## [1] "Hello R Working Group!"                 
+## [2] "Welcome to the session on web scraping."
+## [3] "p.s. R Rocks!!!!"
+```
+
+🥂🍰🥂 Woo-hoo!!  We've got data. Now on to
+the text analysis...
+
+
+---
+# `rvest`: `html_elements` &amp; co.
+
+Hadley Wickham's book ([R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections),
+ch. 24) has an awesome example showing how to use `html_elements()` &amp; `html_element()` to work
+with nested elements.
+
+We will now take a look at this example...
+
+
+---
+# `rvest`: `html_elements()` &amp; co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+
+``` r
+&gt; html &lt;- minimal_html("
++   &lt;ul&gt;
++     &lt;li&gt;&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class='weight'&gt;167 kg&lt;/span&gt;&lt;/li&gt;
++     &lt;li&gt;&lt;b&gt;R4-P17&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt;&lt;/li&gt;
++     &lt;li&gt;&lt;b&gt;R2-D2&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class='weight'&gt;96 kg&lt;/span&gt;&lt;/li&gt;
++     &lt;li&gt;&lt;b&gt;Yoda&lt;/b&gt; weighs &lt;span class='weight'&gt;66 kg&lt;/span&gt;&lt;/li&gt;
++   &lt;/ul&gt;
++   ")
+&gt; html
+```
+
+```
+## {html_document}
+## &lt;html&gt;
+## [1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+## [2] &lt;body&gt;&lt;ul&gt;\n&lt;li&gt;\n&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class= ...
+```
+
+`minimal_html()` is a tool for creating in-line HTML
+
+
+---
+# `rvest`: `html_elements()` &amp; co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+
+``` r
+&gt; characters &lt;- html |&gt;
++     html_elements("li")
+&gt; characters
+```
+
+```
+## {xml_nodeset (4)}
+## [1] &lt;li&gt;\n&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;167 ...
+## [2] &lt;li&gt;\n&lt;b&gt;R4-P17&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt;\n&lt;/li&gt;
+## [3] &lt;li&gt;\n&lt;b&gt;R2-D2&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;96  ...
+## [4] &lt;li&gt;\n&lt;b&gt;Yoda&lt;/b&gt; weighs &lt;span class="weight"&gt;66 kg&lt;/span&gt;\n&lt;/li&gt;
+```
+
+``` r
+&gt; characters |&gt;
++     html_element("b")
+```
+
+```
+## {xml_nodeset (4)}
+## [1] &lt;b&gt;C-3PO&lt;/b&gt;
+## [2] &lt;b&gt;R4-P17&lt;/b&gt;
+## [3] &lt;b&gt;R2-D2&lt;/b&gt;
+## [4] &lt;b&gt;Yoda&lt;/b&gt;
+```
+
+
+
+---
+# `rvest`: `html_elements()` &amp; co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+
+``` r
+&gt; characters
+```
+
+```
+## {xml_nodeset (4)}
+## [1] &lt;li&gt;\n&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;167 ...
+## [2] &lt;li&gt;\n&lt;b&gt;R4-P17&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt;\n&lt;/li&gt;
+## [3] &lt;li&gt;\n&lt;b&gt;R2-D2&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;96  ...
+## [4] &lt;li&gt;\n&lt;b&gt;Yoda&lt;/b&gt; weighs &lt;span class="weight"&gt;66 kg&lt;/span&gt;\n&lt;/li&gt;
+```
+
+``` r
+&gt; characters |&gt;
++     html_element(".weight")
+```
+
+```
+## {xml_nodeset (4)}
+## [1] &lt;span class="weight"&gt;167 kg&lt;/span&gt;
+## [2] NA
+## [3] &lt;span class="weight"&gt;96 kg&lt;/span&gt;
+## [4] &lt;span class="weight"&gt;66 kg&lt;/span&gt;
+```
+
+
+---
+# `rvest`: `html_elements()` &amp; co.
+
+Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#nesting-selections)
+(ch 24.)
+
+
+``` r
+&gt; characters |&gt;
++     html_element("b") |&gt;
++     html_text2()
+```
+
+```
+## [1] "C-3PO"  "R4-P17" "R2-D2"  "Yoda"
+```
+
+
+``` r
+&gt; characters |&gt;
++     html_element(".weight") |&gt;
++     html_text2()
+```
+
+```
+## [1] "167 kg" NA       "96 kg"  "66 kg"
+```
+
+
+
+---
+# `rvest`: `html_attr()`
+
+Now some practice selecting `class` attribute from example 2 (list of cities).
+
+
+``` r
+&gt; html2 &lt;- read_html("example-02.html")
+&gt; html2 |&gt;
++     html_elements("li")
+```
+
+```
+## {xml_nodeset (5)}
+## [1] &lt;li&gt; &lt;span class="asia"&gt; Tokyo (37,115,035) &lt;/span&gt; &lt;/li&gt;
+## [2] &lt;li&gt; &lt;span class="asia"&gt; Delhi (33,807,403) &lt;/span&gt; &lt;/li&gt;
+## [3] &lt;li&gt; &lt;span class="asia"&gt; Shanghi (29,867,918) &lt;/span&gt; &lt;/li&gt;
+## [4] &lt;li&gt; &lt;span class="asia"&gt; Dhaka (23,935,652) &lt;/span&gt; &lt;/li&gt;
+## [5] &lt;li&gt; &lt;span class="latam"&gt; Sao Paulo (22,806,704) &lt;/span&gt; &lt;/li&gt;
+```
+
+---
+# `rvest`: `html_attr()` (cont.)
+
+We can get the data...
+
+
+
+``` r
+&gt; html2 |&gt;
++     html_elements("li") |&gt;
++     html_element("span") |&gt;
++     html_text2()
+```
+
+```
+## [1] "Tokyo (37,115,035)"     "Delhi (33,807,403)"     "Shanghi (29,867,918)"  
+## [4] "Dhaka (23,935,652)"     "Sao Paulo (22,806,704)"
+```
+
+but attribute data could be useful as well (for a group indicator)
+
+
+---
+# `rvest`: `html_attr()`
+
+
+
+``` r
+&gt; html2 |&gt;
++     html_elements("li") |&gt;
++     html_element("span") |&gt;
++     html_attr("class")
+```
+
+```
+## [1] "asia"  "asia"  "asia"  "asia"  "latam"
+```
+
+
+``` r
+&gt; data.frame(City = html2 |&gt;
++     html_elements("span") |&gt;
++     html_text2(), Region = html2 |&gt;
++     html_elements("span") |&gt;
++     html_attr("class"))
+```
+
+```
+##                     City Region
+## 1     Tokyo (37,115,035)   asia
+## 2     Delhi (33,807,403)   asia
+## 3   Shanghi (29,867,918)   asia
+## 4     Dhaka (23,935,652)   asia
+## 5 Sao Paulo (22,806,704)  latam
+```
+
+(a little more work is needed to separate city name and pop size)
+
+
+---
+# `rvest`: `html_table()`
+
+Next we'll turn to the table created in example 3
+
+
+``` r
+&gt; html3 &lt;- read_html("example-03.html")
+&gt; html3 |&gt;
++     html_table()
+```
+
+```
+## [[1]]
+## # A tibble: 3 × 3
+##   Company    Value           Country
+##   &lt;chr&gt;      &lt;chr&gt;           &lt;chr&gt;  
+## 1 Microsoft  $3.187 trillion USA    
+## 2 Jason Inc. $2.932 trillion USA    
+## 3 Apple      $2.692 trillion USA
+```
+
+* Note that the output is actually a `list`.  If there were 3 tables in the HTML, we would get a
+`list` of length 3.
+
+* Convince yourself of this by adding more tables to `example-03.html` and scraping the data from
+each table.
+
+
+---
+# `rvest`: `html_table()` (cont.)
+
+
+
+``` r
+&gt; tables_ex03 &lt;- html3 |&gt;
++     html_table()
+&gt; tab1_ex03 &lt;- as.data.frame(tables_ex03[[1]])
+&gt; tab1_ex03
+```
+
+```
+##      Company           Value Country
+## 1  Microsoft $3.187 trillion     USA
+## 2 Jason Inc. $2.932 trillion     USA
+## 3      Apple $2.692 trillion     USA
+```
+
+
+---
+class: inverse, center, middle
+
+# Examples from the Web
+
+
+---
+# Copa Libertadores
+
+* The obvious place to start is the Copa Libertadores!
+
+  + as provided by [Wikipedia](https://en.wikipedia.org/wiki/List_of_Copa_Libertadores_finals)
+  
+  
+* Let's try to scrape data from the table to create a data frame with the variables:
+  + year
+  + winner &amp; winner's country
+  + runner-up &amp; runner-up's country
+  + score
+  + venue
+
+
+---
+# Copa Libertadores (cont.)
+
+
+``` r
+&gt; html_copa &lt;- read_html("https://en.wikipedia.org/wiki/List_of_Copa_Libertadores_finals")
+```
+
+This example is actually pretty easy 😊.  Can you figure it out?
+
+
+
+---
+# Examples from the Web
+
+* Now that we have some simple examples under out belt, let's tackle some harder tasks
+
+  + Wickham's book provides another [excellent example](https://r4ds.hadley.nz/webscraping#starwars)
+  that is somewhat gentle and fun (if you like lightsabers)
+
+* When we jump into the real world, it is extremely useful to get familiar with a web browser's
+developer tool
+
+  + Highlight some text on the page that you are interested in, right-click, and select `Inspect`
+  + Firefox: Tools &amp;rarr; Browser Tool &amp;rarr; Web Developer Tools
+  + Chrome: View &amp;rarr; Developer &amp;rarr; Developer Tools
+
+
+---
+# Web Browser's Developer Tools
+
+* The Developer Tools give a structured view of the webpage's HTML
+
+  + a panel should open with the actual HTML so you can simultaneously see the code and how the browser displays it
+
+* Even more cool is when you move the cursor over the HTML code, the browser will try to 
+show you the corresponding part of the web page that the HTML produces
+
+* As you will see, web pages can have A LOT of HTML with a ton of elements!  So the primary challenge
+is finding the right element you want to scrape from.
+
+  + this requires traversing through many nested elements
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

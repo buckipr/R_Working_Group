@@ -28,11 +28,11 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_01_24)
 
 * Feb 7th: Web Scraping (rescheduled for Feb 14th)
-    - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r.html#1)
+    - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r_np.html#1)
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/webscraping/)
 
 * Feb 22nd: Text Analysis - data preparation
-    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/text_analysis.html#1)
+    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/text_analysis_np.html#1)
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
 
 * March 7th: Text Analysis - topic modeling

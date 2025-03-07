@@ -1,8 +1,10 @@
 # Text Analysis
 
-
-
 There are 2 sessions for text analysis: data preparation & topic models.
+
+* **TODO:** updated text_analysis slides with info about tokenizing
+text in languages other than English; and add examples at the end
+for working with `tm` objects
 
 
 

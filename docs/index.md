@@ -17,11 +17,14 @@ was probably a bit too much (and is better suited for 2 sessions).
   + [link to R markdown file](https://github.com/buckipr/R_Working_Group/blob/main/intro_r/2025_01_24/rmarkdown.Rmd)
 
 * Feb 7th: Web Scraping (rescheduled for Feb 14th)
-  + [slides](web_scraping/webscraping_r.html)
+  + [slides](web_scraping/webscraping_r_np.html)
   + [files](https://github.com/buckipr/R_Working_Group/blob/main/web_scraping/)
 
 
 * Feb 21st: Text Analysis - data preparation
+  + [slides](text_analysis/text_analysis_np.html)
+  + [files](https://github.com/buckipr/R_Working_Group/blob/main/text_analysis/)
+
 
 * March 7th: Text Analysis - topic modeling
   + [slides](text_analysis/topic_models_np.html)
