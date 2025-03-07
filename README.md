@@ -31,6 +31,7 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
 * Feb 22nd: Text Analysis - data preparation
 
 * March 7th: Text Analysis - topic modeling
+    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/topic_models.html#1)
 
 * March 21st: Survey Weights I
 
