@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Analysis with    </title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jason Thomas" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link rel="stylesheet" href="style_text_analysis.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Text Analysis with <br/><br/> <img src="img/Rlogo.png" width="200" />
+]
+.author[
+### Jason Thomas
+]
+.institute[
+### R Working Group
+]
+.date[
+### Feb 21st, 2025
+]
+
+---
+
+
+
+
+
+# Introduction
+
+* This session is the first of a two-part series.  Ultimately, we want to
+use models and statistics to analyze a beautifully cleaned dataset of
+text.
+
+--
+  
+* The key ingredient takes a little bit of work, which is what we focus
+on in this session.
+
+  + transform data into useful structure for fitting models
+  
+  + preprocessing text
+  
+  + load data
+  
+  + clean data
+  
+(order is a bit backwards! not sure if this will work 🤔)
+
+
+---
+class: slide-font-25
+# Setup
+
+We will use a few packages to make life easier
+
+
+``` r
+install.packages(c("stringr", "tidytext", "tm", "pdftools", "SnowballC"))
+# MS word? textreadr's read_docx and officer's read_docx
+```
+
+and load them with
+
+
+``` r
+library(stringr)
+library(tidytext)
+library(tm)
+library(pdftools)
+library(SnowballC)
+```
+
+
+---
+class: inverse, center, middle
+
+# Document-Term Matrix
+
+
+---
+class: slide-font-25
+# Goal
+
+* Quite often, the "beautifully, cleaned text dataset" that we want will
+be a **Document-Term Matrix** (DTM)
+
+--
+
+* Document-Term Matrix -- one row for each document/source and one
+  column for each word or (**token**)
+  
+--
+
+  + a **token** is the unit of text that we wish to analyze (e.g., word,
+  sentence, paragraph)
+  
+--
+
+* An intermediate step is to create dataset with a row for each
+token (and the document ID and other metadata in corresponding columns)
+
+--
+
+  + R packages will provide the
+  ✨magic✨ to make all of 
+  this happen.
+  
+  + First, we'll take a look at the package **tidytext**
+
+
+---
+class: slide-font-25
+# Tidytext
+
+* We will start with a simple example, then look at a larger data source.
+All of this is taken from the useful book
+
+&lt;p style="text-align:center;"&gt;
+&lt;a href="https://www.tidytextmining.com/"&gt;Text Mining with R: A Tidy&lt;/a&gt;
+&lt;/p&gt;
+
+--
+
+* First, create some text (courtesy of Emily Dickinson)
+
+
+``` r
+poem &lt;- c("Because I could not stop for Death -",
+          "He kindly stopped for me -",
+          "The Carriage held but just Ourselves -",
+          "and Immortality")
+poem
+```
+
+```
+## [1] "Because I could not stop for Death -"  
+## [2] "He kindly stopped for me -"            
+## [3] "The Carriage held but just Ourselves -"
+## [4] "and Immortality"
+```
+
+
+---
+# Tidytext
+
+Next we will create a data frame with a column for the line number and
+another for the text on that line
+
+
+``` r
+text_df &lt;- data.frame(line = 1:4, text = poem)
+text_df
+```
+
+```
+##   line                                   text
+## 1    1   Because I could not stop for Death -
+## 2    2             He kindly stopped for me -
+## 3    3 The Carriage held but just Ourselves -
+## 4    4                        and Immortality
+```
+
+
+---
+# Tidytext
+
+Pull out our magic wand 🪄
+
+
+``` r
+text_df |&gt; 
+  unnest_tokens(  # create a new df with one token per row
+  word,           # column name in new df
+  text)          # column name in original df (with text)
+```
+
+```
+##    line        word
+## 1     1     because
+## 2     1           i
+## 3     1       could
+## 4     1         not
+## 5     1        stop
+## 6     1         for
+## 7     1       death
+## 8     2          he
+## 9     2      kindly
+## 10    2     stopped
+## 11    2         for
+## 12    2          me
+## 13    3         the
+## 14    3    carriage
+## 15    3        held
+## 16    3         but
+## 17    3        just
+## 18    3   ourselves
+## 19    4         and
+## 20    4 immortality
+```
+
+
+---
+# Tidytext
+
+Now we need to add the count of the words per document/source.  For this
+we will just treat the line as the document/source
+
+
+``` r
+text_df &lt;- text_df |&gt; 
+  unnest_tokens(word, text) |&gt; 
+  count(line, word)
+text_df
+```
+
+```
+##    line        word n
+## 1     1     because 1
+## 2     1       could 1
+## 3     1       death 1
+## 4     1         for 1
+## 5     1           i 1
+## 6     1         not 1
+## 7     1        stop 1
+## 8     2         for 1
+## 9     2          he 1
+## 10    2      kindly 1
+## 11    2          me 1
+## 12    2     stopped 1
+## 13    3         but 1
+## 14    3    carriage 1
+## 15    3        held 1
+## 16    3        just 1
+## 17    3   ourselves 1
+## 18    3         the 1
+## 19    4         and 1
+## 20    4 immortality 1
+```
+
+
+
+---
+# Tidytext
+
+Finally, we can use the `cast_dtm()` function in tm to create our
+document-term matrix
+
+
+``` r
+text_dtm &lt;- text_df |&gt; 
+  cast_dtm(line, word, n)
+text_dtm
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 4, terms: 19)&gt;&gt;
+## Non-/sparse entries: 20/56
+## Sparsity           : 74%
+## Maximal term length: 11
+## Weighting          : term frequency (tf)
+```
+
+``` r
+dim(text_dtm)
+```
+
+```
+## [1]  4 19
+```
+
+
+---
+class: inverse, center, middle
+# Preprocessing
+
+
+---
+class: slide-font-25
+# Preprocessing
+
+* Did you notice that `unnest_tokens()` already did a bit of
+preprocessing of our text
+
+--
+
+  + converting all of the text to lowercase makes it more comparable
+  (is there a difference between "Cat" and "cat"?)
+
+--
+
+  + it has also stripped out any punctuation
+  
+--
+
+* Other useful preprocessing steps include: removing
+**stop words**  and **stemming**
+
+--
+
+  + **stop words** are those which we are not interested in
+  (e.g., a, the, in, for)
+  
+  + **stemming** reduces a word to its base (or stem), e.g.,
+  &lt;br&gt; cats &amp;rarr; cat
+  &lt;br&gt; running &amp;rarr; run
+
+
+---
+# Preprocessing: removing stop words
+
+**tidytext** include a dataset of stop words ()
+
+
+``` r
+stop_words
+```
+
+```
+## # A tibble: 1,149 × 2
+##    word        lexicon
+##    &lt;chr&gt;       &lt;chr&gt;  
+##  1 a           SMART  
+##  2 a's         SMART  
+##  3 able        SMART  
+##  4 about       SMART  
+##  5 above       SMART  
+##  6 according   SMART  
+##  7 accordingly SMART  
+##  8 across      SMART  
+##  9 actually    SMART  
+## 10 after       SMART  
+## # ℹ 1,139 more rows
+```
+
+
+---
+# Preprocessing: removing stop words
+
+And we can add to this as well...
+
+
+``` r
+my_stop_words &lt;- bind_rows(tibble(word = c("balloon"),
+                                  lexicon = c("custom")), 
+                               stop_words)
+my_stop_words[1:3, ]
+```
+
+```
+## # A tibble: 3 × 2
+##   word    lexicon
+##   &lt;chr&gt;   &lt;chr&gt;  
+## 1 balloon custom 
+## 2 a       SMART  
+## 3 a's     SMART
+```
+
+
+---
+# Preprocessing: removing stop words
+
+To remove the stop words, we can use the **dplyr** tool `anti_join()`
+
+
+``` r
+text_df |&gt; 
+  anti_join(stop_words)
+```
+
+```
+## Joining with `by = join_by(word)`
+```
+
+```
+##   line        word n
+## 1    1       death 1
+## 2    1        stop 1
+## 3    2      kindly 1
+## 4    2     stopped 1
+## 5    3    carriage 1
+## 6    3        held 1
+## 7    4 immortality 1
+```
+
+
+---
+# Preprocessing: stemming
+
+The **SnowballC** package provides a tool for stemming:
+
+
+``` r
+text_df %&gt;%
+  mutate(stem = wordStem(word))
+```
+
+```
+##    line        word n    stem
+## 1     1     because 1  becaus
+## 2     1       could 1   could
+## 3     1       death 1   death
+## 4     1         for 1     for
+## 5     1           i 1       i
+## 6     1         not 1     not
+## 7     1        stop 1    stop
+## 8     2         for 1     for
+## 9     2          he 1      he
+## 10    2      kindly 1  kindli
+## 11    2          me 1      me
+## 12    2     stopped 1    stop
+## 13    3         but 1     but
+## 14    3    carriage 1 carriag
+## 15    3        held 1    held
+## 16    3        just 1    just
+## 17    3   ourselves 1 ourselv
+## 18    3         the 1     the
+## 19    4         and 1     and
+## 20    4 immortality 1  immort
+```
+
+
+---
+# Preprocessing: misc
+
+* `wordStem` gets some of them right, but are there other options?
+
+* negation! -- context obviously matters (and we are largely ignoring
+it)
+
+  + "I like rain"  vs. "I do NOT like rain"
+  
+  + "sharks are not friendly" -- what happens when we tokenize?
+
+
+---
+class: inverse, center, middle
+
+# Loading Data
+
+
+---
+# Loading Data: PDFs
+
+Our goal will be to use the text from several PDFs as a data set.
+
+--
+
+* The PDF files are in a folder called "scotus" (these are Supreme Court decisions)
+
+--
+
+* Let's take a look with `dir(path)`
+
+
+
+``` r
+dir(".")    # list contents of working directory
+```
+
+```
+##  [1] "img"                     "libs"                   
+##  [3] "NLP"                     "notes_text_analysis.Rmd"
+##  [5] "scotus"                  "style_text_analysis.css"
+##  [7] "text_analysis_cache"     "text_analysis.html"     
+##  [9] "text_analysis.Rmd"       "webscraping_r.Rmd"
+```
+
+
+``` r
+dir("scotus")    # list contents of scotus folder
+```
+
+```
+##  [1] "602us1r31_6537.pdf" "602us1r32_2q24.pdf" "602us1r33_qqm4.pdf"
+##  [4] "602us1r34_e29g.pdf" "602us1r35_h3ci.pdf" "602us1r36_k537.pdf"
+##  [7] "602us1r37_7khn.pdf" "602us1r38_mlho.pdf" "602us1r39_2b8e.pdf"
+## [10] "602us1r40_f20g.pdf" "602us1r41_h3dj.pdf" "602us1r42_l5gm.pdf"
+## [13] "602us1r43_p860.pdf" "602us1r44_kjfm.pdf" "602us1r45_h31i.pdf"
+## [16] "602us1r46_gfbi.pdf" "602us1r47_c07d.pdf" "603us1r48_g3ci.pdf"
+## [19] "603us1r49_n6io.pdf" "603us1r50_7kh7.pdf" "603us1r51_1b8e.pdf"
+## [22] "603us1r52_d18f.pdf" "603us1r53_l5gm.pdf" "603us1r54_o7jp.pdf"
+## [25] "603us1r55_6j36.pdf" "603us1r56_1bo2.pdf" "603us1r57_6k47.pdf"
+## [28] "603us1r58_8mj9.pdf" "603us1r59_4fci.pdf" "603us1r60_32q3.pdf"
+```
+
+
+---
+# Loading Data: PDFs
+
+Let's create paths to each of the PDFs...
+
+--
+
+* `list.files("scotus")` will give us all the file names in the "scotus" folder (as a vector)
+
+--
+
+* If we paste the string "scotus" together with the file names
+(and separate them  with a forward slash), we'll get a path for each of 
+the PDF files
+
+--
+
+``` r
+## why not use dir() again??
+fnames &lt;- paste("scotus", list.files("scotus"), sep="/")
+fnames
+```
+
+```
+##  [1] "scotus/602us1r31_6537.pdf" "scotus/602us1r32_2q24.pdf"
+##  [3] "scotus/602us1r33_qqm4.pdf" "scotus/602us1r34_e29g.pdf"
+##  [5] "scotus/602us1r35_h3ci.pdf" "scotus/602us1r36_k537.pdf"
+##  [7] "scotus/602us1r37_7khn.pdf" "scotus/602us1r38_mlho.pdf"
+##  [9] "scotus/602us1r39_2b8e.pdf" "scotus/602us1r40_f20g.pdf"
+## [11] "scotus/602us1r41_h3dj.pdf" "scotus/602us1r42_l5gm.pdf"
+## [13] "scotus/602us1r43_p860.pdf" "scotus/602us1r44_kjfm.pdf"
+## [15] "scotus/602us1r45_h31i.pdf" "scotus/602us1r46_gfbi.pdf"
+## [17] "scotus/602us1r47_c07d.pdf" "scotus/603us1r48_g3ci.pdf"
+## [19] "scotus/603us1r49_n6io.pdf" "scotus/603us1r50_7kh7.pdf"
+## [21] "scotus/603us1r51_1b8e.pdf" "scotus/603us1r52_d18f.pdf"
+## [23] "scotus/603us1r53_l5gm.pdf" "scotus/603us1r54_o7jp.pdf"
+## [25] "scotus/603us1r55_6j36.pdf" "scotus/603us1r56_1bo2.pdf"
+## [27] "scotus/603us1r57_6k47.pdf" "scotus/603us1r58_8mj9.pdf"
+## [29] "scotus/603us1r59_4fci.pdf" "scotus/603us1r60_32q3.pdf"
+```
+
+
+---
+# Loading Data: single PDF
+
+First, let's simple read in a single PDF file and see what the new object looks like.
+
+
+
+``` r
+scotus1 &lt;- pdf_text(fnames[1])  # read in a PDF file
+str(scotus1)                    # look at the structure of scotus1
+```
+
+```
+##  chr [1:13] "                   PRELIMINARY PRINT\n\n             Volume 602 U. S. Part 1\n                             Page"| __truncated__ ...
+```
+
+We have 13 strings (a bunch of characters), one for each page of the PDF file.
+
+--
+
+Take a look at this in R / RStudio (the R Markdown slides have trouble printing
+it out). The first page looks something like...
+
+                   PRELIMINARY PRINT
+
+             Volume 602 U. S. Part 1
+                             Pages 257–267
+
+
+
+
+       OFFICIAL REPORTS
+                                    OF
+
+
+   THE SUPREME COURT
+                                June 6, 2024
+
+
+Page Proof Pending Publication
+
+
+                   REBECCA A. WOMELDORF
+                           reporter of decisions
+
+
+
+
+    NOTICE: This preliminary print is subject to formal revision before
+  the bound volume is published. Users are requested to notify the Reporter
+  of Decisions, Supreme Court of the United States, Washington, D.C. 20543,
+  pio@supremecourt.gov, of any typographical or other formal errors.
+
+
+
+---
+class: slide-font-25
+# Loading Data: multiple PDFs
+
+We can use the text mining package **tm** to load all of our PDFs
+and assemble them into a single collection of documents (or *corpus*)
+
+
+
+``` r
+scotus_all &lt;- Corpus(URISource(fnames),
+                     readerControl = list(reader = readPDF))
+scotus_all
+```
+
+```
+## &lt;&lt;VCorpus&gt;&gt;
+## Metadata:  corpus specific: 0, document level (indexed): 0
+## Content:  documents: 30
+```
+
+
+* `URISource` creates a **u**niform **r**esource **i**dentifier source 
+(using the path to the sources of data); see `getSources()` for other
+options)
+
+* `readerControl` takes a named `list` with the `reader` indicating
+the type of source (e.g., PDF, doc); (`language` is another option
+with English (`"en"`) as the default)
+
+
+---
+# Loading Data: multiple PDFs
+
+`Corpus` returns a list with and element for each document (or text source)
+
+
+``` r
+scotus_all[[1]]  # look at the first document
+```
+
+```
+## &lt;&lt;PlainTextDocument&gt;&gt;
+## Metadata:  7
+## Content:  chars: 26772
+```
+
+--
+
+Each document is also represented as a list of 2 elements
+
+1. metadata for each document
+
+1. the text from our document (actually a vector of strings holding
+the text from each page)
+
+
+---
+# Loading Data: multiple PDFs
+
+
+``` r
+scotus_all[[1]]$meta
+```
+
+```
+##   author       : character(0)
+##   datetimestamp: 2024-10-04 13:42:33
+##   description  : character(0)
+##   heading      : 
+##   id           : 602us1r31_6537.pdf
+##   language     : en
+##   origin       : Miles 33 OASYS
+```
+
+
+
+``` r
+length(scotus_all[[1]]$content)  ## number of pages
+```
+
+```
+## [1] 13
+```
+
+``` r
+scotus_all[[1]]$content[1]       ## text on first page
+```
+
+```
+## [1] "                   PRELIMINARY PRINT\n\n             Volume 602 U. S. Part 1\n                             Pages 257–267\n\n\n\n\n       OFFICIAL REPORTS\n                                    OF\n\n\n   THE SUPREME COURT\n                                June 6, 2024\n\n\nPage Proof Pending Publication\n\n\n                   REBECCA A. WOMELDORF\n                           reporter of decisions\n\n\n\n\n    NOTICE: This preliminary print is subject to formal revision before\n  the bound volume is published. Users are requested to notify the Reporter\n  of Decisions, Supreme Court of the United States, Washington, D.C. 20543,\n  pio@supremecourt.gov, of any typographical or other formal errors.\n"
+```
+
+
+---
+# more features of tm
+
+The **tm** package has additional tools for preprocessing data and
+creating a document-term matrix
+
+* `removeWords()`
+
+* `stemDocument()`
+
+* `tm_map()` will apply these functions to a corpus
+
+* `DocumentTermMatrix()`
+
+
+---
+# Cleaning Data
+
+* eyeball the data to look for potential problems
+
+* `stringr` is a useful package for finding issues and making changes
+
+* regular expressions can also be helpful
+
+
+---
+# Cleaning Data: example
+
+Take a look at Supreme Court Decision.  Notice anything that might be problematic?
+
+Check out page 2 of the pdf.  Notice anything weird?
+
+* hyphens used to split words across lines
+  - re-\n ported
+* \nPage Proof Pending Publication\n
+  - mixed with hyphens: es-\nPage Proof Pending Publication\n tate
+* pages have titles
+* are the apostrophes really apostrophes? quotation marks? what
+is done with strange characters
+* IRS and Internal Revenue Service and (IRS)
+
+
+---
+# Cleaning Data: search &amp; replace
+
+
+``` r
+# deal with words that are split across lines with hyphens
+"re-\n port"
+```
+
+```
+## [1] "re-\n port"
+```
+
+``` r
+str_replace("re-\n port", "-\n ", "") ## only replaces first match!
+```
+
+```
+## [1] "report"
+```
+
+
+---
+# Cleaning Data: search &amp; replace
+
+
+``` r
+# deal with words that are split across lines with hyphens
+scotus_p2 &lt;- str_replace_all(scotus1[[2]], "-\n ", "")
+```
+
+Here is the result (actually looks different in R):
+
+                         OCTOBER TERM, 2023                               257
+
+                                  Syllabus
+
+
+     CONNELLY, as executor of the ESTATE OF
+          CONNELLY v. UNITED STATES
+
+certiorari to the united states court of appeals for
+                 the eighth circuit
+       No. 23–146. Argued March 27, 2024—Decided June 6, 2024
+Michael and Thomas Connelly were the sole shareholders in Crown C Supply, a small building supply corporation. The brothers entered into an
+ agreement to ensure that Crown would stay in the family if either
+ brother died. Under that agreement, the surviving brother would have
+ the option to purchase the deceased brother's shares. If he declined,
+ Crown itself would be required to redeem (i.e., purchase) the shares.
+ To ensure that Crown would have enough money to redeem the shares
+ if required, it obtained $3.5 million in life insurance on each brother.
+ After Michael died, Thomas elected not to purchase Michael's shares,
+ thus triggering Crown's obligation to do so. Michael's son and Thomas
+ agreed that the value of Michael's shares was $3 million, and Crown paid
+ the same amount to Michael's estate. As the executor of Michael's es-
+Page Proof Pending Publication
+ tate, Thomas then fled a federal tax return for the estate, which reported the value of Michael's shares as $3 million. The Internal Revenue Service (IRS) audited the return. During the audit, Thomas
+ obtained a valuation from an outside accounting frm. That frm determined that Crown's fair market value at Michael's death was $3.86 million, an amount that excluded the $3 million in insurance proceeds used
+ to redeem Michael's shares on the theory that their value was offset by
+ the redemption obligation. Because Michael had held a 77.18% ownership interest in Crown, the analyst calculated the value of Michael's
+ shares as approximately $3 million ($3.86 million × 0.7718). The IRS
+ disagreed. It insisted that Crown's redemption obligation did not offset
+ the life-insurance proceeds, and accordingly, assessed Crown's total
+ value as $6.86 million ($3.86 million + $3 million). The IRS then calculated the value of Michael's shares as $5.3 million ($6.86 million × 0.7718).
+ Based on this higher valuation, the IRS determined that the estate
+ owed an additional $889,914 in taxes. The estate paid the defciency
+ and Thomas, acting as executor, sued the United States for a refund.
+ The District Court granted summary judgment to the Government.
+ The court held that, to accurately value Michael's shares, the $3 million
+ in life-insurance proceeds must be counted in Crown's valuation. The
+ Eighth Circuit affrmed.
+
+
+
+---
+# Cleaning Data: search &amp; replace
+
+Is there a better strategy for dealing with this case?
+
+
+``` r
+example &lt;- c("re-\n port", "es-\nPage Proof Pending Publincation \n tate")
+str_replace_all(example, "-\n ", "")
+```
+
+```
+## [1] "report"                                      
+## [2] "es-\nPage Proof Pending Publincation \n tate"
+```
+
+
+
+---
+# Cleaning Data: regular expressions
+
+* What if we want to keep text together?  For example, sometimes the
+opinion will cite a different case
+
+  + "Connelly v. Department of Treasury, IRS, 70 F. 4th 412 (CA8 2023)."
+
+* This is a tricky one, but we can produce something kinda useful with
+**regular expressions** (or *regex*)
+
+  + *regex* are super powerful and super complicated so we'll just
+  scratch the surface
+  
+  + basic idea is find general patterns in the text: e.g. 
+  &lt;br&gt; "Connelly v. Department of Treasury,"
+
+
+---
+class: slide-font-25
+# Cleaning Data: regex
+
+
+``` r
+x &lt;- "blah blah blah Connelly v. Department of Treasury, IRS, 70 F. 4th 412 (CA8 2023)."
+str_extract(x, "[A-z]+ v. [^,]+")
+```
+
+```
+## [1] "Connelly v. Department of Treasury"
+```
+
+--
+
+* First part: &amp;nbsp; &amp;nbsp; &amp;nbsp; 
+`"`&lt;span style="background-color: yellow;"&gt;`[A-z]+`&lt;/span&gt; &amp;nbsp; `v. [^,]+"`
+
+  + match any letter (lower or upper case) (`[A-z]`) &lt;br&gt;
+  at least 1 time (`+`)
+
+--
+
+* Middle part: &amp;nbsp; &amp;nbsp; &amp;nbsp;
+`"[A-z]+`&lt;span style="background-color: yellow;"&gt;&amp;nbsp;&amp;nbsp;`v.`&amp;nbsp;&amp;nbsp;&lt;/span&gt;`[^,]+"`
+
+  + (match verbatim) a space followed by v. and then another space
+
+--
+
+* Last part: &amp;nbsp; &amp;nbsp; &amp;nbsp;
+`"[A-z]+`&lt;/span&gt; &amp;nbsp; `v. ` &lt;span style="background-color: yellow;"&gt;`[^,]+`&lt;/span&gt;`"`
+
+  + match anything that is NOT a comma (`[^,]`) at least 1 time (`+`)
+
+
+---
+# Cleaning Data: regex grouping
+
+
+``` r
+str_replace_all(x, "([A-z]+) v. [^,]+", "\\1")
+```
+
+```
+## [1] "blah blah blah Connelly, IRS, 70 F. 4th 412 (CA8 2023)."
+```
+
+
+---
+# Cleaning Data: regex 
+
+
+``` r
+y &lt;- str_replace_all(x, "([A-z]+) (v). ([^,]+)", "\\1_\\2_\\3")
+y |&gt; as.data.frame() |&gt; 
+  unnest_tokens(word, y)
+```
+
+```
+##                     word
+## 1                   blah
+## 2                   blah
+## 3                   blah
+## 4  connelly_v_department
+## 5                     of
+## 6               treasury
+## 7                    irs
+## 8                     70
+## 9                      f
+## 10                   4th
+## 11                   412
+## 12                   ca8
+## 13                  2023
+```
+
+Biscuits!  Can you fix it???
+
+
+---
+# Exercises
+
+* Who wrote the opinion? Can you add this to the data set?
+
+* Sometimes there are names, e.g., "Court of Appeals".  How could you
+change these names so that they are considered as a single word?
+
+* How could you deal with negation?  For example, should "not happy"
+be treated as two separate words?
+
+* How would you handle a word break (with an hyphen) that was split
+across two pages?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
