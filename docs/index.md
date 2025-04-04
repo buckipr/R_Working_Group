@@ -31,8 +31,10 @@ was probably a bit too much (and is better suited for 2 sessions).
   + [files](https://github.com/buckipr/R_Working_Group/blob/main/text_analysis/)
 
 * March 21st: Survey Weights I
+  + [files](https://github.com/buckipr/R_Working_Group/tree/main/survey/)
 
 * April 4th: Survey Weights II
+  + [slides](survey/survey.html)
 
 * April 18th: Introduction to Bayesian statistics
 
