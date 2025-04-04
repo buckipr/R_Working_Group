@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Survey Weights II    </title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jason Thomas" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+    <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="libs/datatables-binding-0.33/datatables.js"></script>
+    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="libs/dt-ext-scroller-1.13.6/css/scroller.dataTables.min.css" rel="stylesheet" />
+    <script src="libs/dt-ext-scroller-1.13.6/js/dataTables.scroller.min.js"></script>
+    <link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+    <link rel="stylesheet" href="style_rgroup.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Survey Weights II <br/><br/> <img src="img/Rlogo.png" width="200" />
+]
+.author[
+### Jason Thomas
+]
+.institute[
+### R Working Group
+]
+.date[
+### April 4th, 2025
+]
+
+---
+
+
+
+
+
+# Introduction
+
+* Today we dive into the **survey** package
+
+
+``` r
+install.packages("survey")
+```
+
+  + *Complex Surveys: A Guide to Analysis Using R* -- Thomas Lumley
+  
+* Basic concepts (quickly)
+
+* Survey Design
+
+  + `svydesign()`
+
+* Analysis
+  
+  + `svyFUNCTION()`: e.g., `svytotal()` or `svymean()`
+
+
+---
+# Survey Weights
+
+* design-based inference vs. model-based inference
+
+* survey package treats survey weights as 1 / probability of being sampled
+
+* finite population correction (sampling without replacement)
+
+  + practically, you KNOW the population size, and want to adjust
+  (reduce uncertainty) for the fact that you observe a fraction
+  of the population
+  
+  + `fpc` argument for `svydesign()`
+
+
+---
+class: inverse, center, middle
+
+# Survey Design
+  
+
+---
+# Survey Design
+
+* **Simple Random Sample** (SRS)
+
+  + every member in the population has the same chance of being
+  selected
+  + example datasets
+  + `apipop` &amp;mdash; population of schools in California (with at least
+  100 students) with a total of 3,811,472 students
+  + `apisrs` &amp;mdash; SRS of size 200 from apipop
+
+* Stratified Samples
+
+* (Multistage) Cluster Sampling
+
+
+---
+# Example data (apisrs)
+
+
+``` r
+library(survey)
+data(api)
+ls()
+## [1] "apiclus1" "apiclus2" "apipop"   "apisrs"   "apistrat"
+# help(api)
+```
+
+Explore `apisrs` (a simple random sample)
+
+
+<div class="datatables html-widget html-fill-item" id="htmlwidget-ba6a7a68af47906180a8" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-ba6a7a68af47906180a8">{"x":{"filter":"none","vertical":false,"extensions":["Scroller"],"data":[["1039","1124","2868","1273","4926","2463","2031","1736","2142","4754","1669","2721","1027","63","5574","1693","5453","2736","4125","1290","3347","1654","1909","5928","2138","2335","1200","1662","4171","4664","1779","4430","5586","3809","3925","2614","837","5485","6135","4879","5647","973","590","1993","1911","908","3727","1169","4295","4551","67","4275","4466","6114","1351","230","2601","5394","1175","959","3358","2285","2295","2945","2805","5836","3682","483","4105","150","5745","2883","4882","5873","3395","2125","2564","5594","2765","2947","424","5806","677","3271","1101","1321","368","470","5139","4138","5018","1401","516","4176","1323","5288","4948","3466","4370","3498","4824","963","3022","5553","4550","1055","2594","5531","5761","6157","3425","698","3895","5399","5147","2078","1877","5253","2543","347","2214","6056","5324","3111","4236","59","4238","117","2077","5272","2813","382","2831","3729","1984","4790","2521","3847","402","5526","637","4858","1068","6078","3774","2206","4205","3949","708","148","177","2559","3091","2261","208","6027","2366","4773","1088","2739","3606","764","3412","2497","526","4028","947","2434","763","3352","253","2930","4721","5108","1187","1393","5473","4486","3620","456","1936","4596","2020","5297","3764","950","101","3145","3603","2562","4512","641","1121","4880","993","969","1752","4480","4062","2683"],["15739081534155","19642126066716","30664493030640","19644516012744","40688096043293","19734456014278","19647336058200","19647336017271","19648166020747","38684786041669","19647336016497","25735934737250","15638426010268","01611766000715","48705406051072","19647336016786","44697656113559","27659876026033","36678763634680","19644696012918","33669776031512","19647336016349","19647336019160","54722566054654","19648166020705","19650456107205","19643036011704","19647336016422","36678766068712","37735696038863","19647336017735","37682966070841","48705406067144","34674473438504","36676376105936","21654662134005","13631236008437","44698156049886","56739406102230","39686766042766","49708546051965","15635456009641","10621176005854","19647336020010","19647336019186","15633396009229","34674216033757","19642876011407","37680236037865","37683386040190","01611766000764","37679916037683","37683383731585","56737596055933","19645681932144","01612596111660","21654176058614","43696746048797","19642876011464","15635291530252","33669933330479","19649076058523","19649316022164","30665066028054","27754406105472","51714646067268","34673636059224","07617966004907","36678506059448","01612426068266","50711006112627","30664646027619","39686766042808","54719106054043","33670586031975","19648086020630","20652436024038","48705654838801","27660926058713","30665066028070","07617546004311","50755496052575","10621666057327","31667876031033","18641966109748","19645016013213","07616556070981","07617966004758","42692296068902","36678766036867","41689996044374","19646346014468","07618046005136","36678923636487","19645016013239","43695756047823","41688586043392","33671246107890","37681223732179","33671736115448","39685856104038","15635291530435","30665226028807","47705086050967","37683386040174","16638916010367","21654176024525","45701364532750","50711676107023","57726946056352","33670903337136","10621666111231","36675876035174","43696746048870","42692606045785","19647336100069","19647336018808","43694844332839","19753416022156","05615806111884","19648656021356","56726035636188","43696256067243","30666476097018","36750696037238","01611766000640","36750696037253","01611926113815","19647336097927","43695186047492","28662666026769","07617136003792","28662666058796","34674393431012","19647336019921","39685446110373","19752916022487","34674476034763","07617546003966","45700526050405","10621666006159","39686763937406","16739326010565","56726036084925","34674396034276","19648656021257","36738906104681","36676786035588","10622651035310","01612426001622","01612596001853","20652436023980","30666476029995","19649071937028","01612596002216","56725536055396","19650606023287","38684786072052","17640556105456","27659956026082","33752426111033","10752756111553","33670826032106","19734526022388","07618046108161","36677106114052","15634796112783","19734376012389","10752756005755","33669776031595","01613096002547","30664806027866","38684786041081","42691466045314","19642956011589","19645926014013","44697996049829","37683386039267","34673146033005","07617960730291","19647336019434","37683386112726","19647336058093","43695836095384","34674396034169","15635036009559","01611926001069","30666706099816","33752426108047","20652436024012","37683386039630","10621666006217","19642126061220","39686766042782","15636851531987","15635291534775","19647336017446","37683386039143","36678196036222","24657716025621"],["H","E","H","E","E","E","M","E","E","E","E","H","M","E","E","E","M","M","H","E","E","E","E","E","M","E","E","E","M","M","E","E","E","H","E","H","E","E","M","E","E","E","E","E","E","M","E","E","E","E","E","E","H","E","H","M","M","E","E","H","H","M","E","E","E","E","M","E","M","M","E","E","E","E","E","E","E","H","M","M","E","E","M","M","E","E","E","E","E","E","E","E","E","H","E","E","E","E","H","E","E","H","E","E","E","E","E","H","E","E","H","E","E","E","M","E","E","H","E","M","E","H","E","E","E","E","M","E","E","E","E","E","M","H","E","E","E","E","E","E","E","H","E","M","E","M","M","E","H","E","E","E","E","H","E","E","E","M","E","E","M","M","E","E","E","E","E","E","E","M","E","E","E","E","E","E","E","E","E","H","E","E","M","M","E","E","E","E","E","E","E","E","M","E","H","H","E","E","E","E"],["McFarland High","Stowers (Cecil ","Brea-Olinda Hig","Alameda Element","Sunnyside Eleme","Los Molinos Ele","Northridge Midd","Glassell Park E","Maxson Elementa","Treasure Island","Cimarron Avenue","Tulelake High","Jefferson (Thom","Maloney (Tom) E","Bransford Eleme","Dolores Street ","Shoreline Middl","Carmel Middle","Pacific High","Andres Duarte E","Arlanza Element","Caroldale Avenu","Shenandoah Stre","Mountain View E","Kranz (Charles ","Pinetree Commun","Foster (Stephen","Chandler Elemen","Serrano Middle","Lincoln Middle","Kittridge Stree","Los Penasquitos","Richardson (H. ","San Juan High","Big Bear Elemen","Terra Linda Hig","Harding Element","De Laveaga Elem","Chaparral Middl","Taft (William H","McKinley Elemen","Kernville Eleme","Dry Creek Eleme","Wonderland Aven","Sherman Oaks El","Beardsley Junio","Taylor Street E","Deanza Elementa","Halecrest Eleme","King (Martin Lu","Hirsch (O. N.) ","Lexington Eleme","Crawford Senior","Conejo Elementa","Crescenta Valle","Oakland Charter","Sinaloa Middle","Bowers Elementa","Heath (Margaret","Arvin High","Beaumont Senior","Simons Middle","Shuey (Emma W.)","Golden Hill Ele","Gabilan Element","Butte Vista Ele","Don Julio Junio","Peres Elementar","Frisbie Middle","Alvarado Middle","Hickman Charter","Hanson (Ole) El","Victory Element","Lincoln Element","Kennedy (John F","Potrero Heights","Ripperdan Eleme","Vanden High","Los Arboles Mid","Ladera Vista Ju","Strandwood Elem","Hughson Element","Kings Canyon Mi","Cain (E.V.) Mid","Meadow View Ele","Mulhall Element","Garin Elementar","Fairmont Elemen","Miguelito Eleme","Del Rosa Elemen","Menlo Oaks Elem","Freeman (Daniel","Rancho Romero E","Trona High","Norwood Element","Latimer Element","Bayshore Elemen","Bear Valley Ele","Fallbrook High","Two Bunch Palms","Creekside Eleme","Kern Workforce ","Paine (Thomas) ","Gold Street Ele","Spreckels Eleme","Mark Twain Elem","Lynwood Element","Enterprise High","Martone (Albert","Elkhorn Village","Rubidoux High","Anthony (Susan ","Adelanto Elemen","Mayne (George) ","Orcutt Junior H","Balboa Gifted/H","Purche Avenue E","Gilroy High","Washington Elem","Avery Middle","Soleado Element","Simi Valley Hig","Santa Teresa El","Tynes (John O.)","Foothill Knolls","Green (Harvey) ","Pioneer Junior ","Hayward Project","Open Magnet: Ce","Santa Rita Elem","Alta Heights El","Springhill Elem","Silverado Middl","Burbank (Luther","Westport Height","Monticello Elem","Wilson Elementa","Sunrise Element","Bancroft Elemen","Millville Eleme","Columbia Elemen","Stagg Senior Hi","Avenal Elementa","Hillside Middle","Sutterville Ele","Palos Verdes In","Fort Irwin Midd","Walnut Avenue E","Reedley High","Searles Element","Glenview Elemen","Madison Element","Brookhaven Elem","Pomona Senior H","Thornhill Eleme","Camarillo Heigh","Victor Elementa","Potrero Hill Mi","Cobb Mountain E","Chualar Element","Vista Verde Mid","Foothill Middle","Hemet Elementar","Villacorta Elem","Golden View Ele","Date Elementary","Columbia Elemen","Roosevelt Eleme","Auberry Element","Wells Intermedi","Dayton Elementa","Cawthon (Robert","Golden Gate Ele","Main Elementary","Erwin (Thomas E","York Elementary","Alianza Element","Boone Elementar","Mack (Charles E","Middle College ","Tarzana Element","Dingeman (Rober","Lawrence (Ernes","Britton (Lewis ","Nicholas Elemen","Fairview Elemen","Markham Element","Greenville Fund","Victoriano Elem","La Vina Element","Fulton Elementa","Ericson Element","Haskell (Pliny ","Tyler Skills El","Desert Junior/S","North High","Hammel Street E","Audubon Element","Edison Elementa","Franklin Elemen"],["McFarland High","Stowers (Cecil B.) Elementary","Brea-Olinda High","Alameda Elementary","Sunnyside Elementary","Los Molinos Elementary","Northridge Middle","Glassell Park Elementary","Maxson Elementary","Treasure Island Elementary","Cimarron Avenue Elementary","Tulelake High","Jefferson (Thomas) Middle","Maloney (Tom) Elementary","Bransford Elementary","Dolores Street Elementary","Shoreline Middle","Carmel Middle","Pacific High","Andres Duarte Elementary","Arlanza Elementary","Caroldale Avenue Elementary","Shenandoah Street Elementary","Mountain View Elementary","Kranz (Charles T.) Intermediat","Pinetree Community Elementary","Foster (Stephen) Elementary","Chandler Elementary","Serrano Middle","Lincoln Middle","Kittridge Street Elementary","Los Penasquitos Elementary","Richardson (H. Glenn) Elementary","San Juan High","Big Bear Elementary","Terra Linda High","Harding Elementary","De Laveaga Elementary","Chaparral Middle","Taft (William Howard) Elementary","McKinley Elementary","Kernville Elementary","Dry Creek Elementary","Wonderland Avenue Elementary","Sherman Oaks Elementary","Beardsley Junior High","Taylor Street Elementary","Deanza Elementary","Halecrest Elementary","King (Martin Luther) Elementary","Hirsch (O. N.) Elementary","Lexington Elementary","Crawford Senior High","Conejo Elementary","Crescenta Valley Senior High","Oakland Charter Academy","Sinaloa Middle","Bowers Elementary","Heath (Margaret) Elementary","Arvin High","Beaumont Senior High","Simons Middle","Shuey (Emma W.) Elementary","Golden Hill Elementary","Gabilan Elementary","Butte Vista Elementary","Don Julio Junior High","Peres Elementary","Frisbie Middle","Alvarado Middle","Hickman Charter (Alt)","Hanson (Ole) Elementary","Victory Elementary","Lincoln Elementary","Kennedy (John F.) Elementary","Potrero Heights Elementary","Ripperdan Elementary","Vanden High","Los Arboles Middle","Ladera Vista Junior High","Strandwood Elementary","Hughson Elementary","Kings Canyon Middle","Cain (E.V.) Middle","Meadow View Elementary","Mulhall Elementary","Garin Elementary","Fairmont Elementary","Miguelito Elementary","Del Rosa Elementary","Menlo Oaks Elementary","Freeman (Daniel) Elementary","Rancho Romero Elementary","Trona High","Norwood Elementary","Latimer Elementary","Bayshore Elementary","Bear Valley Elementary","Fallbrook High","Two Bunch Palms Elementary","Creekside Elementary","Kern Workforce 2000 Academy (Charter)","Paine (Thomas) Elementary","Gold Street Elementary","Spreckels Elementary","Mark Twain Elementary","Lynwood Elementary","Enterprise High","Martone (Alberta) Elementary","Elkhorn Village Elementary","Rubidoux High","Anthony (Susan B.) Elementary","Adelanto Elementary","Mayne (George) Elementary","Orcutt Junior High","Balboa Gifted/High Ability Magnet Elemen","Purche Avenue Elementary","Gilroy High","Washington Elementary","Avery Middle","Soleado Elementary","Simi Valley High","Santa Teresa Elementary","Tynes (John O.) Elementary","Foothill Knolls Elementary","Green (Harvey) Elementary","Pioneer Junior High","Hayward Project Elem","Open Magnet: Center for Individual (Char","Santa Rita Elementary","Alta Heights Elementary","Springhill Elementary","Silverado Middle","Burbank (Luther) High","Westport Heights Elementary","Monticello Elementary","Wilson Elementary","Sunrise Elementary","Bancroft Elementary","Millville Elementary","Columbia Elementary","Stagg Senior High","Avenal Elementary","Hillside Middle","Sutterville Elementary","Palos Verdes Intermediate","Fort Irwin Middle","Walnut Avenue Elementary","Reedley High","Searles Elementary","Glenview Elementary","Madison Elementary","Brookhaven Elementary","Pomona Senior High","Thornhill Elementary","Camarillo Heights Elementary","Victor Elementary","Potrero Hill Middle","Cobb Mountain Elementary","Chualar Elementary","Vista Verde Middle","Foothill Middle","Hemet Elementary","Villacorta Elementary","Golden View Elementary","Date Elementary","Columbia Elementary","Roosevelt Elementary","Auberry Elementary","Wells Intermediate","Dayton Elementary","Cawthon (Robert C.) Elementary","Golden Gate Elementary","Main Elementary","Erwin (Thomas E.) Elementary","York Elementary","Alianza Elementary","Boone Elementary","Mack (Charles E.) Elementary","Middle College High","Tarzana Elementary","Dingeman (Robert E.) Elementary","Lawrence (Ernest) Middle","Britton (Lewis H.) Middle","Nicholas Elementary","Fairview Elementary","Markham Elementary","Greenville Fundamental","Victoriano Elementary","La Vina Elementary","Fulton Elementary","Ericson Elementary","Haskell (Pliny Fisk) Middle","Tyler Skills Elementary","Desert Junior/Senior High","North High","Hammel Street Elementary","Audubon Elementary","Edison Elementary","Franklin Elementary"],[1039,1124,2868,1273,4926,2463,2031,1736,2142,4754,1669,2721,1027,63,5574,1693,5453,2736,4125,1290,3347,1654,1909,5928,2138,2335,1200,1662,4171,4664,1779,4430,5586,3809,3925,2614,837,5485,6135,4879,5647,973,590,1993,1911,908,3727,1169,4295,4551,67,4275,4466,6114,1351,230,2601,5394,1175,959,3358,2285,2295,2945,2805,5836,3682,483,4105,150,5745,2883,4882,5873,3395,2125,2564,5594,2765,2947,424,5806,677,3271,1101,1321,368,470,5139,4138,5018,1401,516,4176,1323,5288,4948,3466,4370,3498,4824,963,3022,5553,4550,1055,2594,5531,5761,6157,3425,698,3895,5399,5147,2078,1877,5253,2543,347,2214,6056,5324,3111,4236,59,4238,117,2077,5272,2813,382,2831,3729,1984,4790,2521,3847,402,5526,637,4858,1068,6078,3774,2206,4205,3949,708,148,177,2559,3091,2261,208,6027,2366,4773,1088,2739,3606,764,3412,2497,526,4028,947,2434,763,3352,253,2930,4721,5108,1187,1393,5473,4486,3620,456,1936,4596,2020,5297,3764,950,101,3145,3603,2562,4512,641,1121,4880,993,969,1752,4480,4062,2683],["McFarland Unified","ABC Unified","Brea-Olinda Unified","Downey Unified","San Luis Coastal Unified","Hacienda la Puente Unif","Los Angeles Unified","Los Angeles Unified","Mountain View Elem","San Francisco Unified","Los Angeles Unified","Tulelake Basin Unified","Wasco Union Elementary","Fremont Unified","Fairfield-Suisun Unified","Los Angeles Unified","Live Oak Elementary","Carmel Unified","San Bernardino City Unif","Duarte Unified","Alvord Unified","Los Angeles Unified","Los Angeles Unified","Visalia Unified","Mountain View Elem","Sulphur Springs Un Elem","Bellflower Unified","Los Angeles Unified","San Bernardino City Unif","Oceanside Unified","Los Angeles Unified","Poway Unified","Fairfield-Suisun Unified","San Juan Unified","Bear Valley Unified","San Rafael City High","El Centro Elementary","Santa Cruz City Elem","Moorpark Unified","Stockton City Unified","Petaluma City Elementary","Kernville Union Elem","Clovis Unified","Los Angeles Unified","Los Angeles Unified","Beardsley Elementary","Robla Elementary","Baldwin Park Unified","Chula Vista Elementary","San Diego City Unified","Fremont Unified","Cajon Valley Union Elem","San Diego City Unified","Conejo Valley Unified","Glendale Unified","Oakland Unified","Novato Unified","Santa Clara Unified","Baldwin Park Unified","Kern Union High","Beaumont Unified","Pomona Unified","Rosemead Elementary","Fullerton Elementary","Soledad Unified","Yuba City Unified","Grant Joint Union High","West Contra Costa Unified","Rialto Unified","New Haven Unified","Hickman Elementary","Capistrano Unified","Stockton City Unified","Exeter Union Elementary","Desert Sands Unified","Montebello Unified","Madera Unified","Travis Unified","Monterey Peninsula Unif.","Fullerton Elementary","Mt. Diablo Unified","Hughson Unified","Fresno Unified","Auburn Union Elementary","Susanville Elementary","El Monte City Elementary","Brentwood Union Elem.","West Contra Costa Unified","Lompoc Unified","San Bernardino City Unif","Ravenswood City Elem","Inglewood Unified","San Ramon Valley Unified","Trona Joint Unified","El Monte City Elementary","Moreland Elementary","Bayshore Elementary","Moreno Valley Unified","Fallbrook Union High","Palm Springs Unified","Lodi Unified","Kern Union High","Garden Grove Unified","Yreka Union Elementary","San Diego City Unified","Corcoran Joint Unified","Novato Unified","Shasta Union High","Modesto City Elementary","Washington Unified","Jurupa Unified","Fresno Unified","Adelanto Elementary","Santa Clara Unified","Orcutt Union Elementary","Los Angeles Unified","Los Angeles Unified","Gilroy Unified","Redondo Beach Unified","Vallecito Union Elem","Palos Verdes Penin. Unif.","Simi Valley Unified","Oak Grove Elementary","Placentia-Yorba Linda","Upland Unified","Fremont Unified","Upland Unified","Hayward Unified","Los Angeles Unified","Los Altos Elementary","Napa Valley Unified","Lafayette Elementary","Napa Valley Unified","Sacramento City Unified","Los Angeles Unified","Jefferson Elementary","San Gabriel Unified","San Juan Unified","Mt. Diablo Unified","Millville Elementary","Fresno Unified","Stockton City Unified","Reef-Sunset Unified","Simi Valley Unified","Sacramento City Unified","Palos Verdes Penin. Unif.","Silver Valley Unified","Chino Valley Unified","Kings Canyon Unified","New Haven Unified","Oakland Unified","Madera Unified","Placentia-Yorba Linda","Pomona Unified","Oakland Unified","Pleasant Valley Elem","Torrance Unified","San Francisco Unified","Middletown Unified","Chualar Union Elementary","Val Verde Unified","Sierra Unified","Hemet Unified","Rowland Unified","San Ramon Valley Unified","Fontana Unified","Fruitvale Elementary","Compton Unified","Sierra Unified","Alvord Unified","San Lorenzo Unified","Cypress Elementary","San Francisco Unified","Carpinteria Unified","Bassett Unified","Hawthorne Elementary","Pajaro Valley Joint Unif","San Diego City Unified","Elk Grove Unified","West Contra Costa Unified","Los Angeles Unified","San Diego City Unified","Los Angeles Unified","Morgan Hill Unified","Sacramento City Unified","Greenfield Union Elem","Hayward Unified","Santa Ana Unified","Val Verde Unified","Madera Unified","San Diego City Unified","Fresno Unified","ABC Unified","Stockton City Unified","Muroc Joint Unified","Kern Union High","Los Angeles Unified","San Diego City Unified","Ontario-Montclair Elem","Merced City Elementary"],[432,1,79,187,640,284,401,401,470,632,401,753,784,248,229,401,386,111,627,189,19,401,401,779,470,720,56,401,627,510,401,575,229,636,50,649,200,657,460,716,547,335,140,401,401,51,606,42,135,630,248,98,630,154,266,507,499,656,42,334,52,570,613,255,693,832,275,796,590,484,301,108,716,226,180,457,415,747,459,255,473,310,253,39,728,203,80,796,393,627,579,315,650,750,203,462,49,463,232,531,390,334,259,830,630,155,499,683,449,787,328,253,5,656,519,401,401,265,585,769,536,689,501,556,763,248,763,294,401,399,478,352,478,620,401,322,633,636,473,447,253,716,588,689,620,536,688,131,339,484,507,415,556,570,507,564,744,632,444,134,767,686,298,619,650,238,254,153,686,19,638,171,632,112,48,293,529,630,209,796,401,630,401,464,620,278,294,653,767,415,630,253,1,716,476,334,401,630,513,440],["Kern","Los Angeles","Orange","Los Angeles","San Luis Obispo","Los Angeles","Los Angeles","Los Angeles","Los Angeles","San Francisco","Los Angeles","Modoc","Kern","Alameda","Solano","Los Angeles","Santa Cruz","Monterey","San Bernardino","Los Angeles","Riverside","Los Angeles","Los Angeles","Tulare","Los Angeles","Los Angeles","Los Angeles","Los Angeles","San Bernardino","San Diego","Los Angeles","San Diego","Solano","Sacramento","San Bernardino","Marin","Imperial","Santa Cruz","Ventura","San Joaquin","Sonoma","Kern","Fresno","Los Angeles","Los Angeles","Kern","Sacramento","Los Angeles","San Diego","San Diego","Alameda","San Diego","San Diego","Ventura","Los Angeles","Alameda","Marin","Santa Clara","Los Angeles","Kern","Riverside","Los Angeles","Los Angeles","Orange","Monterey","Sutter","Sacramento","Contra Costa","San Bernardino","Alameda","Stanislaus","Orange","San Joaquin","Tulare","Riverside","Los Angeles","Madera","Solano","Monterey","Orange","Contra Costa","Stanislaus","Fresno","Placer","Lassen","Los Angeles","Contra Costa","Contra Costa","Santa Barbara","San Bernardino","San Mateo","Los Angeles","Contra Costa","San Bernardino","Los Angeles","Santa Clara","San Mateo","Riverside","San Diego","Riverside","San Joaquin","Kern","Orange","Siskiyou","San Diego","Kings","Marin","Shasta","Stanislaus","Yolo","Riverside","Fresno","San Bernardino","Santa Clara","Santa Barbara","Los Angeles","Los Angeles","Santa Clara","Los Angeles","Calaveras","Los Angeles","Ventura","Santa Clara","Orange","San Bernardino","Alameda","San Bernardino","Alameda","Los Angeles","Santa Clara","Napa","Contra Costa","Napa","Sacramento","Los Angeles","San Joaquin","Los Angeles","Sacramento","Contra Costa","Shasta","Fresno","San Joaquin","Kings","Ventura","Sacramento","Los Angeles","San Bernardino","San Bernardino","Fresno","Alameda","Alameda","Madera","Orange","Los Angeles","Alameda","Ventura","Los Angeles","San Francisco","Lake","Monterey","Riverside","Fresno","Riverside","Los Angeles","Contra Costa","San Bernardino","Kern","Los Angeles","Fresno","Riverside","Alameda","Orange","San Francisco","Santa Barbara","Los Angeles","Los Angeles","Santa Cruz","San Diego","Sacramento","Contra Costa","Los Angeles","San Diego","Los Angeles","Santa Clara","Sacramento","Kern","Alameda","Orange","Riverside","Madera","San Diego","Fresno","Los Angeles","San Joaquin","Kern","Kern","Los Angeles","San Diego","San Bernardino","Merced"],[14,18,29,18,39,18,18,18,18,37,18,24,14,1,47,18,43,26,35,18,32,18,18,53,18,18,18,18,35,36,18,36,47,33,35,20,12,43,55,38,48,14,9,18,18,14,33,18,36,36,1,36,36,55,18,1,20,42,18,14,32,18,18,29,26,50,33,6,35,1,49,29,38,53,32,18,19,47,26,29,6,49,9,30,17,18,6,6,41,35,40,18,6,35,18,42,40,32,36,32,38,14,29,46,36,15,20,44,49,56,32,9,35,42,41,18,18,42,18,4,18,55,42,29,35,1,35,1,18,42,27,6,27,33,18,38,18,33,6,44,9,38,15,55,33,18,35,35,9,1,1,19,29,18,1,55,18,37,16,26,32,9,32,18,6,35,14,18,9,32,1,29,37,41,18,18,43,36,33,6,18,36,18,42,33,14,1,29,32,19,36,9,18,38,14,14,18,36,35,23],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[98,100,98,99,99,93,98,99,100,90,95,100,97,99,98,100,99,100,95,100,99,97,84,100,99,99,100,100,97,99,99,99,100,96,99,85,100,98,100,100,100,98,99,100,100,100,100,100,100,100,100,98,100,99,99,100,99,99,100,97,99,100,100,100,100,99,90,98,99,100,100,99,99,98,98,100,100,100,100,100,97,100,96,100,100,95,99,94,100,92,100,100,100,100,100,99,100,99,98,100,99,90,100,99,100,98,96,98,99,100,91,99,98,99,100,100,99,93,100,99,100,98,96,100,100,100,99,97,99,99,100,100,98,92,100,100,98,99,100,100,100,97,100,99,99,100,100,98,98,100,97,100,100,98,96,99,99,83,89,100,98,100,100,100,100,96,100,100,100,97,99,100,91,100,100,98,100,99,100,98,99,99,98,98,99,98,100,100,95,100,100,99,99,99,100,97,97,100,100,99],[462,878,734,772,739,835,456,506,543,649,556,671,528,742,555,631,698,810,502,532,430,658,453,635,508,804,813,650,569,642,500,808,594,607,760,764,622,793,802,529,630,742,842,903,720,634,529,540,795,485,734,665,541,642,758,425,878,691,558,424,641,462,749,715,498,744,564,448,496,744,725,762,542,693,553,704,474,720,665,720,827,743,485,759,752,528,670,598,675,603,512,728,906,588,591,796,722,579,657,474,573,348,708,699,738,529,757,674,741,475,533,427,536,504,771,965,559,590,745,790,915,734,787,579,737,719,794,596,840,952,794,905,660,497,666,801,765,722,893,834,447,582,410,728,818,905,698,644,577,677,633,479,852,509,884,813,813,482,804,447,630,739,658,564,894,460,787,494,772,537,676,868,544,740,584,548,382,706,584,754,638,883,660,708,607,544,607,806,708,487,682,513,644,625,720,547,467,612,601,595],[448,831,742,657,719,822,472,474,458,604,575,620,524,691,505,594,677,794,505,494,391,615,423,619,471,787,794,590,552,618,424,772,555,589,717,749,519,750,758,482,612,696,833,891,708,602,550,457,758,406,749,592,537,560,759,413,874,682,515,409,612,470,724,682,425,722,532,391,479,708,737,742,525,504,542,651,476,707,639,700,748,703,478,760,703,432,643,570,637,572,512,629,888,547,531,765,629,519,651,436,584,347,641,666,703,478,772,676,738,411,527,443,464,490,758,952,497,602,615,775,885,751,756,553,664,702,776,578,816,926,760,885,622,463,641,750,778,698,845,752,409,551,372,704,790,885,675,593,553,649,618,397,829,483,867,785,748,472,775,404,628,735,634,519,860,429,770,485,698,513,622,834,496,721,530,485,404,701,527,755,531,864,642,716,529,493,604,815,701,435,615,493,613,578,704,529,442,528,574,581],[18,null,3,7,4,null,16,16,17,10,11,9,14,5,15,10,6,1,15,15,20,9,19,9,16,1,1,11,12,9,19,1,12,11,4,3,14,3,2,16,9,5,null,null,5,10,13,17,2,20,3,10,13,12,2,19,null,6,14,20,9,17,4,6,19,4,13,20,16,5,3,3,14,15,13,7,16,5,8,5,3,5,16,2,5,18,8,12,8,11,14,9,null,13,13,2,9,14,7,18,11,23,8,7,5,16,1,6,3,19,14,18,17,16,2,null,15,10,9,1,null,2,2,12,7,5,1,11,null,null,2,null,9,17,8,3,1,5,null,2,20,12,21,5,1,null,6,10,12,8,9,20,null,16,null,1,3,16,1,20,9,3,8,14,null,19,2,16,5,14,9,null,15,4,14,16,20,5,14,2,13,null,8,4,14,15,10,null,5,18,9,15,9,11,5,14,18,14,11,11],[14,47,-8,115,20,13,-16,32,85,45,-19,51,4,51,50,37,21,16,-3,38,39,43,30,16,37,17,19,60,17,24,76,36,39,18,43,15,103,43,44,47,18,46,9,12,12,32,-21,83,37,79,-15,73,4,82,-1,12,4,9,43,15,29,-8,25,33,73,22,32,57,17,36,-12,20,17,189,11,53,-2,13,26,20,79,40,7,-1,49,96,27,28,38,31,0,99,18,41,60,31,93,60,6,38,-11,1,67,33,35,51,-15,-2,3,64,6,-16,72,14,13,13,62,-12,130,15,30,-17,31,26,73,17,18,18,24,26,34,20,38,34,25,51,-13,24,48,82,38,31,38,24,28,20,23,51,24,28,15,82,23,26,17,28,65,10,29,43,2,4,24,45,34,31,17,9,74,24,54,34,48,19,54,63,-22,5,57,-1,107,19,18,-8,78,51,3,-9,7,52,67,20,31,47,16,18,25,84,27,14],["No","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No","No","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","Yes","No","No","Yes","Yes","No","No","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes"],["Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","No","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","Yes","No","No","No","Yes","No","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","No","No","Yes","Yes","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","No","Yes","Yes","No","No","Yes","Yes","No","No","No","Yes","Yes","No","No","Yes","Yes","No","Yes","Yes","Yes","No"],["No","Yes","No","Yes","Yes","Yes","No","Yes","Yes","No","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","Yes","No","No","No","Yes","No","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","No","No","Yes","Yes","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","No","No","Yes","No","Yes","Yes","No","No","Yes","Yes","No","No","No","Yes","Yes","No","No","Yes","Yes","No","Yes","Yes","Yes","No"],["No","Yes","No","Yes","Yes","No","No","Yes","Yes","No","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","Yes","No","Yes","Yes","Yes","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","No","No","Yes","No","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","Yes","No","No","No","Yes","No","No","Yes","No","Yes","Yes","Yes","No","Yes","No","Yes","No","No","Yes","Yes","No","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","Yes","Yes","Yes","No","Yes","Yes","No","No","Yes","No","No","Yes","Yes","Yes","Yes","Yes","No","Yes","No","Yes","Yes","No","Yes","Yes","Yes","No","No","Yes","No","Yes","Yes","No","No","Yes","Yes","No","No","No","Yes","Yes","No","No","Yes","Yes","No","Yes","Yes","Yes","No"],[44,8,10,70,43,16,81,98,94,85,81,67,77,20,70,75,24,10,72,82,87,59,98,37,91,10,24,74,67,44,93,37,51,37,37,4,96,26,18,83,52,57,15,14,21,74,78,90,26,100,22,77,90,45,10,0,4,39,83,72,35,87,66,34,87,21,52,93,69,20,0,20,76,50,72,50,95,9,35,33,9,51,85,24,32,88,32,60,42,73,100,61,1,51,82,23,57,67,29,75,46,10,59,53,48,74,42,21,49,90,37,100,97,59,21,15,78,26,41,22,3,8,20,70,36,24,7,53,33,3,20,0,36,53,59,10,26,45,7,41,100,36,100,16,28,2,26,52,62,40,60,92,4,68,6,7,21,60,28,97,44,37,86,81,0,93,19,97,37,52,27,19,84,42,82,90,70,62,82,21,74,4,52,20,100,94,58,32,44,97,78,88,36,59,15,38,100,79,65,82],[31,25,10,25,12,19,40,65,65,57,4,25,32,16,23,18,13,0,23,30,60,18,53,4,62,1,2,41,15,21,73,28,8,23,9,2,56,16,13,28,26,0,6,16,13,2,17,66,14,78,10,18,50,36,12,89,2,26,54,42,2,63,25,27,63,4,4,34,25,17,0,10,20,18,31,27,68,0,15,12,3,19,40,2,0,57,14,16,10,12,22,3,1,1,50,15,11,24,18,41,19,16,69,3,36,9,20,0,9,43,8,59,38,42,3,1,8,22,20,0,20,3,16,51,6,6,2,6,25,7,3,1,8,42,23,2,21,4,4,0,51,14,65,5,15,9,1,23,24,31,32,45,1,40,8,2,31,31,0,82,8,0,21,50,3,49,1,71,0,37,26,5,54,29,28,58,84,15,36,12,33,3,22,13,41,15,19,14,7,86,16,37,14,8,0,3,70,34,40,45],[null,null,null,null,null,null,null,"No",null,null,null,null,null,null,"No",null,null,null,null,null,"No",null,null,"No",null,"No",null,null,null,null,"No",null,"No",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"No",null,null,null,null,null,null,null,"No",null,null,null,null,null,null,null,null,null,null,"No",null,null,null,null,null,null,null,"No",null,null,"No",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"No",null,null,null,"No",null,null,null,null,null,null,null,null,null,null,"No",null,null,"No",null,null,null,null,null,null,null,null,null,"No",null,null,"No",null,null,null,null,null,null,null,null,null,null,null,null,null,null,"No",null,null,null,null,null,"No"],[6,15,7,23,12,13,22,43,15,10,20,12,4,32,17,9,11,12,15,18,28,13,13,16,14,7,21,22,20,31,22,13,10,21,14,4,24,8,12,16,17,15,13,22,20,18,3,13,23,24,19,29,12,15,10,4,3,12,10,5,24,28,12,15,25,29,5,24,26,0,41,15,26,9,10,12,33,11,12,12,13,13,20,18,20,15,17,24,15,23,31,24,7,2,16,17,13,28,12,27,25,67,14,30,9,5,25,13,22,25,14,28,31,13,7,21,19,10,16,10,16,6,21,16,18,22,10,47,11,13,9,12,15,18,16,22,14,26,16,17,22,10,30,41,18,8,58,23,4,13,9,26,8,18,8,17,23,11,23,12,17,12,25,18,9,23,20,20,11,20,17,8,7,9,14,22,18,13,30,43,15,9,14,13,29,19,22,20,21,18,19,26,13,19,21,8,16,15,15,17],[null,19,null,23,20,19,null,18,19,16,16,null,null,19,21,20,null,null,null,19,20,19,18,18,null,19,20,15,null,null,18,19,21,null,19,null,19,20,null,18,22,17,20,19,19,null,20,20,19,21,26,19,null,19,null,null,null,19,21,null,null,null,21,23,20,18,null,20,null,null,30,18,20,18,20,19,20,null,null,null,20,19,null,null,18,22,19,19,19,20,null,19,19,null,19,19,22,19,null,21,20,null,21,20,19,null,19,null,22,23,null,19,19,19,null,19,18,null,19,null,17,null,20,20,20,21,null,21,20,19,19,20,null,null,18,16,19,20,20,18,20,null,18,null,22,null,null,20,null,20,20,20,20,null,19,20,18,null,22,19,null,null,20,20,20,19,20,20,19,null,21,20,18,20,21,19,19,21,21,null,18,20,null,null,22,18,19,21,23,20,19,19,null,19,null,null,19,20,19,19],[null,30,null,null,29,29,30,29,32,25,27,null,null,29,30,27,29,21,null,33,32,29,29,27,null,27,31,27,null,32,30,30,32,null,27,null,33,26,29,23,26,24,35,30,27,null,29,31,28,29,29,33,null,27,null,24,28,30,31,null,null,31,29,30,30,28,null,33,32,29,30,22,33,null,31,29,33,null,29,null,33,29,null,null,27,25,29,30,28,32,28,28,29,null,27,28,24,31,null,28,30,null,31,24,29,28,28,null,31,26,null,27,25,30,null,32,30,null,30,26,34,null,31,31,30,30,null,25,29,27,31,28,null,null,26,null,29,37,30,29,29,null,29,31,32,33,27,31,null,29,31,36,35,null,29,31,34,14,30,26,33,28,31,28,31,30,30,32,22,null,32,30,20,30,34,27,29,28,31,null,31,30,32,null,33,23,32,30,29,31,30,28,null,28,null,null,28,31,30,30],[24,null,28,null,null,null,27,null,null,30,null,17,27,null,null,null,25,24,31,null,null,26,null,null,29,null,null,null,30,31,null,null,null,28,null,26,null,null,30,null,null,null,null,null,null,26,null,null,null,null,null,null,null,null,28,26,28,null,null,27,27,31,null,null,null,null,26,null,30,29,null,null,null,null,null,null,null,27,28,27,null,null,27,26,null,null,null,null,null,null,26,null,null,24,null,null,null,null,28,null,null,null,null,null,null,null,null,26,null,null,29,null,null,null,25,null,null,29,null,26,null,31,null,null,null,null,33,null,null,null,null,null,27,28,null,null,null,null,null,31,null,30,null,34,null,30,20,null,27,null,null,null,null,29,null,null,null,17,null,null,32,26,null,null,null,null,null,null,null,30,null,null,null,null,null,null,null,null,null,23,null,null,31,29,null,null,null,null,null,null,null,null,29,null,27,26,null,null,null,null],[82,97,95,100,91,71,49,75,99,49,62,96,77,96,39,51,99,83,80,99,95,78,35,100,99,95,66,1,100,91,0,95,43,87,87,88,61,87,84,68,93,100,95,81,72,97,94,0,0,84,95,65,74,96,91,84,98,91,0,87,95,84,86,93,88,76,89,89,0,87,83,93,99,93,99,86,73,88,77,92,92,88,71,94,91,93,100,99,91,84,92,88,67,92,93,97,97,96,92,43,87,71,8,98,76,93,90,89,85,100,85,93,76,89,70,99,29,90,81,76,48,1,93,0,94,98,97,91,0,97,89,93,96,48,55,99,86,93,84,97,84,94,81,0,70,56,79,71,1,97,54,99,1,85,94,99,95,76,83,55,97,84,90,55,99,14,81,46,83,91,75,100,82,91,1,90,98,87,87,95,53,93,71,35,68,98,63,77,99,77,76,64,95,74,99,93,65,85,96,98],[44,4,5,37,8,1,30,49,48,23,5,44,40,4,14,18,15,2,31,16,53,14,19,5,64,1,4,0,27,24,0,4,7,7,8,4,14,15,7,31,25,11,3,0,5,34,34,0,0,76,6,16,41,22,3,61,2,9,0,64,14,71,33,16,42,6,14,34,0,5,1,11,41,28,31,7,59,2,48,14,1,22,36,4,4,58,11,7,10,22,43,1,0,22,43,11,19,16,20,44,14,38,6,12,18,26,13,7,13,54,25,59,50,24,3,0,2,21,11,4,0,7,8,0,9,13,2,3,0,1,5,0,22,34,6,2,4,10,0,4,61,34,56,0,4,0,1,21,46,20,11,53,0,42,2,2,3,13,6,58,14,7,32,33,0,51,1,39,8,41,12,4,35,22,60,30,56,12,23,25,11,1,12,3,33,67,9,10,15,84,11,35,16,18,0,15,52,26,30,29],[34,10,9,40,21,8,27,31,34,36,38,19,34,14,57,28,26,7,26,60,32,21,36,33,23,26,18,75,32,19,0,14,48,26,22,5,25,9,10,23,24,33,21,8,22,43,47,0,0,14,12,35,24,26,11,26,4,29,0,19,30,16,55,17,27,17,35,54,0,12,14,23,42,23,31,24,30,16,6,19,10,35,24,16,18,32,22,48,22,32,22,31,1,41,25,19,46,30,13,24,23,34,47,18,10,35,18,17,24,31,22,27,21,38,12,9,25,19,26,18,1,21,21,0,26,33,11,32,0,2,19,1,19,27,23,10,26,67,3,26,19,19,24,0,13,1,11,29,15,25,19,39,0,24,5,8,15,42,35,20,21,34,36,29,4,24,17,36,34,26,24,17,42,15,20,33,24,27,33,18,30,10,17,12,44,23,24,24,28,15,27,29,23,44,17,31,32,31,27,22],[12,23,21,14,27,20,18,15,14,14,29,17,16,25,18,27,20,28,30,14,13,28,17,38,9,35,40,25,28,27,0,37,32,25,30,15,30,22,15,29,31,32,23,11,18,16,12,0,0,8,32,34,21,21,28,12,23,28,0,10,32,8,0,25,21,22,29,11,0,30,30,21,13,27,29,36,9,34,39,24,24,24,20,32,41,7,34,22,45,29,16,42,8,34,18,34,24,36,23,22,41,15,28,43,13,25,22,34,40,13,30,9,23,24,48,12,29,25,32,35,4,21,25,100,35,25,27,31,0,9,36,8,26,23,27,39,12,14,14,29,15,26,16,0,22,3,42,32,23,28,37,7,0,20,13,27,26,23,29,11,38,25,24,24,10,17,39,13,28,24,37,42,14,28,0,28,10,27,35,26,19,9,25,29,16,8,38,43,34,2,33,24,30,25,38,33,9,25,27,34],[7,43,41,8,34,38,22,2,4,21,24,19,8,37,10,23,28,31,11,9,2,33,25,21,3,31,28,0,10,21,0,30,10,35,25,42,17,31,42,14,15,13,39,54,37,7,6,0,0,2,37,12,12,24,32,1,42,26,0,6,16,5,10,24,8,39,20,1,0,37,35,31,5,14,6,28,2,35,6,26,34,10,17,31,25,2,27,18,18,11,15,23,42,3,11,25,11,13,33,8,16,11,19,19,25,11,19,28,14,3,19,5,5,12,20,45,40,25,16,28,35,43,34,0,18,20,37,25,0,27,27,51,21,14,42,31,54,6,39,29,4,17,3,0,33,30,35,15,15,17,20,1,33,11,25,59,33,20,20,7,19,19,6,11,41,8,27,11,17,9,23,37,6,22,20,6,4,29,7,26,38,52,36,29,7,1,22,14,18,0,23,10,23,13,34,17,6,14,13,13],[3,21,24,1,10,34,2,3,1,6,5,2,2,19,1,3,10,32,3,1,1,5,4,3,1,7,11,0,2,8,0,15,3,6,14,33,14,23,26,4,5,12,14,28,18,0,1,0,0,1,13,4,3,7,27,0,30,8,0,1,8,0,2,18,2,16,1,0,0,16,21,13,0,8,4,6,0,13,2,18,31,8,3,17,12,1,6,5,5,5,3,3,49,1,4,11,1,5,12,2,7,2,0,7,35,3,27,14,10,0,4,1,2,2,17,34,5,9,16,16,60,7,13,0,11,8,22,8,0,61,14,40,11,2,2,17,4,3,43,12,2,3,2,0,28,66,11,4,0,10,13,0,67,2,55,4,23,2,10,4,9,15,2,3,45,0,16,1,14,1,4,0,2,13,0,2,5,6,3,6,2,28,10,28,1,1,7,9,5,0,7,2,8,1,11,4,1,4,2,2],[1.909999966621399,3.660000085830688,3.710000038146973,1.960000038146973,3.170000076293945,3.960000038146973,2.390000104904175,1.789999961853027,1.769999980926514,2.509999990463257,2.849999904632568,2.170000076293945,1.960000038146973,3.529999971389771,2.259999990463257,2.650000095367432,2.940000057220459,3.839999914169312,2.299999952316284,2.200000047683716,1.659999966621399,2.940000057220459,2.569999933242798,2.849999904632568,1.529999971389771,3.170000076293945,3.240000009536743,2.25,2.289999961853027,2.710000038146973,null,3.380000114440918,2.529999971389771,3.079999923706055,3.130000114440918,3.950000047683716,2.920000076293945,3.369999885559082,3.710000038146973,2.369999885559082,2.509999990463257,2.829999923706055,3.410000085830688,4.019999980926514,3.410000085830688,1.970000028610229,1.929999947547913,null,null,1.389999985694885,3.390000104904175,2.529999971389771,2.119999885559082,2.680000066757202,3.700000047683716,1.539999961853027,3.950000047683716,2.950000047683716,null,1.600000023841858,2.740000009536743,1.490000009536743,1.929999947547913,3.109999895095825,2.019999980926514,3.400000095367432,2.589999914169312,1.789999961853027,null,3.460000038146973,3.619999885559082,3.109999895095825,1.820000052452087,2.509999990463257,2.220000028610229,3,1.529999971389771,3.420000076293945,2.089999914169312,3.130000114440918,3.829999923706055,2.470000028610229,2.259999990463257,3.410000085830688,3.240000009536743,1.570000052452087,2.970000028610229,2.670000076293945,2.869999885559082,2.460000038146973,2.119999885559082,2.960000038146973,4.380000114440918,2.200000047683716,2.069999933242798,3.059999942779541,2.289999961853027,2.609999895095825,3.029999971389771,1.990000009536743,2.779999971389771,2.039999961853027,2.589999914169312,2.910000085830688,3.490000009536743,2.309999942779541,3.299999952316284,3.240000009536743,2.829999923706055,1.639999985694885,2.559999942779541,1.610000014305115,1.870000004768372,2.309999942779541,3.380000114440918,4.039999961853027,3.220000028610229,2.819999933242798,2.990000009536743,3.339999914169312,4.539999961853027,3.210000038146973,3.230000019073486,3,2.960000038146973,2.789999961853027,3.670000076293945,3.049999952316284,null,4.449999809265137,3.259999990463257,4.309999942779541,2.789999961853027,2.240000009536743,3.109999895095825,3.509999990463257,3.269999980926514,2.259999990463257,4.21999979019165,3.200000047683716,1.669999957084656,2.359999895095825,1.720000028610229,null,3.680000066757202,4.599999904632568,3.430000066757202,2.529999971389771,2.079999923706055,2.710000038146973,3.059999942779541,1.559999942779541,4.670000076293945,2.079999923706055,4.260000228881836,3.539999961853027,3.589999914169312,2.559999942779541,2.920000076293945,1.789999961853027,2.890000104904175,3.009999990463257,2.099999904632568,2.230000019073486,4.28000020980835,1.830000042915344,3.390000104904175,1.980000019073486,2.950000047683716,2.039999961853027,2.819999933242798,3.119999885559082,1.980000019073486,2.880000114440918,1.799999952316284,2.170000076293945,1.779999971389771,2.900000095367432,2.339999914169312,2.690000057220459,2.890000104904175,3.980000019073486,3.140000104904175,3.670000076293945,2,1.440000057220459,2.950000047683716,2.880000114440918,2.700000047683716,1.179999947547913,2.859999895095825,2.140000104904175,2.829999923706055,2.359999895095825,3.380000114440918,2.650000095367432,1.730000019073486,2.380000114440918,2.299999952316284,2.369999885559082],[71,90,83,85,100,75,72,69,68,81,84,100,89,95,96,83,92,97,83,90,64,76,61,97,85,96,95,69,78,95,73,100,92,94,100,92,100,93,97,80,100,100,94,75,81,93,96,69,97,84,81,100,94,100,89,33,100,96,68,92,90,69,78,93,72,88,78,72,84,100,83,100,92,91,94,79,73,89,97,94,95,97,94,100,96,86,94,91,97,89,57,48,97,100,76,96,94,85,96,82,90,null,93,100,97,95,100,100,100,90,85,95,86,93,97,100,77,78,100,100,90,98,71,100,100,90,86,50,100,96,100,100,94,98,75,97,86,94,93,100,100,89,65,100,100,90,53,84,88,100,96,88,100,74,100,95,92,80,100,72,78,100,90,63,89,76,92,26,100,59,100,100,58,94,68,47,81,100,91,80,54,97,77,94,100,94,97,91,86,93,84,100,86,93,79,99,77,82,92,91],[35,10,18,18,0,20,25,22,29,7,16,0,11,5,6,10,8,3,14,17,31,13,30,3,8,4,5,31,27,5,25,6,8,6,3,8,4,4,3,13,0,0,6,25,11,7,4,26,3,7,19,10,4,0,11,42,0,0,36,25,10,31,25,7,9,6,23,13,18,0,17,0,8,9,6,13,27,11,9,6,5,3,25,4,0,18,9,4,7,9,43,48,6,0,14,4,6,10,6,45,12,null,7,0,5,0,0,0,0,3,13,12,14,4,3,0,29,18,3,0,10,1,18,3,0,10,14,13,0,4,3,0,6,11,9,7,14,0,4,0,7,10,37,0,4,10,47,14,10,0,4,20,0,26,0,5,12,10,0,0,22,0,6,35,11,24,8,78,0,38,0,0,21,6,32,49,14,2,6,20,50,3,16,6,9,6,6,9,7,0,9,2,14,5,18,11,17,7,8,6],[477,478,1410,342,217,258,1274,566,645,311,328,210,529,313,628,570,714,621,1950,411,593,828,570,552,1016,684,535,381,1051,1405,688,408,436,734,449,713,397,373,835,352,213,151,567,339,632,318,454,641,407,508,297,343,1067,348,1678,161,767,319,393,1656,626,1214,461,489,664,225,740,453,1293,1042,431,354,558,196,413,247,176,1018,702,728,290,439,1029,554,316,310,393,344,373,708,262,333,351,166,314,324,131,531,1888,433,615,475,410,260,474,473,297,996,644,393,1780,594,334,275,603,590,451,1732,391,419,274,1589,348,712,387,361,943,132,276,351,372,368,895,1632,414,226,232,267,382,173,396,2106,581,1125,351,1168,639,659,1418,716,276,318,344,1264,227,346,682,453,207,217,1252,446,611,596,390,483,381,933,253,841,397,308,215,339,532,574,443,645,728,174,346,556,1911,1135,429,336,412,695,457,213,300,551,608,559,533,1467,621,354,338,497],[429,420,1287,291,189,211,1090,353,563,258,253,166,492,254,519,518,632,560,1717,323,438,745,437,495,820,638,465,299,841,1167,566,352,380,556,387,282,353,328,783,315,169,122,519,324,570,250,439,582,353,489,266,293,956,301,1563,160,735,283,381,968,479,992,395,439,494,159,288,385,1035,887,253,322,490,177,364,225,162,656,620,618,257,385,911,470,275,255,322,281,338,610,216,239,334,141,277,269,111,428,988,378,467,196,349,216,465,397,237,548,517,368,1461,533,246,246,537,572,400,1455,313,352,231,1490,271,637,290,296,837,113,241,292,355,313,783,1209,369,166,188,224,312,117,344,1701,524,1058,323,1072,267,533,1022,615,247,274,310,991,185,314,495,316,147,189,965,387,486,504,356,409,310,847,233,640,325,269,190,307,476,447,391,598,607,158,298,526,1647,989,357,279,331,673,348,186,284,482,485,469,417,858,528,319,304,461],[30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97,30.97],[6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194,6194]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>cds<\/th>\n      <th>stype<\/th>\n      <th>name<\/th>\n      <th>sname<\/th>\n      <th>snum<\/th>\n      <th>dname<\/th>\n      <th>dnum<\/th>\n      <th>cname<\/th>\n      <th>cnum<\/th>\n      <th>flag<\/th>\n      <th>pcttest<\/th>\n      <th>api00<\/th>\n      <th>api99<\/th>\n      <th>target<\/th>\n      <th>growth<\/th>\n      <th>sch.wide<\/th>\n      <th>comp.imp<\/th>\n      <th>both<\/th>\n      <th>awards<\/th>\n      <th>meals<\/th>\n      <th>ell<\/th>\n      <th>yr.rnd<\/th>\n      <th>mobility<\/th>\n      <th>acs.k3<\/th>\n      <th>acs.46<\/th>\n      <th>acs.core<\/th>\n      <th>pct.resp<\/th>\n      <th>not.hsg<\/th>\n      <th>hsg<\/th>\n      <th>some.col<\/th>\n      <th>col.grad<\/th>\n      <th>grad.sch<\/th>\n      <th>avg.ed<\/th>\n      <th>full<\/th>\n      <th>emer<\/th>\n      <th>enroll<\/th>\n      <th>api.stu<\/th>\n      <th>pw<\/th>\n      <th>fpc<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"deferRender":true,"scrollY":200,"scrollX":true,"scroller":true,"scrollCollapse":true,"initComplete":"function(settings, json) {\n$(this.api().table().container()).css({'font-size':'14pt'});\n}","columnDefs":[{"className":"dt-right","targets":[5,7,9,10,11,12,13,14,15,20,21,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"cds","targets":1},{"name":"stype","targets":2},{"name":"name","targets":3},{"name":"sname","targets":4},{"name":"snum","targets":5},{"name":"dname","targets":6},{"name":"dnum","targets":7},{"name":"cname","targets":8},{"name":"cnum","targets":9},{"name":"flag","targets":10},{"name":"pcttest","targets":11},{"name":"api00","targets":12},{"name":"api99","targets":13},{"name":"target","targets":14},{"name":"growth","targets":15},{"name":"sch.wide","targets":16},{"name":"comp.imp","targets":17},{"name":"both","targets":18},{"name":"awards","targets":19},{"name":"meals","targets":20},{"name":"ell","targets":21},{"name":"yr.rnd","targets":22},{"name":"mobility","targets":23},{"name":"acs.k3","targets":24},{"name":"acs.46","targets":25},{"name":"acs.core","targets":26},{"name":"pct.resp","targets":27},{"name":"not.hsg","targets":28},{"name":"hsg","targets":29},{"name":"some.col","targets":30},{"name":"col.grad","targets":31},{"name":"grad.sch","targets":32},{"name":"avg.ed","targets":33},{"name":"full","targets":34},{"name":"emer","targets":35},{"name":"enroll","targets":36},{"name":"api.stu","targets":37},{"name":"pw","targets":38},{"name":"fpc","targets":39}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":["options.initComplete"],"jsHooks":[]}</script>
+
+
+---
+class: codefs-55
+# Simple Random Sample
+
+
+``` r
+*srs_design &lt;- svydesign(ids = ~1, # individual rows (schools) are sampled
+*                       weights = ~pw,
+*                       data = apisrs)
+summary(srs_design)
+```
+
+```
+## Independent Sampling design (with replacement)
+## svydesign(ids = ~1, weights = ~pw, data = apisrs)
+## Probabilities:
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.03229 0.03229 0.03229 0.03229 0.03229 0.03229 
+## Data variables:
+##  [1] "cds"      "stype"    "name"     "sname"    "snum"     "dname"   
+##  [7] "dnum"     "cname"    "cnum"     "flag"     "pcttest"  "api00"   
+## [13] "api99"    "target"   "growth"   "sch.wide" "comp.imp" "both"    
+## [19] "awards"   "meals"    "ell"      "yr.rnd"   "mobility" "acs.k3"  
+## [25] "acs.46"   "acs.core" "pct.resp" "not.hsg"  "hsg"      "some.col"
+## [31] "col.grad" "grad.sch" "avg.ed"   "full"     "emer"     "enroll"  
+## [37] "api.stu"  "pw"       "fpc"
+```
+
+``` r
+svytotal(~enroll, srs_design)  ## (truth: 3,811,472 students)
+```
+
+```
+##          total     SE
+## enroll 3621074 172325
+```
+
+
+---
+# Stratified Sample
+
+* divide the population into groups and sample within groups
+
+* adds precision, but need to know the stratum membership &amp; size
+
+
+``` r
+table(apistrat$stype) # type of school
+```
+
+```
+## 
+##   E   H   M 
+## 100  50  50
+```
+
+
+``` r
+unique(apistrat$fpc[apistrat$stype == "E"])  # Elementary
+## [1] 4421
+unique(apistrat$fpc[apistrat$stype == "M"])  # Middle
+## [1] 1018
+unique(apistrat$fpc[apistrat$stype == "H"])  # High School
+## [1] 755
+```
+
+
+---
+class: codefs-55
+# Stratified Sample
+
+
+``` r
+strat_design &lt;- svydesign(ids = ~1,
+*                         strata = ~stype,
+                          weights = ~pw,
+*                         # fpc = ~fpc
+*                         data = apistrat)
+summary(strat_design)
+```
+
+```
+## Stratified Independent Sampling design (with replacement)
+## svydesign(ids = ~1, strata = ~stype, weights = ~pw, data = apistrat)
+## Probabilities:
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.02262 0.02262 0.03587 0.04014 0.05339 0.06623 
+## Stratum Sizes: 
+##              E  H  M
+## obs        100 50 50
+## design.PSU 100 50 50
+## actual.PSU 100 50 50
+## Data variables:
+##  [1] "cds"      "stype"    "name"     "sname"    "snum"     "dname"   
+##  [7] "dnum"     "cname"    "cnum"     "flag"     "pcttest"  "api00"   
+## [13] "api99"    "target"   "growth"   "sch.wide" "comp.imp" "both"    
+## [19] "awards"   "meals"    "ell"      "yr.rnd"   "mobility" "acs.k3"  
+## [25] "acs.46"   "acs.core" "pct.resp" "not.hsg"  "hsg"      "some.col"
+## [31] "col.grad" "grad.sch" "avg.ed"   "full"     "emer"     "enroll"  
+## [37] "api.stu"  "pw"       "fpc"
+```
+
+
+---
+class: slide-font-25, codefs-55
+# Stratified Sample (cont.)
+
+Since we know the number of stratum (needed to calculate `pw`), there is no
+uncertainty.
+
+
+``` r
+svytotal(~stype, strat_design)
+```
+
+```
+##        total SE
+## stypeE  4421  0
+## stypeH   755  0
+## stypeM  1018  0
+```
+
+Compare standard errors to get an idea of improved efficiency offered by
+stratifying
+
+
+``` r
+svytotal(~enroll, srs_design)  ## (truth: 3,811,472 students)
+```
+
+```
+##          total     SE
+## enroll 3621074 172325
+```
+
+``` r
+svytotal(~enroll, strat_design)
+```
+
+```
+##          total     SE
+## enroll 3687178 117319
+```
+
+
+---
+# Cluster Sampling
+
+* Divide the population into (mutually exclusive) groups/clusters,
+draw a (small) random sample of clusters, and collect data on all items in
+the cluster
+
+* Example dataset for single-stage cluster sampling: `apiclus1`
+
+  + draw a sample of 15 school districts (out of 757 total)
+  + include each school in the sampled districts
+
+* Example datasets for multistage cluster sampling: `nhanes` &amp; `apiclus2`
+
+  + stratified sampling &amp; cluster sampling within each stratum (`nhanes`)
+  + cluster sampling at both stages (`apiclus2`)
+
+
+---
+# Example data (apiclus1)
+
+
+``` r
+nrow(apiclus1)  ## sample size
+```
+
+```
+## [1] 183
+```
+
+``` r
+length(unique(apipop$dnum))  ## number of school districts
+```
+
+```
+## [1] 757
+```
+
+``` r
+unique(apiclus1$fpc)  ## check n districts
+```
+
+```
+## [1] 757
+```
+
+``` r
+table(apiclus1$dnum)  ## sampled districts
+```
+
+```
+## 
+##  61 135 178 197 255 406 413 437 448 510 568 637 716 778 815 
+##  13  34   4  13  16   2   1   4  12  21   9  11  37   2   4
+```
+
+``` r
+summary(apiclus1$pw)  ## should be 757/15 !!!
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   33.85   33.85   33.85   33.85   33.85   33.85
+```
+
+
+---
+class: codefs-55
+# Single-stage cluster sample
+
+
+``` r
+*clus1_design &lt;- svydesign(id = ~dnum, # cluster id
+                          weights = ~pw,
+                          #fpc=~fpc,
+                          data = apiclus1)
+summary(clus1_design)
+```
+
+```
+## 1 - level Cluster Sampling design (with replacement)
+## With (15) clusters.
+## svydesign(id = ~dnum, weights = ~pw, data = apiclus1)
+## Probabilities:
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.02954 0.02954 0.02954 0.02954 0.02954 0.02954 
+## Data variables:
+##  [1] "cds"      "stype"    "name"     "sname"    "snum"     "dname"   
+##  [7] "dnum"     "cname"    "cnum"     "flag"     "pcttest"  "api00"   
+## [13] "api99"    "target"   "growth"   "sch.wide" "comp.imp" "both"    
+## [19] "awards"   "meals"    "ell"      "yr.rnd"   "mobility" "acs.k3"  
+## [25] "acs.46"   "acs.core" "pct.resp" "not.hsg"  "hsg"      "some.col"
+## [31] "col.grad" "grad.sch" "avg.ed"   "full"     "emer"     "enroll"  
+## [37] "api.stu"  "fpc"      "pw"
+```
+
+
+---
+# Relative efficiency
+
+(truth: 3,811,472 students)
+
+
+``` r
+svytotal(~enroll, srs_design)
+```
+
+```
+##          total     SE
+## enroll 3621074 172325
+```
+
+``` r
+svytotal(~enroll, strat_design)
+```
+
+```
+##          total     SE
+## enroll 3687178 117319
+```
+
+``` r
+svytotal(~enroll, clus1_design)
+```
+
+```
+##          total     SE
+## enroll 3404940 941611
+```
+
+
+---
+# Example data (nhanes)
+
+A data frame with 8,591 observations on the following 7 variables.
+
+
+``` r
+# help(nhanes)
+data(nhanes)
+```
+
+* SDMVPSU &amp;mdash; Primary sampling units
+
+* SDMVSTRA &amp;mdash; Sampling strata
+
+* WTMEC2YR &amp;mdash; Sampling weights
+
+(text is quoted from `nhanes` help file)
+
+
+---
+# Multistage Design
+
+
+``` r
+nhanes_design &lt;- svydesign(id = ~SDMVPSU,
+                           strata = ~SDMVSTRA,
+                           weights = ~WTMEC2YR,
+                           nest = TRUE,  # PSU id is recycled in strata
+                           data=nhanes)
+summary(nhanes_design)
+```
+
+```
+## Stratified 1 - level Cluster Sampling design (with replacement)
+## With (31) clusters.
+## svydesign(id = ~SDMVPSU, strata = ~SDMVSTRA, weights = ~WTMEC2YR, 
+##     nest = TRUE, data = nhanes)
+## Probabilities:
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+## 6.323e-06 2.470e-05 4.482e-05 5.097e-05 6.984e-05 2.330e-04 
+## Stratum Sizes: 
+##             75  76  77  78  79  80  81  82  83  84  85  86  87  88  89
+## obs        650 634 711 689 564 630 577 605 571 532 499 757 459 504 209
+## design.PSU   2   2   2   2   2   2   2   2   2   2   2   3   2   2   2
+## actual.PSU   2   2   2   2   2   2   2   2   2   2   2   3   2   2   2
+## Data variables:
+## [1] "SDMVPSU"  "SDMVSTRA" "WTMEC2YR" "HI_CHOL"  "race"     "agecat"   "RIAGENDR"
+```
+
+
+---
+# nest = TRUE
+
+
+``` r
+table(nhanes$SDMVPSU, nhanes$SDMVSTRA)
+```
+
+```
+##    
+##      75  76  77  78  79  80  81  82  83  84  85  86  87  88  89
+##   1 307 321 389 310 290 323 267 295 270 282 239 256 207 260  87
+##   2 343 313 322 379 274 307 310 310 301 250 260 291 252 244 122
+##   3   0   0   0   0   0   0   0   0   0   0   0 210   0   0   0
+```
+
+
+---
+class: codefs-50
+# Another example
+
+Cluster sampling at both stages
+
+
+``` r
+*clus2_design &lt;- svydesign(id = ~dnum + snum,
+                          weights = ~pw,
+                          #fpc = ~fpc1 + fpc2,
+                          data = apiclus2)
+summary(clus2_design)
+```
+
+```
+## 2 - level Cluster Sampling design (with replacement)
+## With (40, 126) clusters.
+## svydesign(id = ~dnum + snum, weights = ~pw, data = apiclus2)
+## Probabilities:
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## 0.003669 0.037743 0.052840 0.042390 0.052840 0.052840 
+## Data variables:
+##  [1] "cds"      "stype"    "name"     "sname"    "snum"     "dname"   
+##  [7] "dnum"     "cname"    "cnum"     "flag"     "pcttest"  "api00"   
+## [13] "api99"    "target"   "growth"   "sch.wide" "comp.imp" "both"    
+## [19] "awards"   "meals"    "ell"      "yr.rnd"   "mobility" "acs.k3"  
+## [25] "acs.46"   "acs.core" "pct.resp" "not.hsg"  "hsg"      "some.col"
+## [31] "col.grad" "grad.sch" "avg.ed"   "full"     "emer"     "enroll"  
+## [37] "api.stu"  "pw"       "fpc1"     "fpc2"
+```
+
+``` r
+svytotal(~enroll, clus2_design, na.rm=TRUE)
+```
+
+```
+##          total     SE
+## enroll 2639273 820261
+```
+
+
+---
+class: inverse, center, middle
+
+# Analysis of Survey Data
+
+
+---
+# Analysis of Survey Data
+
+* Descriptive statistics
+
+  + creating new variables in survey design object
+
+* Estimates for Subpopulations
+
+* Regression
+
+
+---
+# Descriptives &amp;mdash; mean
+
+
+``` r
+mean(apipop$api99)  ## true value in population
+```
+
+```
+## [1] 631.913
+```
+
+
+
+``` r
+svymean(~api99, srs_design)
+##         mean     SE
+## api99 624.68 9.6575
+svymean(~api99, strat_design)
+##         mean     SE
+## api99 629.39 10.097
+svymean(~api99, clus1_design)
+##         mean     SE
+## api99 606.98 24.469
+svymean(~api99, clus2_design)
+##         mean     SE
+## api99 645.03 30.308
+```
+
+
+---
+# Descriptives &amp;mdash; mean (cont.)
+
+
+``` r
+mean(apipop$api99)  ## value in pop
+```
+
+```
+## [1] 631.913
+```
+
+
+
+``` r
+svymean(~ api99 + api00, clus2_design)
+```
+
+```
+##         mean     SE
+## api99 645.03 30.308
+## api00 670.81 30.712
+```
+
+
+
+``` r
+confint(svymean(~ api99 + api00, clus2_design), level = 0.95)
+```
+
+```
+##          2.5 %   97.5 %
+## api99 585.6321 704.4358
+## api00 610.6182 731.0054
+```
+
+
+---
+# Descriptives &amp;mdash; mean (cont.)
+
+
+``` r
+nhanes_tab &lt;- svymean(~interaction(race, agecat), nhanes_design)
+nhanes_tab
+```
+
+```
+##                                          mean     SE
+## interaction(race, agecat)1.(0,19]   0.0426715 0.0077
+## interaction(race, agecat)2.(0,19]   0.1194048 0.0080
+## interaction(race, agecat)3.(0,19]   0.0291613 0.0024
+## interaction(race, agecat)4.(0,19]   0.0165118 0.0023
+## interaction(race, agecat)1.(19,39]  0.0562393 0.0107
+## interaction(race, agecat)2.(19,39]  0.1732181 0.0104
+## interaction(race, agecat)3.(19,39]  0.0378246 0.0039
+## interaction(race, agecat)4.(19,39]  0.0261259 0.0043
+## interaction(race, agecat)1.(39,59]  0.0371274 0.0081
+## interaction(race, agecat)2.(39,59]  0.2103115 0.0125
+## interaction(race, agecat)3.(39,59]  0.0348247 0.0030
+## interaction(race, agecat)4.(39,59]  0.0210259 0.0041
+## interaction(race, agecat)1.(59,Inf] 0.0145142 0.0040
+## interaction(race, agecat)2.(59,Inf] 0.1544932 0.0107
+## interaction(race, agecat)3.(59,Inf] 0.0175686 0.0022
+## interaction(race, agecat)4.(59,Inf] 0.0089771 0.0016
+```
+
+
+---
+# Descriptives &amp;mdash; mean (cont.)
+
+
+``` r
+nhanes_ftab &lt;- ftable(nhanes_tab,
+       rownames = list(race = c("Hisp", "NHW", "NHB", "Other"),
+                       agecat = c("0-19", "19-39", "39-59", "59+")))
+round(nhanes_ftab * 100, 1)
+```
+
+```
+##             race Hisp  NHW  NHB Other
+## agecat                               
+## 0-19   mean       4.3 11.9  2.9   1.7
+##        SE         0.8  0.8  0.2   0.2
+## 19-39  mean       5.6 17.3  3.8   2.6
+##        SE         1.1  1.0  0.4   0.4
+## 39-59  mean       3.7 21.0  3.5   2.1
+##        SE         0.8  1.2  0.3   0.4
+## 59+    mean       1.5 15.4  1.8   0.9
+##        SE         0.4  1.1  0.2   0.2
+```
+
+
+---
+# Contrasts &amp; Updates
+
+
+``` r
+api_means &lt;- svymean(~ api00 + api99, clus1_design)
+svycontrast(api_means, c(api00 = 1, api99 = -1))
+```
+
+```
+##          contrast     SE
+## contrast   37.191 3.1162
+```
+
+
+
+``` r
+clus1_design &lt;- update(clus1_design, apidiff = api00 - api99)
+clus1_design &lt;- update(clus1_design, apipct = apidiff/api99)
+svymean(~apidiff + apipct, clus1_design)
+```
+
+```
+##              mean     SE
+## apidiff 37.191257 3.1162
+## apipct   0.067339 0.0064
+```
+
+
+---
+# Variance &amp; Ratio
+
+
+``` r
+svyvar(~api99, srs_design)
+```
+
+```
+##       variance     SE
+## api99    18654 1400.2
+```
+
+``` r
+svyratio(~api.stu, ~enroll, srs_design) # api.stu = num of students tested
+```
+
+```
+## Ratio estimator: svyratio.survey.design2(~api.stu, ~enroll, srs_design)
+## Ratios=
+##            enroll
+## api.stu 0.8253537
+## SEs=
+##             enroll
+## api.stu 0.01023543
+```
+
+
+---
+# Quantiles
+
+
+``` r
+svyquantile(~api99, srs_design, c(.25, .50, .75), ci = TRUE)
+```
+
+```
+## $api99
+##      quantile ci.2.5 ci.97.5       se
+## 0.25      513    485     531 11.66354
+## 0.5       618    593     643 12.67776
+## 0.75      738    704     758 13.69199
+## 
+## attr(,"hasci")
+## [1] TRUE
+## attr(,"class")
+## [1] "newsvyquantile"
+```
+
+
+---
+# Subpopulations
+
+`emerg` &amp;mdash; percent of teachers with emergency qualifications
+
+
+``` r
+emerg_high &lt;- subset(strat_design, emer &gt; 20)
+emerg_low &lt;- subset(strat_design, emer == 0)
+svymean(~ api00 + api99, emerg_high)
+```
+
+```
+##         mean     SE
+## api00 558.52 21.983
+## api99 523.99 21.853
+```
+
+``` r
+svymean(~ api00 + api99, emerg_low)
+```
+
+```
+##         mean     SE
+## api00 749.09 17.739
+## api99 720.07 19.305
+```
+
+
+---
+# Subpopulations (cont.)
+
+* `sch.wide` &amp;mdash; met school-wide growth target (0/1)
+* `hsg` &amp;mdash; % of parents who are high-school graduates
+
+
+``` r
+strat_design &lt;- update(strat_design, hsg_gt25 = hsg &gt; 25)
+bys &lt;- svyby(~api00, ~sch.wide + hsg_gt25,
+             svymean, design = strat_design)
+print(bys, digits = 3)
+```
+
+```
+##           sch.wide hsg_gt25 api00   se
+## No.FALSE        No    FALSE   643 20.0
+## Yes.FALSE      Yes    FALSE   712 13.3
+## No.TRUE         No     TRUE   516 24.8
+## Yes.TRUE       Yes     TRUE   623 14.3
+```
+
+
+---
+class: codefs-55
+# Regression &amp;mdash; linear model
+
+
+``` r
+mod1 &lt;- svyglm(HI_CHOL ~ as.factor(race) + as.factor(agecat) + RIAGENDR,
+               design = nhanes_design)
+summary(mod1)
+```
+
+```
+## 
+## Call:
+## svyglm(formula = HI_CHOL ~ as.factor(race) + as.factor(agecat) + 
+##     RIAGENDR, design = nhanes_design)
+## 
+## Survey design:
+## svydesign(id = ~SDMVPSU, strata = ~SDMVSTRA, weights = ~WTMEC2YR, 
+##     nest = TRUE, data = nhanes)
+## 
+## Coefficients:
+##                            Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)               -0.011831   0.011101  -1.066   0.3143    
+## as.factor(race)2          -0.006547   0.007099  -0.922   0.3804    
+## as.factor(race)3          -0.034668   0.010817  -3.205   0.0107 *  
+## as.factor(race)4          -0.012214   0.028693  -0.426   0.6803    
+## as.factor(agecat)(19,39]   0.069709   0.009083   7.675 3.08e-05 ***
+## as.factor(agecat)(39,59]   0.169166   0.012563  13.465 2.87e-07 ***
+## as.factor(agecat)(59,Inf]  0.144529   0.013859  10.429 2.52e-06 ***
+## RIAGENDR                   0.020132   0.007915   2.543   0.0315 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for gaussian family taken to be 0.09634641)
+## 
+## Number of Fisher Scoring iterations: 2
+```
+
+
+---
+class: codefs-55
+# Regression &amp;mdash; logistic regression
+
+
+``` r
+mod2 &lt;- svyglm(HI_CHOL ~ as.factor(race) + as.factor(agecat) + RIAGENDR,
+               family = quasibinomial(link = "logit"),
+               design = nhanes_design)
+summary(mod2)
+```
+
+```
+## 
+## Call:
+## svyglm(formula = HI_CHOL ~ as.factor(race) + as.factor(agecat) + 
+##     RIAGENDR, design = nhanes_design, family = quasibinomial(link = "logit"))
+## 
+## Survey design:
+## svydesign(id = ~SDMVPSU, strata = ~SDMVSTRA, weights = ~WTMEC2YR, 
+##     nest = TRUE, data = nhanes)
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)               -4.95074    0.28789 -17.196 3.42e-08 ***
+## as.factor(race)2          -0.08489    0.07988  -1.063   0.3156    
+## as.factor(race)3          -0.43322    0.15119  -2.865   0.0186 *  
+## as.factor(race)4          -0.14621    0.33642  -0.435   0.6741    
+## as.factor(agecat)(19,39]   2.27973    0.32702   6.971 6.53e-05 ***
+## as.factor(agecat)(39,59]   3.21236    0.35587   9.027 8.33e-06 ***
+## as.factor(agecat)(59,Inf]  3.02997    0.35057   8.643 1.19e-05 ***
+## RIAGENDR                   0.21276    0.08461   2.515   0.0331 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for quasibinomial family taken to be 1.015249)
+## 
+## Number of Fisher Scoring iterations: 7
+```
+
+---
+# Regression
+
+The `survey` package has additional functions for fitting regression models
+
+* `svyolr` &amp;mdash; ordinal logistic regression
+
+* `svyloglin` &amp;mdash; loglinear model
+
+* `svycoxph` &amp;mdash; Cox proportional hazards model
+
+There are also useful functions for creating plots
+
+* `svyplot`
+* `svyboxplot`
+* `svyhist` &amp; `svysmooth`
+* `svycoplot`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

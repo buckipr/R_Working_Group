@@ -40,8 +40,10 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
 
 * March 21st: Survey Weights I
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/survey/)
 
 * April 4th: Survey Weights II
+    - [slides](https://buckipr.github.io/R_Working_Group/survey/survey#1)
 
 * April 18th: Introduction to Bayesian statistics
 
