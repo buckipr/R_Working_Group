@@ -16,11 +16,11 @@ layout: default
 
 * [Fall Workshop:](https://imageomics.github.io/2025-08-15-osu-online/)
 OSU Software Carpentry: Version Control with Git and R for Scientific Reproducibility
-  + Dates: August 15 & 18 (online)
+  + Dates: August 15 & 18, 2025 (online)
   + [Registration for Git Session (8/15)](https://library.osu.edu/events/version-control-with-git-virtual-event-1)
-  + [Registration for R Session](8/18)(https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-1)
+  + [Registration for R Session (8/18)](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-1)
 
-* [OSU Code Club](https://osu-codeclub.github.io/) had some excellent sessions during the spring
+* [OSU Code Club](https://osu-codeclub.github.io/) had some excellent sessions during the spring 2025
 
 ### **Resources**
 
