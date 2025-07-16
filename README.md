@@ -5,19 +5,17 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* [Spring Workshop:](https://imageomics.github.io/2025-02-11-osu-online/) OSU Software Carpentries: Version Control with Git and R for Scientific Reproducibility
-  + Dates: Feb 11 & 14 (online)
-  + [Registration for R Session](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-0)
-  + [Registration for Git Session](https://library.osu.edu/events/version-control-with-git-virtual-event-0)
+* [Fall Workshop:](https://imageomics.github.io/2025-08-15-osu-online/)
+OSU Software Carpentry: Version Control with Git and R for Scientific Reproducibility
+  + Dates: August 15 & 18 (online)
+  + [Registration for Git Session (8/15)](https://library.osu.edu/events/version-control-with-git-virtual-event-1)
+  + [Registration for R Session](8/18)(https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-1)
 
-* [aifeducation:](https://fberding.github.io/aifeducation/) New R package for those interested in learning about and using
-artificial intelligence.
+* [OSU Code Club](https://osu-codeclub.github.io/) had some excellent sessions during the spring
 
-* *Cool new R package*: [SUMMER -- Small-Area-Estimation Unit/Area Models and Methods for Estimation in R](https://cran.r-project.org/web/packages/SUMMER/index.html)
 
-* We are looking to get more people (students, staff, & faculty) involved with planning and
-  coordinating the R Working Group.  If you are interesetd, please let us know
-  (email: thomas DOT 3912 at osu DOT edu)
+## **Schedule for Fall 2025**  TBD
+
 
 ## **Schedule for Spring 2025**
 
