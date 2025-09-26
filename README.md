@@ -5,19 +5,62 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
+* [OSU Code Club](https://osu-codeclub.github.io/) has new tutorials for Fall 2025
+
 * [Fall Workshop:](https://imageomics.github.io/2025-08-15-osu-online/)
 OSU Software Carpentry: Version Control with Git and R for Scientific Reproducibility
   + Dates: August 15 & 18, 2025 (online)
   + [Registration for Git Session (8/15)](https://library.osu.edu/events/version-control-with-git-virtual-event-1)
   + [Registration for R Session (8/18)](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-1)
 
-* [OSU Code Club](https://osu-codeclub.github.io/) had some excellent sessions during the spring 2025
+
+## **Schedule for Fall 2025**
 
 
-## **Schedule for Fall 2025**  TBD
+We will be meeting in 38 Townshend Hall from 10:30am - 12:00pm on the following Thursdays:
+
+* Sept 25th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+and Computational methods in Demography
+    - readings: [Kashyap et.al (2023). "Chapter 3: Digital and computational demography".
+	In Research Handbook on Digital Sociology. Cheltenham, UK:
+	Edward Elgar Publishing.](https://o*sf.io/7bvpt/download/?format=pdf)
+    - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_09_25/intro_r_np.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
+	
+* Oct 2nd: Intro to GitHub and integration with RStudio
+
+* Oct 9th: Exploring and Preparing Data with [dplyr](https://dplyr.tidyverse.org/) and [tidyverse](https://www.tidyverse.org/)
+
+* Oct 23rd: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/)
+  - readings
+    + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies 
+	by Region, Race, and Ethnicity in the United States, 1999–2016. Demography 1 December 2023; 60 (6):
+	1699–1709. doi: https://doi.org/10.1215/00703370-11078239
+	+ Daniel Ramirez, Elena Povedano, Aitor García, Michael Lund; Smoke's Enduring Legacy: 
+	Bridging Early-Life Smoking Exposures and Later-Life Epigenetic Age Acceleration.
+	Demography 1 February 2025; 62 (1): 113–135. doi: https://doi.org/10.1215/00703370-11790645
+	+ Dennis M. Feehan, Mary Mahy, Matthew J. Salganik; The Network Survival Method for Estimating Adult
+	Mortality: Evidence From a Survey Experiment in Rwanda. Demography 1 August 2017; 54 (4): 1503–1528.
+	doi: https://doi.org/10.1007/s13524-017-0594-y
+
+* Nov 6th: Web Scraping with R: introductions to [rvest](https://rvest.tidyverse.org/) and [rselenium](https://cran.r-project.org/web/packages/RSelenium/index.html)
+
+  - reading: Bernau, J. A. (2018). Text Analysis with JSTOR Archives. Socius, 4. https://doi.org/10.1177/2378023118809264 
+
+* Nov 20th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
+
+  - reading: Felmlee, D., DellaPosta, D., Rodis, P. d. C. I., & Matthews, S. A. (2020). Can Social Media Anti-abuse Policies Work?
+  A Quasi-experimental Study of Online Sexist and Racist Slurs. Socius, 6.
+  https://doi.org/10.1177/2378023120948711 (Original work published 2020)
+
+* Dec 4th: Text Analysis II -- topic modeling
+
+  - reading: Sirkka, O., Walo, S., Purhonen, S., Verboord, M., Janssen, S., & Bonnet, P. (2024).
+  Understandings of Culture: A European Bottom-up Study Using Structural Topic Modeling. Socius, 10.
+  https://doi.org/10.1177/23780231241278524 
 
 
-## **Schedule for Spring 2025**
+## Schedule for Spring 2025
 
 We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
 
