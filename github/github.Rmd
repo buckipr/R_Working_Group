@@ -1,0 +1,257 @@
+---
+title: Introduction to GitHub <br><br>
+  and Integration with <br><br>
+  RStudio <br><br>
+author: "Jason Thomas"
+institute: "R Working Group"
+date: "Oct. 2nd, 2025"
+output:
+  xaringan::moon_reader:
+    css: ["style_rgroup.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+```
+
+
+# Motivation
+
+* Messy projects, messy code, and sharing/collaboration?
+
+* GitHub to the rescue
+
+  + GitHub is an on-line service that stores files, tracks versions,
+  and more!
+
+* `git` is the program used for *version control* (i.e.,
+managing and tracking different versions of your files)
+  
+  + RStudio adds features for running git on your computer
+  <br> (RStudio's VC [user guide](https://docs.posit.co/ide/user/ide/guide/tools/version-control.html))
+  
+  + (there are other programs for version control, e.g. `subversion`)
+
+---
+# Motivation (cont.)
+  
+* "and more" you say??
+
+  + renders *markdown* code (used to format text)
+  <br> test drive: [https://markdownlivepreview.com](https://markdownlivepreview.com/)
+  
+  + websites, e.g. 
+  [https://buckipr.github.io/R_Working_Group/](https://buckipr.github.io/R_Working_Group/)
+  
+  + create different *branches* of you project
+  
+  + advanced features for software developers (making it popular
+  and a common source for latest versions)
+
+
+---
+# Getting Started
+
+* GitHub Account
+
+  + (more details to come)
+
+* Install `git`
+
+  + Windows: available for download from: [https://git-scm.com/downloads](https://git-scm.com/downloads)
+  
+  + MacOS: install Xcode from the App Store (includes git)
+
+  + an excellent resource: [git book](https://git-scm.com/book/en/v2)
+  
+  + (if you start using git/GitHub
+a lot it is well work taking a week or two and groing through the
+first few chapters)
+
+
+---
+class: slide-font-25
+# Getting Started (cont.)
+
+* Create **repository** on GitHub 
+
+  + a *repo* is a folder where all your project files are stored
+  <br> (including those needed for managing version control)
+  
+  + can be on your computer (local) or on GitHub (remote)
+  
+  + the idea is to run git to track changes, then sync the local
+  and remote repos (so your changes are available on GitHub)
+
+* Create project in RStudio
+
+  + This will create a new file `project_name.Rproj` with information
+  that RStudio uses to set up your project (e.g., GitHub repo details)
+  
+  + Configure your (local) copy of the repo with the remote copy
+  (on Git Hub)
+
+
+---
+class: inverse, center, middle
+
+# GitHub & Git
+
+
+---
+## **GitHub**: signing up
+
+Sign up for a free GitHub account:
+
+* [https://github.com/join](https://github.com/join)
+
+    + you will need to create a new username and password
+    
+    + the *Free* subscription will work just fine
+    
+    + there is also an 
+    [educational account](https://help.github.com/en/articles/about-github-education-for-educators-and-researchers)
+    that provides more resources
+    
+    + a verification email will be sent (check spam folder)
+
+
+---
+## GitHub: concepts and actions
+
+* **Clone** - copy a repository to your computer for the first time
+
+* **Pull** - update your local copy of the repo with any new
+changes on the remote repo
+
+  + clone is basically a pull for the first time
+  
+  + you can also *fetch* - download changes (so you can inspect them)
+  but do not sync them with your local repo
+
+* Make new files and changes to your local repo, then **STAGE** all
+the files you want to keep track of
+
+  + this includes adding, renaming/moving, & removing files with
+  any changes that you want to track
+
+
+---
+## GitHub: concepts and actions (cont.)
+
+* **Commit** - save your changes (they are now tracked)
+
+  + typically include a message describing the commit
+  
+  + this creates a new version (or snap shot) of your project
+  
+  + you can go back and look at previous commits (or revert to that
+  version) and look at differences between commits
+
+* **Push** - send your changes to GitHub
+
+  + local repo will now be identical to remote repo
+
+
+---
+## Configure git & RStudio
+
+* GitHub requires more security than just a simple
+password authentication &rarr; **Personal Access Token**
+
+* The `usethis` package will help set this up, so let's install the
+package (if we haven't already) and attach it
+
+```{r eval=FALSE}
+install.package("usethis")  # only need to run this once
+library(usethis)
+```
+
+* Next we can check out the status of our `git` setup with
+
+```{r eval=FALSE}
+git_sitrep()
+```
+
+
+---
+## Configure RStudio (cont.)
+
+* Set our user name and email:
+
+```{r eval=FALSE}
+use_git_config(user.name = "<your name>", user.email = "<your email>")
+git_sitrep() # check it worked
+```
+
+* (optional) set default branch name (same as what GitHub uses)
+
+```{r eval=FALSE}
+git_default_branch_configure()  # default is main
+git_sitrep()
+```
+
+* Set Personal Access Token
+
+```{r eval=FALSE}
+create_github_token()
+# opens up GitHub page in web browser
+# set note, expiration, then copy the token -> Generate Token
+gitcreds::gitcreds_set()
+# after running the above line, paste in the PAT
+```
+
+
+
+---
+## Create RStudio Project
+
+* Change to your project folder and set it as the working directory
+
+* Create an RStudio Project for you project folder:
+
+```{r eval=FALSE}
+create_project(".")
+# the "." means use your working directory as the project folder
+```
+
+* RStudio will restart and open your new Project
+
+
+---
+## Create Repository
+
+* Turn local directory into a repo configured with your GitHub settings
+
+```{r eval=FALSE}
+library(usethis)  # need to re-attach after restart
+use_git()         # turns our project folder into a repository that can
+                  # be synced with GitHub
+```
+
+* `use_get()` will create a new file (.gitignore) and then ask if you
+want to commit the new file and the .Rproj (RStudio project configuration
+file) to your repository.
+
+* RStudio will restart again and open your project folder
+
+
+---
+## Sync with GitHub
+
+* Now sync the local version of your repository with GitHub
+
+  - (this will create the repository on GitHub and include the
+  .gitignore & .Rproj files if you said 'yes' to the previous step)
+
+```{r eval=FALSE}
+library(usethis)
+use_github()
+```

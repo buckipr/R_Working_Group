@@ -13,9 +13,10 @@ layout: default
 and Computational methods in Demography
   - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_09_25/intro_r_np.html#1)
   - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
-
 	
 * Oct 2nd: Intro to GitHub and integration with RStudio
+  - [slides](https://buckipr.github.io/R_Working_Group/github/github.html#1)
+  - [files](https://github.com/buckipr/R_Working_Group/tree/main/github)
 
 * Oct 9th: Exploring and Preparing Data with [dplyr](https://dplyr.tidyverse.org/) and [tidyverse](https://www.tidyverse.org/)
 
