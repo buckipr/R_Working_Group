@@ -1,0 +1,403 @@
+---
+title: "Introduction to <br/><br/> dplyr"
+author: "Jason Thomas"
+institute: "R Working Group"
+date: "Oct 9th, 2025"
+output:
+  xaringan::moon_reader:
+    css: ["style_rgroup.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(dplyr)
+library(fontawesome)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+```
+
+
+## Motivation
+
+* `r fa("r-project", fill = "steelblue")` -- past 8 years (or so) have included great (user-friendly) strides in data management
+
+    + [`dplyr` package](https://dplyr.tidyverse.org/)  -- "grammar of data manipulation,
+    providing a consistent set of verbs that help you solve the most common data manipulation
+    challenges"
+
+    + a lot of functions coded in C++ (for speed)
+
+    + many other packages make use of `dplyr`
+
+* Goal for today is to establish basic fluency with this grammar
+
+
+---
+## Background
+
+* `dplyr` is part of [`tidyverse`](https://www.tidyverse.org/)
+
+  + `ggplot2`, `forcats`, `tibble`, `readr`, `stringr`,  `tidyr`, `purrr`
+  + may also want to check out [`tidycensus`](https://walker-data.com/tidycensus/articles/basic-usage.html)
+
+* `dplyr` logic: "By constraining your options, it helps you think about your data manipulation challenges."
+
+  + 5 commands will take you a long way
+  + readability and simplifying code (with pipes)
+
+* `r fa("r-project", fill = "steelblue")` **for Data Science**
+
+  + [https://r4ds.had.co.nz/](https://r4ds.had.co.nz/)
+
+
+---
+## Setup
+
+* Installing new packages
+  + only need to do this once for current version of R
+  + (if/when you upgrade R, you may need to reinstall your packages)
+
+```{r, eval=FALSE}
+install.packages("dplyr")
+# install.packages(c("tidyverse", "rmarkdown"))
+# update.packages()
+```
+
+* attach the package (gives us access to all of the functions/tools in the package)
+  + (need to do this for every R session, i.e., include it in your scripts)
+
+```{r, eval=FALSE}
+library(dplyr)
+# otherwise, we can access functions with dplyr::mutate()
+```
+
+
+---
+class: inverse, center, middle
+
+# `dplyr` Grammar
+
+
+---
+## Grammar
+
+* **Rows** -- selecting and organizing observations/cases
+
+    + **Groups of Rows**
+
+* **Columns** -- cleaning and creating new variables
+
+* **Merging & Reshaping Data** (not going to go into this today)
+
+* Additional features of the language
+    + tibble data structure (similar to data frames, but crankier)
+    + "pipe" %>%  for stringing multiple commands together
+    + useful for keeping number of objects to a minimum and for
+    plotting (e.g., adding separate symbols for subgroups)
+
+
+---
+## Grammar for Rows
+
+* `filter()`
+
+* `slice()`
+
+* `arrange()`
+
+* *Groups of rows*: `summarize()` 
+  + useful companion: group_by()
+  + collapse across rows with `summarize()`
+
+
+---
+## Grammar for Columns
+
+* `select()`
+
+* `rename()`
+
+* `mutate()`
+
+
+---
+class: inverse, center, middle
+
+# Grammar in Action
+
+
+---
+class: slide-font-25
+## Arrange rows
+
+```{r, eval=FALSE}
+# only look at a few columns
+names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%      # choose which columns to work with
+  arrange(mpg, desc(cyl))   # sort the rows (default = ascending)
+```
+
+```{r, echo=FALSE}
+# only look at a few columns
+names(mtcars)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  arrange(mpg,desc(cyl)) %>%
+  head(n=10)
+```
+(truncated output)
+
+
+---
+## Filter row
+
+```{r}
+# only look at a few rows
+mtcars %>% 
+  select(mpg, cyl) %>%
+  filter(cyl == 6)       # only show rows that match a condition
+```
+
+keyboard shortcuts in RStudio for the pipe (`%>%`)
+  
+  + MacOS: &nbsp;  <kbd>command</kbd> + <kbd>shift</kbd> + <kbd>M</kbd>
+  + Windows: &nbsp; <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>
+
+
+---
+## Filter more rows
+
+```{r}
+# only look at a few rows
+mtcars %>% 
+  select(mpg, cyl) %>%
+  filter(cyl > 4 & mpg > 22)    # why does this output look so strange?
+```
+
+
+---
+## `dplyr` filter more rows
+
+```{r}
+# only look at a few rows
+mtcars %>% 
+  select(mpg, cyl) %>%
+  filter(cyl > 4 & mpg > 18)
+```
+
+
+---
+## Take a slice
+
+```{r}
+# only look at a few rows (similar to filter)
+mtcars %>% 
+  select(mpg, cyl) %>%
+  slice(c(1, 9, 20))     # print rows 1, 9, and 20
+```
+
+
+---
+class: slide-font-25
+## Take another slice
+
+A more complicated version
+
+```{r}
+# only look at a few rows
+mtcars %>% 
+  select(mpg, cyl) %>%
+  slice(                                
+    grep( "Mazda", row.names(mtcars) )  # return row #s that contain Mazda
+    )
+```
+
+  + `grep()` is a powerful tool that can match text (with regular expressions!!)
+
+  + also look at [`stringr`](https://stringr.tidyverse.org/) package -- useful
+when working with text/string variables (e.g. country name, college major, etc.)
+
+
+---
+class: inverse, center, middle
+
+# Grammar for Columns
+
+
+---
+class: slide-font-25
+## Make new column
+
+```{r, eval=FALSE}
+# create new column named mpg2
+mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg2 = mpg/1000)    # create a new variable called mpg2
+```
+
+```{r, echo=FALSE}
+mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg2 = mpg/1000) %>%
+  head(n=12)
+```
+(truncated output)
+
+NOTE: WE ARE NOT SAVING THE NEW VARIABLE!! HOW WOULD WE DO THIS?
+
+
+---
+class: slide-font-25
+## Recode a variable
+
+```{r, eval=FALSE}
+new_mtcars <- mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg3 =          # create new variable mpg3
+           case_when(    # fill in mpg3 with recoding of mpg
+             mpg < 15.5 ~ "very low",
+             mpg >= 15.5 & mpg < 20 ~ "low",
+             mpg >= 20 & mpg < 23 ~ "high",
+             mpg >= 23 ~ "very high"
+           )
+  )
+```
+
+
+---
+class: slide-font-25
+## Recoded variable
+
+```{r, echo=FALSE}
+new_mtcars <- mtcars %>% 
+  select(mpg, cyl) %>%
+  mutate(mpg3 =
+           case_when(
+             mpg < 15.5 ~ "very low",
+             mpg >= 15.5 & mpg < 20 ~ "low",
+             mpg >= 20 & mpg < 23 ~ "high",
+             mpg >= 23 ~ "very high"
+           )
+  )
+
+DT::datatable(new_mtcars[, c("mpg", "mpg3")], fillContainer = FALSE, options = list(pageLength = 5))
+```
+
+---
+class: slide-font-25
+## More recoding
+
+```{r, eval=FALSE}
+new_mtcars |>              # another pipe you may come across
+  mutate(mpg4 = 
+           case_match(     # recode categorical to numeric
+             mpg3,
+             "very low" ~ 0,
+             c("low", "high") ~ 1,
+             .default = 2  # if no conditions are met, then use 2
+           )
+  ) |>
+  select(mpg4, mpg3)
+```
+
+```{r, echo=FALSE}
+new_mtcars |>              # another pipe you may come across
+  mutate(mpg4 = 
+           case_match(     # recode categorical to numeric
+             mpg3,
+             "very low" ~ 0,
+             c("low", "high") ~ 1,
+             .default = 2  # if no conditions are met, then use 2
+           )
+  ) |>
+  select(mpg4, mpg3) |> head(8)
+```
+
+(truncated output)
+
+
+---
+## Replacing values
+
+We can use `replace` (in cahoots with `mutate`) to change the values in a 
+column for rows where a certain condition is satisfied.
+
+  * `replace( column, condition, new value if condition is met)`
+
+```{r}
+mtcars %>%
+     mutate(mpg=replace(mpg, cyl==4, NA))
+```
+
+
+---
+class: inverse, center, middle
+
+# Grouping
+
+
+---
+## Summarizing data with `dplyr`
+
+`summarize` will create a *new* data frame by applying a function (e.g., mean
+sd, n, n_distinct) to a column in your data
+
+```{r}
+mtcars %>%
+  summarize(mean(cyl), sd(cyl), mean(mpg), col4 = sd(mpg))
+```
+
+  * usually the result is a single row, but `quantile` is a notable exception
+  but this is getting phased out (so this will give you a warning)
+  
+```{r, eval=FALSE}
+mtcars %>%
+  summarize(qt_mpg = quantile(mpg, c(.25, .75)),
+            qt_wt = quantile(wt, c(.25, .75)))
+``` 
+  * (there are better ways of doing this)
+  
+  
+---
+class: slide-font-25
+## Summarizing data with `dplyr` (cont.)
+
+The true benefit of `summarize` comes with grouping your data:
+
+```{r}
+mtcars |> 
+  group_by(cyl, vs) |>  # calculate stats within groups defined by cyl & vs
+  summarize(mu_hp = mean(hp), n = n())
+```
+
+* note: every call to `summarize()` removes a layer of grouping
+
+
+---
+class: slide-font-20, codefs-70
+## Summarizing data with `dplyr` (extras)
+
+*  Careful with reusing names to label your summarized variables
+
+```{r}
+mtcars |> 
+  summarize(hp = mean(hp), sd_hp = sd(hp))  ## why don't we get the std dev?!?
+```
+
+--
+
+* `ungroup()` will apply functions to the entire data set
+
+```{r}
+mtcars |> select(mpg, hp, cyl) |>
+  group_by(cyl) |> mutate(mu_mpg = mean(mpg)) |> 
+  ungroup() |> mutate(grand_mu_mpg = mean(mpg))
+```
+
+

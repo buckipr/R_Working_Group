@@ -19,6 +19,8 @@ and Computational methods in Demography
   - [files](https://github.com/buckipr/R_Working_Group/tree/main/github)
 
 * Oct 9th: Exploring and Preparing Data with [dplyr](https://dplyr.tidyverse.org/) and [tidyverse](https://www.tidyverse.org/)
+    - [slides](https://buckipr.github.io/R_Working_Group/dplyr/2025_10_09/intro_dplyr.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/dplyr/2025_10_09/)
 
 * Oct 23rd: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/)
 
