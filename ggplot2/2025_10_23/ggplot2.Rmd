@@ -1,0 +1,993 @@
+---
+title: Introduction to <br><br> ![](img/ggplot2-logo.png){width=175px}
+author: "<br><br><br>Jason Thomas <br> <br>R Working Group"
+date: "<br>October 23th, 2025"
+output:
+  xaringan::moon_reader:
+    css: ["style_rgroup.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      navigation:
+        scroll: false
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(tidyverse)
+library(DT)
+library(viridis)
+library(gridExtra)
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(tidy=FALSE, prompt=FALSE, error=TRUE,
+                      fig.align = 'center', cache=TRUE)
+data(mtcars)
+```
+
+
+# Motivation
+
+--
+
+* Plots are dope!  (no motivation necessary)
+
+--
+
+* OK, but why use ggplot2?
+
+--
+  
+  + peer pressure?  everybody is doing it <br>
+--
+  (lots of examples on the web & extensions)
+
+--
+
+  + efficiency -- same tool for many different plots
+
+--
+
+  + does a pretty good job
+
+
+---
+# Outline
+
+* Basic logic & concepts
+
+  + aesthetics & saving
+
+* Labels & Axes
+
+* Getting colorful
+
+* Tour of different "types" of plots (`geoms`)
+
+* Grouped data
+
+
+---
+# R packages
+
+Several packages are used for making the plots we'll see today.  You can
+install them with...
+
+```{r, eval = FALSE}
+install.packages(c("tidyverse", "RColorBrewer", "viridis", "gridExtra"))
+# only need to run this one time on your computer
+# (may need to install again if you upgrade R to a new version)
+```
+
+<p style="font-size:20px; text-align:center">
+("palletteer" is another package for adding different color options) <br>
+</p>
+
+and load them with
+
+```{r, eval = FALSE}
+library(tidyverse)  ## this will load ggplot2
+library(ggplot2)    ## not needed if loading tidyverse
+library(RColorBrewer)
+library(viridis)
+library(gridExtra)
+```
+
+
+---
+class: inverse, center, middle
+
+# Basic Logic & Concepts 
+
+
+---
+background-image: url("img/anatomy.png")
+background-color: white
+
+<p style="color:red; font-weight:bold; font-size:32px; position:absolute; top:0">Anatomy of a Plot</p>
+
+
+<p style="font-weight:bold; font-size:20px; position:absolute; bottom:0">
+<a href="https://psu-psychology.github.io/r-bootcamp-2019/talks/ggplot_grammar.html">
+Nate Hall (2019)</a></p>
+
+
+---
+class: slide-font-25
+# Anatomy of a plot
+
+The main function for creating a plot is `ggplot()`,  which makes use of...
+
+* **Data**
+
+* **Aesthetics** -- `aes()` creates mappings of variables/values to objects appearing on the plot
+
+* **Layer(s)** consisting of
+
+  + **Geometric** objects -- `geom` determines the type of plot
+  (e.g., scatterplot or barchart) and get added as a layer with <br>
+  `ggplot(data, aes()) + geom_xxxx()`
+  
+  + **Statistical** transformation, e.g., line fitted to a cloud of points
+  
+  + position adjustment for overlapping geoms/objects
+  
+  + (more data & aesthetic mapping)
+
+
+---
+# Anatomy of a plot (cont.)
+
+* **Scales & coordinate systems** 
+ 
+  + `coord` is usually left out since the Cartesian system handles most cases...
+  except maps!
+  
+  + scaling is largely done under the hood, but emerges when setting colors
+
+* **Faceting** -- using a 3rd "dimension" (plotting subsets of the data)
+
+* **Plot annotations** -- labeling and adjusting the theme
+
+
+---
+# Aesthetics
+
+Each aesthetic can be mapped to a variable (or constant) using `aes()`
+or within geoms
+
+* vertical & horizontal position: `aes(x, y)`
+* size -- all geoms
+* color -- all geoms
+* shape -- `geom_point()`
+* linetype & linewidth -- `geom_line()`
+* fill -- `geom_bar()`
+* label -- `geom_text()`
+
+
+---
+# Layering in action
+
+```{r, fig.cap='(just the data)', out.width="43%"}
+ggplot(data = mtcars)
+```
+
+
+---
+# Layering in action
+
+```{r, fig.cap='(mapping too)', out.width="43%"}
+ggplot(data = mtcars,
+       mapping = aes(x = mpg, y = wt))
+```
+
+
+---
+# Layering in action
+
+```{r, fig.cap='(now with geom)', out.width="43%"}
+ggplot(data = mtcars,
+       mapping = aes(x = mpg, y = wt)) + ## don't forget the '+' !!
+  geom_point()
+```
+
+
+---
+# Structure of a ggplot
+
+```{r}
+p <- ggplot(mtcars, aes(x = mpg, y = wt, color=factor(cyl))) + 
+  geom_point()
+names(p)
+summary(p)
+```
+
+
+---
+# Global vs. Local
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color=factor(cyl))) +
+  geom_point() + geom_smooth(method="lm")
+```
+
+
+---
+# Global vs. Local
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt)) +
+  geom_point(aes(color = factor(cyl))) + geom_smooth(method="lm")
+```
+
+
+---
+# A few more aesthetics
+
+```{r, message=FALSE, out.width="45%"}
+ggplot(mtcars, aes(x = mpg, y = wt,
+                   color = factor(cyl),
+                   shape = factor(cyl))) + #<<
+  geom_point(size = 3)  #<<
+```
+
+
+---
+# A few more aesthetics
+
+```{r, message=FALSE, out.width="45%"}
+ggplot(mtcars, aes(x = mpg, y = wt,
+                   color = factor(cyl),
+                   shape = factor(cyl),
+                   size = cyl)) + #<<
+  geom_point()
+```
+
+
+
+---
+# A few more aesthetics
+
+* Note that when a mapping is specified inside `aes()`, we get an
+extra legend that describes this mapping
+
+  + we could have set the mapping in the geom: <br>
+  `geom_point(aes(size = cyl))`
+  
+* If we set the size outside of `aes()`, then it is not considered
+a mapping (so no legend)
+
+
+We'll return to a similar situation with color in a short bit...
+
+
+---
+class: codefs-50
+# A few more aesthetics
+
+```{r, message=FALSE, out.width="45%"}
+rando <- data.frame(x = runif(10), y = runif(10))
+ggplot(rando, aes(x = x, y = y)) + geom_point() + 
+  geom_abline(intercept = 0, slope = 1, linetype = 2) # another useful line
+```
+
+
+---
+# A few more aesthetics
+
+```{r, message=FALSE, out.width="45%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(yintercept = mean(mtcars$wt),
+             linewidth = 2) #<<
+```
+
+
+
+---
+# A few more aesthetics
+
+So what is this doing?  How can we improve it?
+
+
+```{r, eval=FALSE}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 4]), linetype = 1) + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 6]), linetype = 2) + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 8]), linetype = 3) 
+```
+
+
+---
+# A few more aesthetics
+
+```{r, echo=FALSE}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 4]), linetype = 1) + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 6]), linetype = 2) + 
+  geom_hline(yintercept = mean(mtcars$wt[mtcars$cyl == 8]), linetype = 3) 
+```
+
+
+---
+# A few more aesthetics
+
+Improvement?
+
+```{r, eval=FALSE, message=FALSE}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean(wt), linetype = factor(cyl)))
+```
+
+
+---
+# A few more aesthetics
+
+Biscuits!
+
+```{r, echo=FALSE, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean(wt), linetype = factor(cyl)))
+```
+
+
+---
+# A few more aesthetics
+
+Roll these dice?
+
+```{r, eval=FALSE}
+df_mean_wt <- mtcars %>% group_by(cyl) %>% summarize(mean_wt = mean(wt))
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean_wt, linetype = factor(cyl)),
+             data = df_mean_wt) #<<
+```
+
+
+---
+# A few more aesthetics
+
+Thanks dplyr!!
+
+```{r, echo=FALSE, message=FALSE, out.width="50%"}
+df_mean_wt <- mtcars %>% group_by(cyl) %>% summarize(mean_wt = mean(wt))
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean_wt, linetype = factor(cyl)), data = df_mean_wt)
+```
+
+
+---
+# Exercise
+
+Can you improve the previous plot by color coding the horizontal lines?
+<br><br>
+(Here is the code to produce the previous plot)
+
+```{r, eval=FALSE}
+df_mean_wt <- mtcars %>% group_by(cyl) %>% summarize(mean_wt = mean(wt))
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean_wt, linetype = factor(cyl)),
+             data = df_mean_wt)
+```
+
+
+```{r, eval=FALSE, echo=FALSE, message=FALSE, out.width="50%"}
+df_mean_wt <- mtcars %>% group_by(cyl) %>% summarize(mean_wt = mean(wt))
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) +
+  geom_point() + 
+  geom_hline(aes(yintercept = mean_wt, linetype = factor(cyl), color=factor(cyl)), data = df_mean_wt)
+```
+
+
+---
+class: inverse, center, middle
+
+# Labels & Axes
+
+
+---
+# Labels
+
+```{r, eval=FALSE}
+ggplot(mpg, aes(x=cty, y=hwy)) + geom_point() +
+  labs(x="does this", y="work?", title="Awesome?",
+       subtitle="too much?",
+       caption="really")
+```
+
+
+---
+# Labels
+
+```{r, echo=FALSE}
+ggplot(mpg, aes(x=cty, y=hwy)) + geom_point() +
+  labs(x="does this", y="work?", title="Awesome?",
+       subtitle="too much?",
+       caption="really")
+```
+
+
+---
+# Axes: ranges
+
+```{r, warning=FALSE, out.width="50%"}
+ggplot(mpg, aes(x=cty, y=hwy)) + geom_point() +
+  ylim(0, 50) + xlim(0, 50)
+```
+
+
+
+---
+# Labels: legend
+
+```{r, warning=FALSE, out.width="50%"}
+ggplot(mpg, aes(x=cty, y=hwy)) + 
+  geom_point(aes(color = factor(cyl), shape = trans))
+```
+
+
+---
+# Labels: legend
+
+```{r, warning=FALSE, out.width="50%"}
+ggplot(mpg, aes(x=cty, y=hwy)) + 
+  geom_point(aes(color = factor(cyl), shape = trans)) +
+  labs(color = "Cylinder", shape = "Transmission") #<<
+```
+
+
+---
+# Labels: no legend
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl), fill = factor(cyl))) +  geom_bar() +
+  guides(fill="none") #<<
+```
+
+
+---
+# Labels: legend position
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl), fill = factor(cyl))) +  geom_bar() +
+  scale_color_brewer(palette = "Pastel1") + 
+  theme(legend.position.inside = c(.50, .80))
+```
+
+
+---
+class: inverse, center, middle
+
+# Saving your work
+
+
+---
+# Now what?
+
+OK, I've created a masterpiece, now what do I do?
+
+* First, store your art as an object <br>
+`p <- ggplot(data, aes) + geom_scatter`
+
+* Next, use `ggsave()` to save the plot as a
+
+  + PDF, jpeg, tiff, png, bmp, svg, wmf (windows only)
+   
+* You can specify the `width` and `height` as options
+
+  + the default unit is inches, but you can use the
+  `units` option with ("cm", "mm", or "px")
+
+
+---
+# Saving ggplots
+
+Example
+
+```{r, eval = FALSE}
+p <- ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point()
+ggsave("my_plot.pdf", p)
+```
+
+
+---
+# Saving ggplots: multiple pages
+
+Often it is useful to make a lot of related plots and arrange them across
+multiple pages (e.g., in a PDF doc).
+
+* the `gridExtra` package will help us out
+
+* basic idea is to make a `list()` of plots, then use `marrangeGrob`
+to specify the layout
+
+Let's look at at an example
+
+```{r, eval = FALSE}
+p1 <- ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point()
+p2 <- ggplot(mtcars, aes(x = mpg, y = hp, color = factor(cyl))) + geom_point()
+p3 <- ggplot(mtcars, aes(x = mpg, y = disp, color = factor(cyl))) + geom_point()
+```
+
+
+---
+# Saving ggplots: multiple pages
+
+
+```{r, eval = FALSE}
+## Saving multiple plots to one file
+my_plots <- list()
+my_plots[[1]] <- p1
+my_plots[[2]] <- p2
+my_plots[[3]] <- p3
+ggsave(
+  filename = "myplots.pdf", 
+  plot = marrangeGrob(my_plots,
+                      # top=NULL,  # suppress page title
+                      nrow=1, ncol=1), 
+  width = 15, height = 9
+)
+```
+
+
+---
+class: inverse, center, middle
+
+# Let's Get Colorful
+
+
+---
+class: slide-font-28
+# More on color
+
+* Easy to set colors manually (or using a grey scale)
+ 
+  + The R function `colors()` will print out over 600 options
+
+* There are several different tools for setting colors & ggplot2...
+
+  + need to install packages (e.g. [RColorBrewer](https://cran.r-project.org/package=RColorBrewer),
+  [viridis](https://cran.r-project.org/web/packages/viridis/index.html),
+  [paletteer](https://cran.r-project.org/web/packages/paletteer/index.html))
+
+  + [useful reference with examples](https://r-graph-gallery.com/ggplot2-color.html)
+  
+  + Viridis gives color scales that are easier to read by those with colorblindness
+
+* Your options depend on if you are mapping color to a continuous variable (e.g.,
+gradients) or categorical variable (e.g. color brewer)
+
+
+---
+# Setting color: manually
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  geom_vline(aes(xintercept = mean(mpg)),
+             color = "red")  #<<
+```
+
+
+---
+# Setting color: notes
+
+* When you want to map a color to a variable, then specify the `color` option
+*inside* of `aes()`
+
+* If you to set a color to a constant value then use the `color` option
+*outside* of `aes()` and within the `geom`
+
+* When you want to *change* the colors mapped to a variable, then there are
+several different tools we can use...
+
+  + (you may need to install the corresponding R package for some of these)
+
+
+---
+# Setting color: manually
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + 
+  geom_point() +
+  scale_color_manual(values = c("green", "red", "blue")) #<<
+```
+
+
+---
+# Setting color: grey scale
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() + 
+  scale_color_grey(start = 0.0, end = 0.4) #<<
+```
+
+
+
+---
+class: codefs-50
+# Setting color: gradients
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = cyl)) + # cyl now continuous
+  geom_point() + 
+  scale_color_gradient(low="red", high="blue") #<<
+```
+
+
+---
+class: slide-font-20
+# Setting color: color brewer
+
+[R Color Brewer Palettes](https://r-graph-gallery.com/38-rcolorbrewers-palettes.html)
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  scale_color_brewer(palette = "BuPu") #<<
+```
+
+
+---
+class: slide-font-20
+# Setting color: Viridis
+
+[Viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)
+
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  scale_color_viridis(discrete = TRUE, option = "magma") #<<
+```
+
+
+---
+class: inverse, center, middle
+
+# Tour of `geoms`
+
+[list of geoms](https://ggplot2.tidyverse.org/reference/#geoms)
+
+
+---
+# Tour of geoms: barchart
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = cyl)) + 
+  geom_bar() #<<
+```
+
+
+---
+# Tour of geoms: barchar (ordered)
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = fct_infreq(factor(cyl)))) +  # need tidyverse for this
+  geom_bar()
+```
+
+
+---
+# Tour of geoms: barchart (custom)
+
+```{r, out.width="50%"}
+mtcars %>% mutate(cyl2 = factor(cyl, levels = c(6, 4, 8))) %>%
+  ggplot(aes(x = cyl2)) + geom_bar()
+```
+
+
+
+---
+# Tour of geoms: barchart
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = cyl)) + 
+  geom_bar(fill = c("blue", "pink4", "green")) #<<
+```
+
+
+
+---
+# Tour of geoms: barchart
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl), fill = factor(cyl))) +  geom_bar() +
+  scale_color_brewer(palette = "Pastel1") #<<
+```
+
+
+---
+# Tour of geoms: boxplot
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl), y = mpg, color = factor(cyl))) +
+  geom_boxplot()
+```
+
+
+---
+# Tour of geoms: boxplot
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl), y = mpg, fill = factor(am))) +
+  geom_boxplot()
+```
+
+
+---
+# Tour of geoms: text
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = wt, mpg,
+                   label = rownames(mtcars))) + #<<
+  geom_text() #<<
+```
+
+
+---
+# Tour of geoms: text
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = wt, mpg, label = rownames(mtcars))) + geom_point() +
+  geom_text(hjust = "right", nudge_x = -0.15)  #<<
+```
+
+
+---
+# Tour of geoms: text
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = wt, mpg, label = rownames(mtcars))) + geom_point() +
+  geom_text(vjust = 0, nudge_y = 0.5)  #<<
+```
+
+
+---
+# Tour of geoms: different text
+```{r, out.width="50%"}
+ggplot(mtcars, aes(x = factor(cyl))) +  geom_bar() +
+  annotate("text", label = c("4 cyl", "6 cyl", "8 cyl"),
+           x = 1:3, y = max(table(mtcars$cyl)) + 2, col = "red")
+```
+
+
+---
+# Tour of geoms: density
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(mpg)) + geom_density()
+```
+
+
+---
+# Tour of geoms: density
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(mpg, fill=factor(cyl))) + geom_density()
+```
+
+
+---
+# Tour of geoms: density
+
+```{r, out.width="50%"}
+ggplot(mtcars, aes(mpg, fill=factor(cyl))) +
+  geom_density(alpha = 0.5) #<<
+```
+
+
+---
+# Tour of geoms: histogram
+
+```{r, out.width="50%"}
+ggplot(mpg, mapping = aes(x = hwy)) +
+  geom_histogram(binwidth = 5)
+```
+
+
+---
+# Tour of geoms: histogram
+
+```{r, out.width="50%"}
+mpg %>% filter(manufacturer == "audi") %>%
+  ggplot(aes(x=hwy)) + geom_histogram(binwidth = 1)
+```
+
+
+---
+# Tour of geoms: histogram
+
+```{r, out.width="50%"}
+mpg %>% filter(manufacturer == "audi") %>%
+  ggplot(aes(x=log(hwy))) + geom_histogram(binwidth = .01)
+```
+
+
+---
+# Tour of geoms: histogram
+
+```{r, out.width="50%"}
+ggplot(mpg, aes(x=log(hwy))) + geom_histogram(binwidth = .01) +
+  facet_wrap(vars(manufacturer, year))  #<<
+```
+
+
+---
+# More with Faceting
+
+* Possible to specify number of rows (and columns) with faceting
+
+* Can combine previous trick with summarized data set
+
+
+```{r, eval = FALSE}
+p <- ggplot(mtcars, aes(mpg, wt)) +
+  geom_point() +
+  facet_wrap(~ cyl, nrow=2)  #<<
+df_wt <- mtcars %>% group_by(cyl) %>% summarize(avg_wt = mean(wt)) %>% as.data.frame()
+p + geom_hline(aes(yintercept = avg_wt), data=df_wt)
+```
+
+
+---
+# More with Faceting
+
+```{r, echo = FALSE}
+p <- ggplot(mtcars, aes(mpg, wt)) +
+  geom_point() +
+  facet_wrap(~ cyl, nrow=2)  #<<
+df_wt <- mtcars %>% group_by(cyl) %>% summarize(avg_wt = mean(wt)) %>% as.data.frame()
+p + geom_hline(aes(yintercept = avg_wt), data=df_wt)
+```
+
+
+---
+class: inverse, center, middle
+
+# Grouped data
+
+
+---
+# Nested data?
+
+```{r, message=FALSE, out.width="50%"}
+data("ChickWeight")  ## let's look at the data
+```
+
+```{r echo=FALSE}
+datatable(ChickWeight, extensions = "Scroller",
+          options = list(deferRender = TRUE,
+                         scrollY = 300,
+                         scroller = TRUE))
+```
+
+
+---
+# Nested data?
+
+How does the weight vary over time?
+
+```{r, message=FALSE, out.width="40%", fig.cap="uhhhh...that ain't it"}
+ggplot(ChickWeight, aes(Time, weight)) + geom_line()
+```
+
+
+---
+# Group option
+
+Adding `group = Chick` to the aesthetic mapping...
+
+```{r, message=FALSE, out.width="40%", fig.cap="Bingo!"}
+ggplot(ChickWeight, aes(Time, weight, group = Chick)) + geom_line()
+```
+
+
+---
+# Group option
+
+Adding a layer with a different "grouping" (all Chicks together)
+
+```{r, message=FALSE, out.width="40%"}
+ggplot(ChickWeight, aes(Time, weight, group = Chick)) + geom_line() +
+  geom_smooth(aes(group = 1), linewidth = 2, se = FALSE)
+```
+
+
+---
+# Group option: mixing types
+
+```{r, message=FALSE, out.width="40%"}
+p <- ggplot(ChickWeight, aes(as.factor(Time), weight)) + geom_boxplot()
+p
+```
+
+
+---
+# Group option: mixing types
+
+```{r, message=FALSE, out.width="40%"}
+p + geom_line(aes(group = Chick, color = "pink4"))
+```
+
+
+
+---
+# Group option: mixing types
+
+```{r, message=FALSE, out.width="40%"}
+p + geom_line(aes(group = Chick), color = "pink4", alpha = .50)
+```
+
+
+---
+# Group option: mixing types
+
+```{r, message=FALSE, out.width="40%"}
+p + geom_smooth(aes(group = Chick), method="lm", se = FALSE)
+```
+
+
+---
+# Group option: mixing types
+
+```{r, message=FALSE, warning=FALSE, out.width="40%"}
+p + geom_line(stat = "smooth", aes(group = Chick), method = "lm", alpha = .20)
+```
+
+
+---
+class: inverse, center, middle
+
+# Themes
+
+
+---
+# Themes
+
+* The `theme()` function used for the previous plot has MANY different options
+
+  + e.g., formatting legend, tick marks on axes, background,
+
+  + [list of options](https://ggplot2.tidyverse.org/reference/theme.html)
+
+* There are also general themes you can apply
+
+  + [list of themes](https://ggplot2.tidyverse.org/reference/ggtheme.html)
+  
+  + let's see a few examples
+
+---
+# Themes: black & white
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  theme_bw() #<<
+```
+
+
+
+---
+# Themes: classic
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  theme_classic() #<<
+```
+
+
+---
+# Themes: dark
+```{r, message=FALSE, out.width="50%"}
+ggplot(mtcars, aes(x = mpg, y = wt, color = factor(cyl))) + geom_point() +
+  theme_dark() #<<
+```
+
+
+---
+# Summary
+
+* Extensions
+
+  + https://exts.ggplot2.tidyverse.org/gallery/
+
+

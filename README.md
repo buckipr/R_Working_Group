@@ -36,6 +36,8 @@ and Computational methods in Demography
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/dplyr/2025_10_09/)
 
 * Oct 23rd: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/)
+    - [slides](https://buckipr.github.io/R_Working_Group/ggplot2/2025_10_23/ggplot2.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
   - readings
     + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies 
 	by Region, Race, and Ethnicity in the United States, 1999–2016. Demography 1 December 2023; 60 (6):
