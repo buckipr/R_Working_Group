@@ -24,32 +24,27 @@ library(viridis)
 library(gridExtra)
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(tidy=FALSE, prompt=FALSE, error=TRUE,
-                      fig.align = 'center', cache=TRUE)
+                      fig.align = 'center')
 data(mtcars)
 ```
 
 
 # Motivation
 
---
 
 * Plots are dope!  (no motivation necessary)
 
---
 
 * OK, but why use ggplot2?
 
---
   
   + peer pressure?  everybody is doing it <br>
---
+
   (lots of examples on the web & extensions)
 
---
 
   + efficiency -- same tool for many different plots
 
---
 
   + does a pretty good job
 
