@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="author" content="Jason Thomas" />
     <script src="libs/header-attrs-2.29/header-attrs.js"></script>
-    <link rel="stylesheet" href="buckeye.css" type="text/css" />
+    <link rel="stylesheet" href="style_rgroup.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -21,7 +21,7 @@ class: center, middle, inverse, title-slide
 ### R Working Group
 ]
 .date[
-### April 12th, 2024
+### Nov 6th, 2025
 ]
 
 ---
@@ -36,11 +36,11 @@ class: center, middle, inverse, title-slide
 
   + to get there, we will have to learn a little bit about the structure &amp; language of webpages (i.e., HTML, CSS)
   
-      - no previous knowledge of HTML or CSS is assumend
+      - no previous knowledge of HTML or CSS is assumed
   
   + [rvest](https://rvest.tidyverse.org/) (tidyverse family): R package that will do most of the work
 
-* [https://github.com/buckipr/R_Working_Group/webscraping](https://github.com/buckipr/R_Working_Group/webscraping)
+* [https://github.com/buckipr/R_Working_Group/web_scraping](https://github.com/buckipr/R_Working_Group/web_scraping)
 &lt;br&gt; (materials)
   + Getting most of the material from Hadley Wickham's excellent book (ch. 24):
   [R for Data Science](https://r4ds.hadley.nz/webscraping)
@@ -51,6 +51,8 @@ class: slide-font-25
 # Preliminary Step
 
 Before we start looking at cool websites...
+
+
 
 * Can you scrape data?
 
@@ -63,7 +65,11 @@ Before we start looking at cool websites...
 
 * Can you scrape data? probably 
 
+
+
 * 🤔 **Should** you scrape data from a particular website?
+
+
 
   + are the data private? did you have to create an account to access them?
   
@@ -71,7 +77,11 @@ Before we start looking at cool websites...
   
   + do the data contain personally identifiable information?
 
+
+
 * If any of these apply, then you should do some research to see if scraping these data is legal.
+
+
 
   + If they don't apply, then you should do some research to see if scraping these data is legal.
 
@@ -81,10 +91,14 @@ Before we start looking at cool websites...
 
 Two buckets: "APIs" and non-APIs
 
+
+
 * (**A**pplication **P**rogramming **I**nterface) -- how software communicates with the outside world
   
   + Some APIs are specifically intended for providing data in useful formats (e.g. CSV or JSON)
   + examples: Twitter, YouTube, Facebook
+
+
 
 * Why does this matter?  It is much easier to extract data from an API and different tools are used
   + API: packages `httr` and `jsonlite`
@@ -106,10 +120,14 @@ class: inverse, center, middle
   + paragraph: `&lt;p&gt; This is a paragraph &lt;/p&gt;`
   + table: `&lt;table&gt;` stuff, stuff, stuff `&lt;/table&gt;`
 
+
+
 * Web scraping involves searching through the elements in an HTML file to
 find the data you want to use
 
   + `rvest` has a lot of tools for this
+
+
 
 * Web browsers have a feature (developer tools) that is also very helpful
 for seeing where/how the HTML elements appear on a page
@@ -151,6 +169,8 @@ browser.  (Can you find the text "My First Page"?)
 
   + `&lt;h1&gt;` (start tag) &amp; `&lt;/h1&gt;` (end tag)
   
+
+
 * **Block tags** are used to define sections and structure in a web page.
 Here are some common examples:
   + `&lt;h1&gt;` Heading 1 `&lt;/h1&gt;`  (with `&lt;h2&gt;`, ..., &amp; `&lt;h6&gt;` for smaller sizes)
@@ -171,6 +191,8 @@ Here are some common examples:
   link text appearing on web page &lt;br&gt;
   `&lt;/a&gt;`
   
+
+
 * Tags can also have **attributes**, which are useful for helping `rvest`
 find the specific part of a web page you would like to scrape.
 
@@ -264,6 +286,8 @@ Now lets add some structure by including a table
   + [W3 Schools -- elements](https://www.w3schools.com/tags/default.asp)
   + [W3 Schools -- try it out](https://www.w3schools.com/html/tryit.asp?filename=tryhtml_basic_document)
 
+
+
 * **C**ascading **S**tyle **S**heets (CSS) is a popular way to systematically set the style for web pages.
 
   + styling is implemented via **selectors** such as `tag` names or attributes like `id` &amp; `class`
@@ -344,6 +368,8 @@ HTML is a language that uses elements to create web pages
   + `&lt;p id = "par_id"&gt;` &amp; `&lt;/p&gt;`
   + `&lt;h1 class='my_header1'&gt;` &amp; `&lt;/h1&gt;`
 
+
+
 * Web scraping involves searching through the elements, tags, &amp; attributes in an HTML file to
 find the data you want to use.
 
@@ -362,8 +388,12 @@ class: inverse, center, middle
 `rvest` will allow us to accomplish a lot with only a few functions that navigate HTML
 and extract data
 
+
+
 * `read_html("http://mypage.org")` -- read in HTML from web address (or local file) and store it as an `xml_document`
   + `xml` is another language used to organize data
+
+
 
 * Find elements with:  `html_elements()` &amp; `html_element()`
   + these are typically used in tandem to create variables and fill in observations
@@ -385,20 +415,6 @@ and extract data
 
 ``` r
 &gt; library(rvest)
-&gt; dir()
-```
-
-```
-##  [1] "buckeye.css"             "example-01.html"        
-##  [3] "example-02.html"         "example-03.html"        
-##  [5] "example-04.css"          "example-04.html"        
-##  [7] "img"                     "libs"                   
-##  [9] "nytimes.R"               "slides_webscraping.html"
-## [11] "slides_webscraping.Rmd"  "webscraping_r_np.Rmd"   
-## [13] "webscraping_r.html"      "webscraping_r.Rmd"
-```
-
-``` r
 &gt; example01 &lt;- read_html("example-01.html")
 &gt; example01
 ```
@@ -421,8 +437,7 @@ class: slide-font-25
 
 ``` r
 &gt; ## let's rvest out the paragraphs
-&gt; example01 |&gt;
-+     html_elements("p")
+&gt; example01 |&gt; html_elements("p")
 ```
 
 ```
@@ -437,8 +452,7 @@ Here we see the `xml_nodeset` which can (and does!) have nested elements.
 
 ``` r
 &gt; ## no s!
-&gt; example01 |&gt;
-+     html_element("p")
+&gt; example01 |&gt; html_element("p")
 ```
 
 ```
@@ -459,9 +473,8 @@ Now we'll strip out all the tags (that aren't useful for our research)...
 
 
 ``` r
-&gt; example01 |&gt;
-+     html_elements("p") |&gt;
-+     html_text2()
+&gt; example01 |&gt; html_elements("p") |&gt;
++   html_text2()
 ```
 
 ```
@@ -470,7 +483,7 @@ Now we'll strip out all the tags (that aren't useful for our research)...
 ## [3] "p.s. R Rocks!!!!"
 ```
 
-🥂🍰🥂 Woo-hoo!!  We've got data. Now on to
+🎈🍰🎊 Woo-hoo!!  We've got data. Now on to
 the text analysis...
 
 
@@ -521,8 +534,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters &lt;- html |&gt;
-+     html_elements("li")
+&gt; characters &lt;- html |&gt; html_elements("li")
 &gt; characters
 ```
 
@@ -535,8 +547,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 ```
 
 ``` r
-&gt; characters |&gt;
-+     html_element("b")
+&gt; characters |&gt; html_element("b")
 ```
 
 ```
@@ -569,8 +580,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 ```
 
 ``` r
-&gt; characters |&gt;
-+     html_element(".weight")
+&gt; characters |&gt; html_element(".weight")
 ```
 
 ```
@@ -590,9 +600,9 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters |&gt;
-+     html_element("b") |&gt;
-+     html_text2()
+&gt; characters |&gt; 
++   html_element("b") |&gt; 
++   html_text2()
 ```
 
 ```
@@ -601,9 +611,9 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters |&gt;
-+     html_element(".weight") |&gt;
-+     html_text2()
+&gt; characters |&gt; 
++   html_element(".weight") |&gt; 
++   html_text2()
 ```
 
 ```
@@ -620,8 +630,7 @@ Now some practice selecting `class` attribute from example 2 (list of cities).
 
 ``` r
 &gt; html2 &lt;- read_html("example-02.html")
-&gt; html2 |&gt;
-+     html_elements("li")
+&gt; html2 |&gt; html_elements("li")
 ```
 
 ```
@@ -641,10 +650,9 @@ We can get the data...
 
 
 ``` r
-&gt; html2 |&gt;
-+     html_elements("li") |&gt;
-+     html_element("span") |&gt;
-+     html_text2()
+&gt; html2 |&gt; html_elements("li") |&gt;
++   html_element("span") |&gt;
++   html_text2()
 ```
 
 ```
@@ -661,10 +669,9 @@ but attribute data could be useful as well (for a group indicator)
 
 
 ``` r
-&gt; html2 |&gt;
-+     html_elements("li") |&gt;
-+     html_element("span") |&gt;
-+     html_attr("class")
+&gt; html2 |&gt; html_elements("li") |&gt;
++   html_element("span") |&gt;
++   html_attr("class")
 ```
 
 ```
@@ -673,11 +680,8 @@ but attribute data could be useful as well (for a group indicator)
 
 
 ``` r
-&gt; data.frame(City = html2 |&gt;
-+     html_elements("span") |&gt;
-+     html_text2(), Region = html2 |&gt;
-+     html_elements("span") |&gt;
-+     html_attr("class"))
+&gt; data.frame("City" = html2 |&gt; html_elements("span") |&gt; html_text2(),
++            "Region" = html2 |&gt; html_elements("span") |&gt; html_attr("class"))
 ```
 
 ```
@@ -700,8 +704,7 @@ Next we'll turn to the table created in example 3
 
 ``` r
 &gt; html3 &lt;- read_html("example-03.html")
-&gt; html3 |&gt;
-+     html_table()
+&gt; html3 |&gt; html_table()
 ```
 
 ```
@@ -727,8 +730,7 @@ each table.
 
 
 ``` r
-&gt; tables_ex03 &lt;- html3 |&gt;
-+     html_table()
+&gt; tables_ex03 &lt;- html3 |&gt; html_table()
 &gt; tab1_ex03 &lt;- as.data.frame(tables_ex03[[1]])
 &gt; tab1_ex03
 ```
@@ -798,24 +800,48 @@ developer tool
 
   + a panel should open with the actual HTML so you can simultaneously see the code and how the browser displays it
 
+
+
 * Even more cool is when you move the cursor over the HTML code, the browser will try to 
 show you the corresponding part of the web page that the HTML produces
+
+
 
 * As you will see, web pages can have A LOT of HTML with a ton of elements!  So the primary challenge
 is finding the right element you want to scrape from.
 
   + this requires traversing through many nested elements
 
+---
+class: inverse, center, middle
+
+# `RSelenium`
+
+
+---
+# Interactive Web Pages
+
+* Extracting data from some web pages may require clicking on elements
+or entering text
+
+* `RSelenium` is an R package that opens and controls a web browser
+(e.g., Chrome or Safari) allowing you to scrape the pages you visit
+
+  + requires additional software: Selenium (a webdriver that opens the
+  browser and offers interactive access)
+  
+  + `RSelenium` provides functions for "clicking" on elements and
+  providing elements with text
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
-"highlightLines": true,
-"countIncrementalSlides": false,
-"navigation": {
-"scroll": false
-}
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "navigation": {
+    "scroll": false
+  }
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

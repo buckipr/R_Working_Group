@@ -21,11 +21,11 @@ We will be meeting in 38 Townshend Hall from 10:30am - 12:00pm on the following 
 
 * Sept 25th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 and Computational methods in Demography
+    - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_09_25/intro_r_np.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
     - readings: [Kashyap et.al (2023). "Chapter 3: Digital and computational demography".
 	In Research Handbook on Digital Sociology. Cheltenham, UK:
 	Edward Elgar Publishing.](https://o*sf.io/7bvpt/download/?format=pdf)
-    - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_09_25/intro_r_np.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
 	
 * Oct 2nd: Intro to GitHub and integration with RStudio
     - [slides](https://buckipr.github.io/R_Working_Group/github/github.html#1)
@@ -38,20 +38,21 @@ and Computational methods in Demography
 * Oct 23rd: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/)
     - [slides](https://buckipr.github.io/R_Working_Group/ggplot2/2025_10_23/ggplot2.html#1)
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
-  - readings
-    + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies 
+    - readings
+        + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies 
 	by Region, Race, and Ethnicity in the United States, 1999–2016. Demography 1 December 2023; 60 (6):
 	1699–1709. doi: https://doi.org/10.1215/00703370-11078239
-	+ Daniel Ramirez, Elena Povedano, Aitor García, Michael Lund; Smoke's Enduring Legacy: 
+	    + Daniel Ramirez, Elena Povedano, Aitor García, Michael Lund; Smoke's Enduring Legacy: 
 	Bridging Early-Life Smoking Exposures and Later-Life Epigenetic Age Acceleration.
 	Demography 1 February 2025; 62 (1): 113–135. doi: https://doi.org/10.1215/00703370-11790645
-	+ Dennis M. Feehan, Mary Mahy, Matthew J. Salganik; The Network Survival Method for Estimating Adult
+	    + Dennis M. Feehan, Mary Mahy, Matthew J. Salganik; The Network Survival Method for Estimating Adult
 	Mortality: Evidence From a Survey Experiment in Rwanda. Demography 1 August 2017; 54 (4): 1503–1528.
 	doi: https://doi.org/10.1007/s13524-017-0594-y
 
 * Nov 6th: Web Scraping with R: introductions to [rvest](https://rvest.tidyverse.org/) and [rselenium](https://cran.r-project.org/web/packages/RSelenium/index.html)
-
-  - reading: Bernau, J. A. (2018). Text Analysis with JSTOR Archives. Socius, 4. https://doi.org/10.1177/2378023118809264 
+    - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r_np.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/)
+    - reading: Bernau, J. A. (2018). Text Analysis with JSTOR Archives. Socius, 4. https://doi.org/10.1177/2378023118809264 
 
 * Nov 20th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
 

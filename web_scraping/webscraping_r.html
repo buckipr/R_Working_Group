@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="author" content="Jason Thomas" />
     <script src="libs/header-attrs-2.29/header-attrs.js"></script>
-    <link rel="stylesheet" href="style_web_scraping.css" type="text/css" />
+    <link rel="stylesheet" href="style_rgroup.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 .title[
-# Web Scraping with <br/><br/> <img src="img/Rlogo.png" width="200" />
+# Web Scraping with <br/><br/> <img src="img/r-logo2.png" width="200" />
 ]
 .author[
 ### Jason Thomas
@@ -21,7 +21,7 @@ class: center, middle, inverse, title-slide
 ### R Working Group
 ]
 .date[
-### Feb 14th, 2025
+### Nov 6th, 2025
 ]
 
 ---
@@ -36,12 +36,12 @@ class: center, middle, inverse, title-slide
 
   + to get there, we will have to learn a little bit about the structure &amp; language of webpages (i.e., HTML, CSS)
   
-      - no previous knowledge of HTML or CSS is assumend
+      - no previous knowledge of HTML or CSS is assumed
   
   + [rvest](https://rvest.tidyverse.org/) (tidyverse family): R package that will do most of the work
 
-* [https://github.com/buckipr/R_Working_Group/webscraping](https://github.com/buckipr/R_Working_Group/webscraping)
-&lt;br&gt; (slides)
+* [https://github.com/buckipr/R_Working_Group/web_scraping](https://github.com/buckipr/R_Working_Group/web_scraping)
+&lt;br&gt; (materials)
   + Getting most of the material from Hadley Wickham's excellent book (ch. 24):
   [R for Data Science](https://r4ds.hadley.nz/webscraping)
 
@@ -101,7 +101,7 @@ Two buckets: "APIs" and non-APIs
 --
 
 * Why does this matter?  It is much easier to extract data from an API and different tools are used
-  + API: packages `httr2` and `jsonlite`
+  + API: packages `httr` and `jsonlite`
   + No API 😩 then go with `rvest`
 
 
@@ -114,7 +114,7 @@ class: inverse, center, middle
 ---
 # HTML: *big picture*
 
-* **H**yper **T**ext **M**arkup **L**anguage
+* **H**yper **Text** **M**arkup **L**anguage
 
   + different **elements** tell web browsers how to display text, images, structures, etc.
   + paragraph: `&lt;p&gt; This is a paragraph &lt;/p&gt;`
@@ -137,7 +137,7 @@ for seeing where/how the HTML elements appear on a page
 ---
 # HTML: *example 1*
 
-Open an HTML file (or text file) in R Studio (or text editor) and enter the
+Open an HTML file (or text file) in R Studio (text editor) and enter the
 following content
 
 ```
@@ -167,17 +167,17 @@ browser.  (Can you find the text "My First Page"?)
 
 * The **elements** in example 1 contain text surrounded by **tags**
 
-  + `&lt;h1&gt;` (start tag) and `&lt;/h1&gt;` (end tag)
+  + `&lt;h1&gt;` (start tag) &amp; `&lt;/h1&gt;` (end tag)
   
 --
 
 * **Block tags** are used to define sections and structure in a web page.
 Here are some common examples:
   + `&lt;h1&gt;` Heading 1 `&lt;/h1&gt;`  (with `&lt;h2&gt;`, ..., &amp; `&lt;h6&gt;` for smaller sizes)
-  + `&lt;section&gt;` and `&lt;/section&gt;`
+  + `&lt;section&gt;` &amp; `&lt;/section&gt;`
   + `&lt;p&gt;` paragraph `&lt;/p&gt;`
   + `&lt;table&gt;` (has more tags for rows and headers) `&lt;table&gt;`
-  + `&lt;ul&gt;` unordered list `&lt;/ul`&gt; and `&lt;li&gt;` list item `&lt;/li&gt;`
+  + `&lt;ul&gt;` unordered list `&lt;/ul`&gt; &amp; `&lt;li&gt;` list item `&lt;/li&gt;`
   + `&lt;ol&gt;` ordered list `&lt;/ol&gt;`
 
 
@@ -226,8 +226,6 @@ Example with unordered list
   &lt;li&gt; &lt;span class='asia'&gt; Dhaka (23,935,652) &lt;/span&gt; &lt;/li&gt;
   &lt;li&gt; &lt;span class='latam'&gt; Sao Paulo (22,806,704) &lt;/span&gt; &lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt; We should add country specific tables as well!&lt;/p&gt;
 
 &lt;/body&gt;
 &lt;/html&gt; 
@@ -364,11 +362,11 @@ This text is not inside a paragraph, so it is not center aligned.
 
 HTML is a language that uses elements to create web pages
 
-* elements are demarcated with tags: `&lt;h1&gt;` and `&lt;/h1&gt;`
+* elements are demarcated with tags: `&lt;h1&gt;` &amp; `&lt;/h1&gt;`
 
-* tags can also have attributes, e.g., `id` and `class`
-  + `&lt;p id = "par_id"&gt;` and `&lt;/p&gt;`
-  + `&lt;h1 class='my_header1'&gt;` and `&lt;/h1&gt;`
+* tags can also have attributes, e.g., `id` &amp; `class`
+  + `&lt;p id = "par_id"&gt;` &amp; `&lt;/p&gt;`
+  + `&lt;h1 class='my_header1'&gt;` &amp; `&lt;/h1&gt;`
 
 --
 
@@ -387,19 +385,17 @@ class: inverse, center, middle
 ---
 # `rvest`: *big picture*
 
-`rvest` will allow us to accomplish a lot with only a few functions that
-navigate HTML and extract data
+`rvest` will allow us to accomplish a lot with only a few functions that navigate HTML
+and extract data
 
 --
 
 * `read_html("http://mypage.org")` -- read in HTML from web address (or local file) and store it as an `xml_document`
-
   + `xml` is another language used to organize data
 
 --
 
 * Find elements with:  `html_elements()` &amp; `html_element()`
-
   + these are typically used in tandem to create variables and fill in observations
 
 
@@ -419,21 +415,6 @@ navigate HTML and extract data
 
 ``` r
 &gt; library(rvest)
-&gt; dir()
-```
-
-```
-##  [1] "api_example.R"           "buckeye.css"            
-##  [3] "example-01.html"         "example-02.html"        
-##  [5] "example-03.html"         "example-04.css"         
-##  [7] "example-04.html"         "img"                    
-##  [9] "libs"                    "nytimes.R"              
-## [11] "README.md"               "slides_webscraping.html"
-## [13] "style_web_scraping.css"  "webscraping_r.html"     
-## [15] "webscraping_r.Rmd"
-```
-
-``` r
 &gt; example01 &lt;- read_html("example-01.html")
 &gt; example01
 ```
@@ -456,8 +437,7 @@ class: slide-font-25
 
 ``` r
 &gt; ## let's rvest out the paragraphs
-&gt; example01 |&gt;
-+     html_elements("p")
+&gt; example01 |&gt; html_elements("p")
 ```
 
 ```
@@ -471,8 +451,8 @@ Here we see the `xml_nodeset` which can (and does!) have nested elements.
 
 
 ``` r
-&gt; example01 |&gt;
-+     html_element("p")
+&gt; ## no s!
+&gt; example01 |&gt; html_element("p")
 ```
 
 ```
@@ -493,9 +473,8 @@ Now we'll strip out all the tags (that aren't useful for our research)...
 
 
 ``` r
-&gt; example01 |&gt;
-+     html_elements("p") |&gt;
-+     html_text2()
+&gt; example01 |&gt; html_elements("p") |&gt;
++   html_text2()
 ```
 
 ```
@@ -504,7 +483,7 @@ Now we'll strip out all the tags (that aren't useful for our research)...
 ## [3] "p.s. R Rocks!!!!"
 ```
 
-🥂🍰🥂 Woo-hoo!!  We've got data. Now on to
+🥳🍰🎊 Woo-hoo!!  We've got data. Now on to
 the text analysis...
 
 
@@ -555,8 +534,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters &lt;- html |&gt;
-+     html_elements("li")
+&gt; characters &lt;- html |&gt; html_elements("li")
 &gt; characters
 ```
 
@@ -569,8 +547,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 ```
 
 ``` r
-&gt; characters |&gt;
-+     html_element("b")
+&gt; characters |&gt; html_element("b")
 ```
 
 ```
@@ -580,6 +557,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 ## [3] &lt;b&gt;R2-D2&lt;/b&gt;
 ## [4] &lt;b&gt;Yoda&lt;/b&gt;
 ```
+
 
 
 ---
@@ -602,8 +580,7 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 ```
 
 ``` r
-&gt; characters |&gt;
-+     html_element(".weight")
+&gt; characters |&gt; html_element(".weight")
 ```
 
 ```
@@ -623,9 +600,9 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters |&gt;
-+     html_element("b") |&gt;
-+     html_text2()
+&gt; characters |&gt; 
++   html_element("b") |&gt; 
++   html_text2()
 ```
 
 ```
@@ -634,14 +611,15 @@ Example from Wickham's [R for Data Science](https://r4ds.hadley.nz/webscraping#n
 
 
 ``` r
-&gt; characters |&gt;
-+     html_element(".weight") |&gt;
-+     html_text2()
+&gt; characters |&gt; 
++   html_element(".weight") |&gt; 
++   html_text2()
 ```
 
 ```
 ## [1] "167 kg" NA       "96 kg"  "66 kg"
 ```
+
 
 
 ---
@@ -652,8 +630,7 @@ Now some practice selecting `class` attribute from example 2 (list of cities).
 
 ``` r
 &gt; html2 &lt;- read_html("example-02.html")
-&gt; html2 |&gt;
-+     html_elements("li")
+&gt; html2 |&gt; html_elements("li")
 ```
 
 ```
@@ -665,7 +642,6 @@ Now some practice selecting `class` attribute from example 2 (list of cities).
 ## [5] &lt;li&gt; &lt;span class="latam"&gt; Sao Paulo (22,806,704) &lt;/span&gt; &lt;/li&gt;
 ```
 
-
 ---
 # `rvest`: `html_attr()` (cont.)
 
@@ -674,10 +650,9 @@ We can get the data...
 
 
 ``` r
-&gt; html2 |&gt;
-+     html_elements("li") |&gt;
-+     html_element("span") |&gt;
-+     html_text2()
+&gt; html2 |&gt; html_elements("li") |&gt;
++   html_element("span") |&gt;
++   html_text2()
 ```
 
 ```
@@ -694,10 +669,9 @@ but attribute data could be useful as well (for a group indicator)
 
 
 ``` r
-&gt; html2 |&gt;
-+     html_elements("li") |&gt;
-+     html_element("span") |&gt;
-+     html_attr("class")
+&gt; html2 |&gt; html_elements("li") |&gt;
++   html_element("span") |&gt;
++   html_attr("class")
 ```
 
 ```
@@ -706,11 +680,8 @@ but attribute data could be useful as well (for a group indicator)
 
 
 ``` r
-&gt; data.frame(City = html2 |&gt;
-+     html_elements("span") |&gt;
-+     html_text2(), Region = html2 |&gt;
-+     html_elements("span") |&gt;
-+     html_attr("class"))
+&gt; data.frame("City" = html2 |&gt; html_elements("span") |&gt; html_text2(),
++            "Region" = html2 |&gt; html_elements("span") |&gt; html_attr("class"))
 ```
 
 ```
@@ -726,57 +697,6 @@ but attribute data could be useful as well (for a group indicator)
 
 
 ---
-# `rvest`: CSS Selectors
-
-Recall that CSS Selectors can style elements with **id**:
-
-
-``` r
-&gt; html2 &lt;- read_html("example-02.html")
-&gt; html2 |&gt;
-+     html_elements("p")
-```
-
-```
-## {xml_nodeset (2)}
-## [1] &lt;p id="top5"&gt; Here are the top 5 cities with the largest population: &lt;/p&gt;
-## [2] &lt;p&gt; We should add country specific tables as well!&lt;/p&gt;
-```
-
-
-``` r
-&gt; html2 |&gt;
-+     html_elements("#top5")
-```
-
-```
-## {xml_nodeset (1)}
-## [1] &lt;p id="top5"&gt; Here are the top 5 cities with the largest population: &lt;/p&gt;
-```
-
-
----
-# `rvest`: CSS Selectors (cont)
-
-as well as with **classes**
-
-
-``` r
-&gt; html2 |&gt;
-+     html_elements("li") |&gt;
-+     html_elements(".asia")
-```
-
-```
-## {xml_nodeset (4)}
-## [1] &lt;span class="asia"&gt; Tokyo (37,115,035) &lt;/span&gt;
-## [2] &lt;span class="asia"&gt; Delhi (33,807,403) &lt;/span&gt;
-## [3] &lt;span class="asia"&gt; Shanghi (29,867,918) &lt;/span&gt;
-## [4] &lt;span class="asia"&gt; Dhaka (23,935,652) &lt;/span&gt;
-```
-
-
----
 # `rvest`: `html_table()`
 
 Next we'll turn to the table created in example 3
@@ -784,8 +704,7 @@ Next we'll turn to the table created in example 3
 
 ``` r
 &gt; html3 &lt;- read_html("example-03.html")
-&gt; html3 |&gt;
-+     html_table()
+&gt; html3 |&gt; html_table()
 ```
 
 ```
@@ -811,8 +730,7 @@ each table.
 
 
 ``` r
-&gt; tables_ex03 &lt;- html3 |&gt;
-+     html_table()
+&gt; tables_ex03 &lt;- html3 |&gt; html_table()
 &gt; tab1_ex03 &lt;- as.data.frame(tables_ex03[[1]])
 &gt; tab1_ex03
 ```
@@ -894,16 +812,36 @@ is finding the right element you want to scrape from.
 
   + this requires traversing through many nested elements
 
+---
+class: inverse, center, middle
+
+# `RSelenium`
+
+
+---
+# Interactive Web Pages
+
+* Extracting data from some web pages may require clicking on elements
+or entering text
+
+* `RSelenium` is an R package that opens and controls a web browser
+(e.g., Chrome or Safari) allowing you to scrape the pages you visit
+
+  + requires additional software: Selenium (a webdriver that opens the
+  browser and offers interactive access)
+  
+  + `RSelenium` provides functions for "clicking" on elements and
+  providing elements with text
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
-"highlightLines": true,
-"countIncrementalSlides": false,
-"navigation": {
-"scroll": false
-}
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "navigation": {
+    "scroll": false
+  }
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

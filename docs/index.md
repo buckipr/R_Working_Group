@@ -27,6 +27,8 @@ and Computational methods in Demography
     - [files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
 
 * Nov 6th: Web Scraping with R: introductions to [rvest](https://rvest.tidyverse.org/) and [rselenium](https://cran.r-project.org/web/packages/RSelenium/index.html)
+    - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r_np.html#1)
+    - [files](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/)
 
 * Nov 20th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
 
