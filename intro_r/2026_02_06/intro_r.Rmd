@@ -1,0 +1,990 @@
+---
+title: "Introduction to <br/><br/> ![](img/Rlogo.png){width=200px}"
+author: "Jason Thomas"
+institute: "R Working Group"
+date: "Sept. 25th, 2025"
+output:
+  xaringan::moon_reader:
+    css: ["style_intro_r.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emoji)
+library(dplyr)
+knitr::opts_chunk$set(tidy=TRUE, prompt=TRUE, error=TRUE)
+
+```
+
+
+class:slide-font-25
+# Welcome to the R Working Group
+
+* Website [https://buckipr.github.io/R_Working_Group/](https://buckipr.github.io/R_Working_Group/)
+
+  + we are Slackers(?) (email Jason at thomas.3912 for an invite)
+
+--
+
+* *New Theme*: Computational Demography
+    
+    + impacts of digitization on daily life, social interactions, where &
+    what data are, capabilities of technology
+    
+    + taking us beyond "traditional" approach (e.g., inference from regressions
+    using survey data)
+    
+--
+
+* R & Computational Demography/Research?
+
+--
+
+  + closer to a general programming language
+  
+  + user community, extensions, & IDE
+
+
+---
+# Goals for this session
+
+* Learn about...
+
+--
+    + basic R syntax
+    
+    + different R objects (things that hold data) & **indexing** them
+    
+    + general programming
+
+--
+  
+* Become familiar with [R Studio](https://posit.co/download/rstudio-desktop/) & 
+  develop good coding habits 
+  
+--
+  
+    * R Studio is an *additional* program that provides many useful features
+    for working with R
+    
+    * (you need to download and install both [R](https://cran.r-project.org/) and 
+    [R Studio](https://posit.co/download/rstudio-desktop/))
+
+
+
+
+
+---
+class: inverse, center, middle
+
+# R Studio
+
+
+---
+# R Studio
+
+* Let's dive in by starting R Studio and opening a new R script
+
+    + menu bar: &nbsp; `File` &rarr; `New File` &rarr; `R Script`
+    + (in R: &nbsp; `File` &rarr; `New Script`)
+--
+
+* You should now have 4 panes open (like on the next slide)
+
+    + **Source** -- Our script where we will type and save our comments & commands
+    + **Console** -- Where we can give R commands and where the output will appear
+    + **Output** -- File explorer, plots, help files, and more!
+    + **Environments** -- Useful information about the R session
+
+
+---
+.center[<img src="img/rstudio-panes-labeled.jpeg" style="width: 75%" />]
+
+.center[.bottom[downloaded from [user guide on postit.co](https://docs.posit.co/ide/user/ide/guide/ui/ui-panes.html)]]
+
+
+---
+class:slide-font-25
+# R Studio: Good Habits
+
+* Add a comment to our new script:
+    ```{r, eval=FALSE, prompt=FALSE}
+    #------------------------------------------------------------------------
+    # File name: first_r_script.R
+    # last modified: 1843-09-13
+    # (start comment with # and R ignores the rest of the line)
+    #------------------------------------------------------------------------
+    3 + 3 # this useful part is for humans (R will add & ignore the rest)
+    ```
+--
+
+* Save our script
+
+    + menu bar: &nbsp; `File` &rarr; `Save As...`
+--
+
+* Set our **working directory**
+
+    + this is where R will start looking for & saving files (e.g., data files or plots)
+    
+    + menu bar: &nbsp; `Session` &rarr; `Set Working Directory` &rarr; <br>
+    &emsp; &emsp; &emsp; &emsp; `Choose Directory...`
+
+
+---
+class:slide-font-25
+# R Studio: Terminal?
+
+In the spirit of computational demography...
+
+* We should (should we?) explore the Terminal
+  
+  + Console Pane in RStudio has multiple tabs, one of which is a Terminal
+
+* Commands (e.g., `ls` and `pwd`) let you explore the file system on your
+computer, make changes, and perform a few advanced tricks...
+
+  + [tutorial](https://support.posit.co/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE)
+  
+  + *advanced tricks* include: running multiple R scripts at the same time,
+  searching a 100 files to see if (and where) the file includes a certain
+  word or sentence
+
+* Operating system is important, but R may try to minimize the differences
+
+
+---
+class: inverse, center, middle
+
+# Basic R
+
+
+---
+class:slide-font-25
+# Basic R Syntax
+
+* R syntax takes the form
+
+```{r, eval=FALSE, prompt=FALSE}
+# object_name <- object_value  
+mean_age <- 33
+```
+
+--
+
+* The symbol "`<-`" is called the assignment operator
+
+    + we are creating a new variable called `mean_age` and assigning it (a
+    type and) a value of 33
+
+    + `mean_age = 33` will also work (but `<-` is the convention)
+
+--
+
+* Useful keyboard shortcut to produce `<-`
+    
+    + <kbd>Alt</kbd> + <kbd>-</kbd> (Windows)
+    
+    + <kbd>option</kbd> + <kbd>-</kbd> (Mac)
+
+---
+class: slide-font-25
+# Basic R Syntax (cont.)
+
+If we enter the name of a variable in the `Console`, then R will list the value(s)
+```{r}
+Mean_age <- 22  ## note: object names are case-sensitive
+mean_age
+Mean_age
+```
+
+--
+BUT we are in the business of good habits...
+
+* type this syntax into our script and (with the cursor on the same line) press the following keys together:
+
+    + On a Mac: &nbsp;  <kbd>command</kbd> + <kbd>return</kbd>
+    
+    + In Windows: &nbsp; <kbd>Ctrl</kbd> + <kbd>Enter</kbd> &emsp; (in R Studio)  <br> 
+    &emsp; &emsp; &emsp; &emsp; &ensp; <kbd>Ctrl</kbd> + <kbd>R</kbd> &emsp; &emsp; &ensp; (in the R app)
+
+* these keyboard shortcuts will run the syntax on the line in the `Console` <br> 
+(or you can highlight a region)
+
+
+---
+class: slide-font-25
+# Basic R Syntax: functions
+
+We have seen a simple object for holding data, but R has many useful **functions**
+```{r, eval=FALSE, prompt=FALSE}
+ls()                         # list all the objects in memory
+rm(Mean_age)                 # remove the object called Mean_age2
+rm(list=ls())                # deletes all objects (CAREFUL!!!)
+getwd()                      # print the working directory (wd)
+setwd("Thesis/Analysis")     # set the wd to the folder Thesis/Analysis
+dir()                        # list the files in the current directory
+dir("../")                   # list the files in the parent directory
+save.image("my_data.RData")  # save all the objects in memory
+# ???                        # what if you only want to save 1 thing??
+load("my_data.RData")        # load all the objects in the data file
+```
+
+--
+
+*Quick note*:
+
+* suppose you create an object called `abc` that holds the value 2
+* then you load `data.RData` that also has an object named `abc` but holds the value 99
+* the first version of the object (`abc` holding 2) will get replaced
+
+
+---
+class: codefs-50
+# Basic R Syntax: help files
+
+* Google searches are a very effective way to find help
+
+    + and so is asking the R Working Group `r emoji("sunglasses")`
+--
+
+* R documentation can be accessed in the `Help` tab in the `Output` pane
+
+--
+
+* Some additional syntax and functions
+
+```{r, eval=FALSE, prompt=FALSE}
+?read.csv                     # show the help file for the function read.csv
+help.search("weighted mean")  # search help files for the phrase 'weighted mean'
+```
+
+--
+
+* What does the `save` function do, and how do you use it?
+
+---
+class: inverse, center, middle
+
+# Data Structures in R
+
+
+---
+
+## **Data Structures**: motivation
+
+We are not going to solve the world's problems with a single number...
+
+```{r}
+all_ages <- c(22, 33, 44, 55)  # c() concatenates numbers together
+all_ages
+mean(all_ages)                 # calculate the mean
+all_ed <- c("HS", "Col", "Grad Sch", "HS")
+all_ed
+```
+
+
+---
+## **Data Structures**: motivation (cont.)
+
+R handles different *types* of data as well
+
+```{r}
+important_data <- c("OSU", "R", "Group", 4)
+important_data
+```
+
+
+Wait, what is going on here?
+--
+
+* we are mixing different types of data & R assumes that we just forgot to
+wrap the 4 in quotation marks
+    
+* sometimes R's assumptions are useful, sometimes they are not! `r emoji("thinking")`
+    
+
+---
+## **Data Structures**: motivation (cont.)
+
+Here is another example with missing data
+
+```{r}
+test_scores <- c(88, 99, 110, 66, NA)  # NA is for missing values
+mean_scores <- mean(test_scores)
+mean_scores / 100
+```
+
+ `r emoji("pouting_cat")` Ugh! Why didn't R tell me there was a problem when I tried to calculate the mean?!?
+
+--
+* another R assumption
+    
+* can you figure out how to calculate the mean for non-missing values? (help file
+is helpful `r emoji("smile")`)
+
+
+---
+## **Data Structures**: vectors
+
+* We have been creating **vectors** when we use `c()` to concatenate data
+
+--
+
+* Here are some more useful functions for working with vectors
+
+```{r}
+# test that we have a vector
+is.vector(test_scores)  # returns another data type: TRUE or FALSE (called logical)
+summary(test_scores)    # numerical summary (less helpful for strings)
+```
+
+
+---
+## **Data Structures**: vectors (cont.)
+
+```{r}
+length(test_scores)     # how many elements in the vector
+is.na(test_scores)      # test if each element is NA
+TRUE + TRUE + FALSE     # useful trick with logical objects (TRUE/FALSE)
+n_missing <- sum(is.na(test_scores))
+n_missing
+```
+
+
+
+---
+## **Data Structures**: indexing vectors
+
+We can access the $i^{th}$ element in a vector with the syntax `vector_name[ i ]` 
+
+```{r}
+test_scores[1]    # first element
+test_scores[2]    # second element
+```
+
+--
+```{r}
+1:3   # a vector of c(1, 2, 3)
+      # so what will test_scores[3:1] give us?
+```
+
+
+---
+## **Data Structures**: indexing vectors (cont.)
+
+
+The syntax &ensp; `3:1` &ensp; gives the vector &ensp; `c(3, 2, 1)`, so...
+
+--
+
+```{r}
+test_scores[3:1]  # returns 3rd element, then the 2nd, then the first
+test_scores       # sanity check
+```
+
+--
+
+* So what will the following command do? `r emoji("thinking")`
+
+```{r, eval=FALSE, prompt=FALSE}
+test_scores[c(3, 5, 11)]
+```
+
+
+---
+## **Data Structures**: changing vectors
+
+
+We can use indexing to change vectors as well, e.g., reassign the first element
+
+```{r}
+test_scores[1]  <- NA # change the first element to NA
+test_scores[1]
+```
+
+--
+
+Again, we can use vectors to index as well:
+
+```{r, eval=FALSE, prompt=FALSE}
+index_missing_scores <- is.na(test_scores)  # create an index vector of TRUE & FALSE
+test_scores[index_missing_scores] <- -99    # change NA to -99
+```
+
+--
+
+Let's walk through this... <br>
+(`r emoji("owl")` but note a good habit would be to create a new vector,
+`new_test_scores`, so we can retain the original data!)
+
+
+---
+class: slide-font-25
+## **Data Structures**: changing vectors (cont.)
+
+```{r}
+# create an index vector of TRUE & FALSE
+index_missing_scores <- is.na(test_scores)
+index_missing_scores
+```
+
+--
+
+```{r}
+# attach these 2 vectors together as columns
+cbind(index_missing_scores, test_scores)
+```
+
+--
+
+* with &nbsp; `cbind` &nbsp; we are actually creating a new **data structure** called a **matrix**
+--
+
+* as we will see, matrices can only hold the same *data type*, so R changes `TRUE`/`FALSE`
+to `1`/`0` (respectively)
+
+
+---
+## **Data Structures**: changing vectors (cont.)
+
+```{r}
+test_scores[index_missing_scores]  #  access all of the indices with TRUE 
+```
+
+--
+
+```{r}
+# recode NA to -99
+test_scores[index_missing_scores] <- -99
+test_scores
+```
+
+--
+
+```{r}
+# useful tool for finding the location/position of certain values
+which(test_scores == -99)
+```
+
+---
+## Strategy for changing vectors
+
+When you want to change a vector, do the *delta 2-step*: 
+
+1. create an index vector that identifies the elements you want to change 
+
+    * what data type should this vector hold?
+    * `logical`, i.e. `TRUE`s and `FALSE`s
+
+2. assign new values to the vector using your vector of indices
+
+
+---
+## **Data Structures**: changing vectors (tips)
+
+Create an index with multiple conditions
+
+  + to satisfy BOTH conditions use `&` (and)
+  + to satisfy EITHER condition use `|` (or)
+    
+```{r}
+cbind(test_scores,
+      test_scores > 0 & test_scores < 90,
+      test_scores < 0 | test_scores > 90)
+```
+
+
+---
+class: slide-font-25
+## **Data Structures**: changing vectors (tips)
+
+Check if values belong to a set with: `%in%`.  For example, here are
+some letters
+
+```{r}
+letters[1:10]
+```
+
+We can check if characters (e.g. "1" or "b") are included in the vector `letters`
+with:
+
+```{r}
+cbind(c("1", "g", "b", "&") ,
+      c("1", "g", "b", "&") %in% letters)
+```
+
+
+---
+## **Data Structures**: more than vectors
+
+* We are not going to become `r emoji("moneybag")` famous `r emoji("moneybag")` by working with
+a single vector
+
+--
+
+* However, we have learned a powerful way to work with vectors, **indexing**, that extends to
+other types of **data structures**
+
+--
+
+* A **matrix** made a brief appearance earlier, but before going further let's review a useful framework
+for thinking about **data structures**
+
+
+---
+## **Data Structures**: overview
+
+R has different structures for holding data, which can be 
+organized by... 
+
+--
+1. How many dimensions does the structure have? 
+
+--
+
+2. Do the types of data need to be the same?
+  
+--
+
+* Example: **vectors**
+
+    + only 1 dimension (it is just a single row or a column)
+    
+    + we saw earlier that R changes the elements so they all have
+    the same data type (e.g., `4` &rarr; `"4"`)
+
+--
+
+We'll now (re)introduce different data structures, and learn about
+different data types along the way.
+
+
+---
+## **Data Structures**: overview (cont.)
+
+* **Vectors**
+  1. 1 dimension
+  1. same data type
+    + special case: **factor** (predefined categories)
+
+* **Matrices**
+  1. rows and columns
+  1. same data type
+
+* **Arrays** 
+  1. any number of dimensions
+  1. same data type
+
+---
+
+## **Data Structures**: overview (cont.)
+
+* **Data Frames**
+  1. rows and columns
+  1. different data types
+  - particularly useful for holding a data set with quantitative & qualitative variables
+
+* **Lists**
+  1. 1 dimension
+  1. different data types (or structures!)
+  - actually, this is just a special type of vector (can you verify this?)
+
+
+---
+## **Data Structures**: working with data frames
+
+* For the rest of this session we will focus on **Data frames**, the R structure
+typically used for data sets (i.e., variables as columns and an observation for each row). 
+
+--
+
+* Let's get some practice working with data frames using one
+of R's example data sets
+
+```{r}
+data(mtcars)            ## load one of R's example data sets mtcars
+ls()
+is.data.frame(mtcars)   ## check that mtcars is a data frame
+```
+
+
+---
+## **Data Structures**: reading in data sets
+
+Before we proceed with `mtcars`, a quick example of how to read in a data set.
+
+```{r}
+# write data to a CSV file called 'copy_mtcars.csv' in the working directory
+write.csv(mtcars, "copy_mtcars.csv")      
+mtcars2 <- read.csv("copy_mtcars.csv")  # load data set from CSV file
+ls()
+is.data.frame(mtcars2)
+```
+
+---
+## **Data Structures**: exploring data frames
+
+* Since **data frames** have 2 dimensions, the index requires 2 pieces of
+info: `[row index, column index]`
+
+```{r, collapse=TRUE}
+dim(mtcars)
+mtcars[1, 1]  # 1st observation in 1st variable
+```
+
+--
+
+* Many times, however, we just work with one variable/column at a time, so all our skills
+working with vectors still apply
+
+```{r}
+# if we leave out the row part of the address, we get all rows and a vector
+is.vector(mtcars[, 1])
+```
+
+
+
+---
+class: slide-font-25
+## **Data Structures**: exploring data frames
+
+* And now, some Old School techniques for working with data frames
+* Access a single column in a data frame is to use `$`
+
+```{r, eval=FALSE}
+names(mtcars)  ## print the variable names
+mtcars$mpg     ## return the mpg variable
+```
+
+```{r, echo=FALSE}
+options(width=70)
+names(mtcars)  ## print the variable names
+mtcars$mpg     ## return the mpg variable
+```
+
+--
+
+* Now we will (re)introduce several functions for exploring data frames
+* We will also see a more advanced example of indexing
+
+
+---
+## **Data Frames**: exploring columns (cont.)
+
+```{r, prompt = TRUE}
+dim(mtcars)    ## print the number of rows and columns
+str(mtcars)    ## print structure of data frame
+```
+
+
+---
+## **Data Frames**: summarizing columns
+
+```{r, prompt = TRUE}
+summary(mtcars)
+```
+
+
+---
+## **Data Frames**: exploring columns (cont.)
+
+An alternative ways to access a data frame's variable(s):
+
+```{r, prompt=TRUE}
+mtcars[["mpg"]]
+mtcars[1:10, c("mpg", "cyl")]
+```
+
+
+---
+## **Data Frames**: creating new variables
+
+```{r, prompt=TRUE, eval=TRUE}
+mtcars$mpg_squared <- mtcars$mpg * mtcars$mpg
+mtcars[1:10, c("mpg", "mpg_squared")]
+```
+
+
+---
+## **Data Frames**: more on indexing
+
+Recall that when creating an index, we can also use multiple conditions
+
+ * to satisfy BOTH conditions use `&` (and)
+ * to satisfy EITHER condition use `|` (or)
+ 
+ 
+
+```{r}
+mtcars[mtcars$mpg < 25 & mtcars$mpg > 21, c("mpg", "cyl")]
+```
+
+
+---
+## **Data Frames**: more on indexing (cont.)
+
+(remember: variables are just vectors, so we can use what we learned earlier)
+
+```{r}
+cbind(mtcars$mpg, mtcars$mpg < 15 | mtcars$mpg > 20)[1:10,]
+```
+
+
+---
+## **Data Frames**: more on indexing (cont.)
+
+And we can use multiple variables
+
+```{r}
+table(mtcars$mpg > 30 & mtcars$cyl == 6)
+table(mtcars$mpg > 30 & mtcars$cyl == 4)
+```
+
+
+---
+## **Data Frames**: final indexing example
+
+```{r}
+hi_mpg <- mtcars$mpg > mean(mtcars$mpg)
+hi_cyl <- mtcars$cyl == 4
+table(hi_mpg, hi_cyl)
+```
+
+
+---
+## **Data Frames**: final indexing example (cont.)
+
+```{r}
+mtcars$good_car <- FALSE
+mtcars$good_car[hi_mpg & hi_cyl] <- TRUE
+table(mtcars$good_car)
+```
+
+---
+## **Data Frames**: final indexing example (cont.)
+
+Sanity check
+
+```{r}
+# cbind(mtcars$good_car, hi_mpg, hi_cyl, mtcars$mpg, mtcars$cyl)
+cbind(mtcars$good_car, hi_mpg, hi_cyl)[1:15,]
+```
+
+
+---
+class: inverse, center, middle
+
+# General Programming
+
+
+---
+## **General Programming**
+
+* Coders often find themselves in the position of repeating blocks of
+code (or similar blocks of code), or needing an existing tool to do
+something a little different.
+
+--
+
+* For these situations we can turn to some more general features of
+computer programming
+
+  + `for` loops -- repeating the same steps, but for different
+  variables/names/objects
+
+  + functions -- creating your own tool that can take an object,
+  manipulate the argument, and return something useful
+
+
+---
+## `for` loops: basic example
+
+```{r}
+for (i in 1:10) {
+  msg <- paste("Current index:", i, sep = " ")
+  print(msg)
+}
+```
+
+
+---
+## `for` loops: data frame example
+
+```{r}
+mtcars[1:4,] <- NA
+for (index_for_col in 1:ncol(mtcars)) {
+  index_for_na <- is.na(mtcars[, index_for_col])
+  mtcars[index_for_na, index_for_col] <- -99
+}
+mtcars
+```
+
+
+---
+## `function`: basic example
+
+```{r}
+add_one <- function(x) {
+  x_plus_one <- x + 1
+  return(x_plus_one)
+}
+add_one(19)
+```
+
+
+---
+## `function`: return a list (1st effort)
+
+```{r}
+my_summary <- function(x, remove_na = TRUE) {
+  if (is.vector(x)) {
+    return("Sorry, I only work with vectors.")
+  }
+  out <- list()
+  out$mean <- mean(out, rm.na = remove_na)
+  out$sd <- sd(out, na.rm = remove_na)
+  out$median <- median(out, na.rm = remove_na)
+  out$msg <- "This looks like a great variable!"
+  return(msg)
+}
+x <- c(rnorm(20), NA, NA)
+my_summary(x)
+```
+
+Can you fix this?
+
+---
+## `function`: return a list (2nd effort)
+
+```{r}
+my_summary <- function(x, remove_na = TRUE) {
+  if (!is.vector(x)) {
+    return("Sorry, I only work with vectors.")
+  }
+  out <- list()
+  out$mean <- mean(x, na.rm = remove_na)
+  out$sd <- sd(x, na.rm = remove_na)
+  out$median <- median(x, na.rm = remove_na)
+  out$msg <- "This looks like a great variable!"
+  return(out)
+}
+x <- c(rnorm(20), NA, NA)
+my_summary(x)
+```
+
+
+---
+class: inverse, center, middle
+
+# More R Features
+
+
+---
+## **Additional topics**
+
+* R Markdown & Dynamic Documents
+
+    + [previous R session](https://buckipr.github.io/R_Working_Group/r_markdown/2024_09/intro_r_markdown_np.html#1)
+
+* (More ways of) Integrating R with other software
+
+    + Python:  [reticulate](https://cran.r-project.org/web/packages/reticulate/index.html)
+    (several vignettes)
+    
+    + [Transition from Stata](https://buckipr.github.io/R_Working_Group/transition2R/transition2R.html)
+
+* GitHub & RStudio
+
+
+---
+# Track Changes for Code
+
+* [**GitHub**](https://github.com) is an on-line service for tracking the history of each file in your project
+(i.e., **version control**)
+
+   + each project is stored in a *repository*, which can be made public or private (so only you and
+   your team can access the files)
+
+  + [how much space?](https://docs.github.com/en/github/managing-large-files/what-is-my-disk-quota)
+
+  + unlimited repositories (public and private); "abundant storage"; try to keep it under 1GB per repo
+
+* Software: [GitHub Desktop](https://desktop.github.com/) (but also hooks into fancy IDEs like R Studio 
+and VS Code)
+
+
+---
+# GitHub: additional features
+
+* Branches -- a separate copy of every file in your repository; make changes and (if all goes well)
+merge back with the main branch
+
+    + useful for trying new code/tools that *might* work; sensitivity analysis, 
+  
+* You can host your own website through GitHub: [R Working Group](https://buckipr.github.io/R_Working_Group/)
+  
+* Extensive userbase -- easy to find help online and many tools/libraries/packages are hosted on GitHub
+(help with errors and new features)
+
+* Excellent for group projects!
+
+
+---
+class: slide-font-25
+## GitHub: concepts and workflow
+
+* Start by creating a repository on the GitHub website
+
+* **clone** the repository -- creates a copy of all the files on your personal computer
+
+* Make new files and changes to your local copies, then **stage** all the files you want to keep track of
+
+* **commit** all of the files you have staged (you can also add a comment about what was done)
+
+  + this creates a new version (or snap shot) of your project
+  
+  + you can go back and look at previous commits (or revert to that version) and look at differences between
+  commits
+
+* **push** your files to GitHub so that your on-line repository has the latest version of the files
+
+
+---
+## **Recap & Moving Forward**
+
+* You should now be familiar with a few of R's data structures
+
+  + (and for knowing when they should be used: # of dimensions & data types)
+  
+* We have also been introduced to some useful functions for manipulating, summarizing,
+and exploring data
+
+  + There are many more(!) and users contribute **R packages** that implement a wide
+  range of tools, models, and methods: [list of some packages on CRAN](https://cran.r-project.org/)
+  
+
+---
+## **Recap & Moving Forward** (cont.)
+
+* R comes installed with many packages that you can explore & access with the `library()`
+function
+
+```r
+# library()              # list all the packages installed on your computer
+library(stats)           # load the stats package
+# help(package="stats")  # look at the package documentation
+```
+
+* In future session, we will explore some of these packages that are particularly useful
+for
+
+    + data carpentry: [dplyr](https://dplyr.tidyverse.org/)
+    + making plots: [ggplot2](https://ggplot2.tidyverse.org/)
+
+* Please join us `r emoji("smile")`

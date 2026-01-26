@@ -5,39 +5,40 @@ Website: [https://buckipr.github.io/R_Working_Group](https://buckipr.github.io/R
 
 ## Recent News
 
-* [OSU Code Club](https://osu-codeclub.github.io/) has new tutorials for Fall 2025
+* [R Working Group for Population Research](https://buckipr.github.io/R_Working_Group/) has all up to date powerpoints, updated for Spring 2026 as taught by Neel Agarwal, MS2, at OSU College of Medicine. Contact: neel.agarwal@osumc.edu 
 
-* [Fall Workshop:](https://imageomics.github.io/2025-08-15-osu-online/)
-OSU Software Carpentry: Version Control with Git and R for Scientific Reproducibility
-  + Dates: August 15 & 18, 2025 (online)
-  + [Registration for Git Session (8/15)](https://library.osu.edu/events/version-control-with-git-virtual-event-1)
-  + [Registration for R Session (8/18)](https://library.osu.edu/events/r-for-scientific-reproducibility-virtual-event-1)
+* [OSU Code Club](https://osu-codeclub.github.io/) has new tutorials for Spring 2026
 
-
-## **Schedule for Fall 2025**
+* [Spring Workshop:](https://library.osu.edu/events/r-for-scientific-reproducibility)
+OSU Software Carpentry: R for Scientific Reproducibility
+  + Dates: February 13 9am-3pm (online)
+  + [Registration for Session](https://osu.az1.qualtrics.com/jfe/form/SV_aibZQW3vrRfepNQ)
 
 
-We will be meeting in 38 Townshend Hall from 10:30am - 12:00pm on the following Thursdays:
 
-* Sept 25th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
-and Computational methods in Demography
+## **Schedule for Spring 2026**
+
+
+We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
+
+* Feb 6th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
+and Computational methods in Demography (with a healthcare big data analysis twist)
     - [slides](https://buckipr.github.io/R_Working_Group/intro_r/2025_09_25/intro_r_np.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
-    - readings: [Kashyap et.al (2023). "Chapter 3: Digital and computational demography".
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2025_09_25)
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2026_02_06)
+    - optional readings: [Kashyap et.al (2023). "Chapter 3: Digital and computational demography".
 	In Research Handbook on Digital Sociology. Cheltenham, UK:
 	Edward Elgar Publishing.](https://o*sf.io/7bvpt/download/?format=pdf)
 	
-* Oct 2nd: Intro to GitHub and integration with RStudio
-    - [slides](https://buckipr.github.io/R_Working_Group/github/github.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/github)
-
-* Oct 9th: Exploring and Preparing Data with [dplyr](https://dplyr.tidyverse.org/) and [tidyverse](https://www.tidyverse.org/)
+* Feb 20th: Exploring and Preparing Data with [dplyr](https://dplyr.tidyverse.org/) and [tidyverse](https://www.tidyverse.org/) and Healthcare Analysis 1
     - [slides](https://buckipr.github.io/R_Working_Group/dplyr/2025_10_09/intro_dplyr.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/dplyr/2025_10_09/)
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/dplyr/2025_10_09/)
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2026_02_06)
 
-* Oct 23rd: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/)
+* Feb 27th: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/) and AI LMM Integration 1
     - [slides](https://buckipr.github.io/R_Working_Group/ggplot2/2025_10_23/ggplot2.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2026_02_27)
     - readings
         + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies 
 	by Region, Race, and Ethnicity in the United States, 1999–2016. Demography 1 December 2023; 60 (6):
@@ -49,23 +50,26 @@ and Computational methods in Demography
 	Mortality: Evidence From a Survey Experiment in Rwanda. Demography 1 August 2017; 54 (4): 1503–1528.
 	doi: https://doi.org/10.1007/s13524-017-0594-y
 
-* Nov 6th: Web Scraping with R: introductions to [rvest](https://rvest.tidyverse.org/) and [rselenium](https://cran.r-project.org/web/packages/RSelenium/index.html)
+* March 6th: Web Scraping with R: introductions to [rvest](https://rvest.tidyverse.org/) and [rselenium](https://cran.r-project.org/web/packages/RSelenium/index.html) and AI LMM Integration 2
     - [slides](https://buckipr.github.io/R_Working_Group/web_scraping/webscraping_r_np.html#1)
-    - [files](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/)
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/)
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/2026_03_06/)
     - reading: Bernau, J. A. (2018). Text Analysis with JSTOR Archives. Socius, 4. https://doi.org/10.1177/2378023118809264 
 
-* Nov 20th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
-
+* March 20th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
+    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/topic_models_np.html#1)
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
   - reading: Felmlee, D., DellaPosta, D., Rodis, P. d. C. I., & Matthews, S. A. (2020). Can Social Media Anti-abuse Policies Work?
   A Quasi-experimental Study of Online Sexist and Racist Slurs. Socius, 6.
   https://doi.org/10.1177/2378023120948711 (Original work published 2020)
 
-* Dec 4th: Text Analysis II -- topic modeling
+* April 3rd: Text Analysis II -- topic modeling and Healthcare Analysis II
+    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/topic_models_np.html#1)
+    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
 
-  - reading: Sirkka, O., Walo, S., Purhonen, S., Verboord, M., Janssen, S., & Bonnet, P. (2024).
-  Understandings of Culture: A European Bottom-up Study Using Structural Topic Modeling. Socius, 10.
-  https://doi.org/10.1177/23780231241278524 
-
+* April 24rd: Machine Learning and Imputation using missForest and parallelize
+	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/imputation/)
 
 ## Schedule for Spring 2025
 
@@ -97,6 +101,7 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
 
 (Zoom option is also available)
 
+
 ## **Resources**
 
 * **Intro to R**
@@ -109,7 +114,9 @@ We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following F
 
 * [Making the transition from Stata to R](transition2R/README.md)
 
+
 ## **About Us**
+
 
 ### Goal
 
@@ -119,6 +126,6 @@ We are dedicated to help build lit-R-acy and to foster a community of useRs on c
 
 The R Working Group consists of students, staff, & faculty at Ohio State University 
 
-(for more information, please feel free to contact Jason Thomas: thomas DOT 3912 at osu DOT edu)
+(for more information, please feel free to contact Jason Thomas: thomas DOT 3912 at osu DOT edu or Neel Agarwal: neel DOT agarwal DOT osumc DOT edu)
 
 

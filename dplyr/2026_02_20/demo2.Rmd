@@ -1,0 +1,294 @@
+---
+title: "Intermediate R: Cleaning & Analyzing Healthcare Data"
+author: "Neel Agarwal"
+output: 
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# 1. The Scenario: Merging Worlds
+In health sociology, we rarely get all our data in one place. We often have to merge:
+1.  **EMR Data (Electronic Medical Records):** Clinical facts (diagnosis, length of stay).
+2.  **Survey Data:** Social facts (income, housing stability, patient satisfaction).
+
+**The Challenge:** Real data is "dirty." Numbers are stored as text, "999" is used for missing values, and ID numbers don't always match. This tutorial guides you through fixing these issues.
+
+# 2. Setup & Data Simulation
+First, load the `tidyverse`. Then, run this chunk to "generate" our raw, messy data.
+
+*Note: In a real project, you would use `read_csv()` to load these from files.*
+
+```{r simulate-data}
+library(tidyverse)
+
+# --- Dataset 1: Clinical EMR Data (Messy!) ---
+# Notice the issues: "Length_Stay" has text in it, and "Readmitted" is 0/1 integers.
+emr_raw <- data.frame(
+  Patient_ID = c("PT-001", "PT-002", "PT-003", "PT-004", "PT-005", "PT-006"),
+  Diagnosis_Code = c("E11", "I10", "E11", "J45", "I10", "E11"),
+  Length_Stay = c("5 days", "3", "14", "2", "4 days", "Unknown"), 
+  Readmitted_Flag = c(1, 0, 1, 0, 0, 1)
+)
+
+# --- Dataset 2: Social Survey Data ---
+# Notice: ID "PT-006" is missing (non-responder), and Income has a code "999".
+survey_raw <- data.frame(
+  Patient_ID = c("PT-001", "PT-002", "PT-003", "PT-004", "PT-005"),
+  Housing_Status = c("Stable", "Unstable", "Stable", "Stable", "Unstable"),
+  Annual_Income_Code = c(45000, 22000, 56000, 61000, 999) # 999 usually means "Refused to answer"
+)
+
+# View the messy EMR data
+head(emr_raw)
+```
+
+# 3. The Importance of Data Types
+R is strict about **Data Types**. You cannot calculate the average of text.
+
+Look at `Length_Stay` in `emr_raw`. It contains "5 days" and "Unknown". Because of these characters, R treats the entire column as `Character` (text), not `Numeric`.
+
+```{r type-error, error=TRUE}
+# This will fail or give a warning because you can't do math on words
+mean(emr_raw$Length_Stay)
+```
+
+### Cleaning Step 1: Fix Types & Values
+We need to:
+1.  Remove " days" from the numbers.
+2.  Turn "Unknown" into `NA` (R's code for missing data).
+3.  Convert the column to numeric.
+4.  Convert `Readmitted_Flag` from 0/1 to a Factor (categorical).
+
+```{r cleaning-emr}
+emr_clean <- emr_raw %>% 
+  mutate(
+    # 1. & 2. Clean the string text
+    Length_Stay_Clean = str_replace(Length_Stay, " days", ""), # Remove " days"
+    Length_Stay_Clean = na_if(Length_Stay_Clean, "Unknown"),   # Turn "Unknown" to NA
+    
+    # 3. Convert to numeric
+    Length_Stay_Numeric = as.numeric(Length_Stay_Clean),
+    
+    # 4. Convert 0/1 integer to Factor (Labeling the levels)
+    Readmission_Status = factor(Readmitted_Flag, 
+                                levels = c(0, 1), 
+                                labels = c("No Readmission", "Readmitted"))
+  )
+
+# Check the structure now
+glimpse(emr_clean)
+```
+
+# 4. Merging Data Sources (The `left_join`)
+Now we merge the clinical data with the social data using `Patient_ID` as the "Key."
+
+We also need to handle the `999` in the income column. In surveys, codes like 999, 888, or -1 often represent missing data, not real dollars.
+
+```{r merging}
+# First clean the survey data
+survey_clean <- survey_raw %>% 
+  mutate(
+    # Replace 999 with NA
+    Annual_Income_Clean = ifelse(Annual_Income_Code == 999, NA, Annual_Income_Code)
+  )
+
+# Merge datasets
+# left_join keeps all rows from the Left table (EMR) and matches Survey info where possible
+combined_data <- left_join(emr_clean, survey_clean, by = "Patient_ID")
+
+# Look at the final dataset
+combined_data %>% 
+  select(Patient_ID, Readmission_Status, Housing_Status, Annual_Income_Clean)
+```
+
+# 5. Analysis: Social Determinants of Health
+Now we can answer a sociological question: **Is unstable housing associated with hospital readmission?**
+
+We use a "Contingency Table" (Crosstab) and a statistical test.
+
+```{r analysis}
+# Create a contingency table
+table(combined_data$Housing_Status, combined_data$Readmission_Status)
+
+# Visualize it
+ggplot(combined_data, aes(x = Housing_Status, fill = Readmission_Status)) +
+  geom_bar(position = "fill") + # "fill" creates a 100% stacked bar chart
+  labs(
+    title = "Readmission Rates by Housing Status",
+    y = "Proportion",
+    x = "Housing Stability",
+    fill = "Readmission"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+```
+
+### Statistical Interpretation
+In a real dataset, you would run a Chi-Square test here.
+*(Note: This might throw a warning on this tiny dataset because sample sizes are small, but the code is correct for large data)*
+
+```{r stats}
+chisq.test(table(combined_data$Housing_Status, combined_data$Readmission_Status))
+```
+
+# 6. Key Takeaways
+1.  **Garbage In, Garbage Out:** If you don't clean `Length_Stay` (remove text), your math will fail.
+2.  **Codebooks Matter:** You need to know that `999` in the survey meant "Refused," otherwise you'd think that patient was very wealthy!
+3.  **Joins:** `left_join` is essential for connecting EMR clinical outcomes with sociological context.
+
+
+# 1. Introduction: The "Hidden" Data Problems
+In Part 1, we learned how to clean messy text. In Part 2, we tackle three specific "nuances" that often break healthcare analyses:
+1.  **Dates:** Calculating "Time to Event" correctly.
+2.  **Skewed Distributions:** Why "Average Cost" is a lie.
+3.  **Data Type Risks:** The danger of treating Zip Codes or Likert scales as numbers.
+
+We will use the `lubridate` package (part of tidyverse) to handle dates, and `broom` to tidy up our statistical models.
+
+```{r packages}
+library(tidyverse)
+library(lubridate) # Essential for dates!
+library(broom)     # Makes model outputs readable
+```
+
+# 2. Simulation: A "Real" Hospital Dataset
+We are simulating a dataset of 500 patients. Note the realistic complications:
+* **Dates** are stored as strings (YYYY-MM-DD).
+* **Zip Codes** look like numbers.
+* **Cost** is highly skewed (most are cheap, a few are expensive).
+
+```{r simulate}
+set.seed(123) # Ensures we all get the same random numbers
+
+n_patients <- 500
+
+health_data <- data.frame(
+  ID = 1:n_patients,
+  
+  # 1. Dates stored as text (very common in raw CSVs)
+  Admit_Date_Text = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), 
+                           n_patients, 
+                           replace = TRUE),
+  
+  # 2. Clinical Nuance: Cost is rarely normal. It's "Right Skewed" (log-normal).
+  Hospital_Cost = rlnorm(n_patients, meanlog = 8, sdlog = 1),
+  
+  # 3. Sociological Variable: Zip Code (Looks numeric, but is it?)
+  Zip_Code = sample(c(43210, 43201, 43085), n_patients, replace = TRUE),
+  
+  # Outcome: Readmission (0 = No, 1 = Yes)
+  Readmitted = rbinom(n_patients, 1, 0.3)
+) %>%
+  # Add discharge date (Admit + random days)
+  mutate(Discharge_Date_Text = as.character(Admit_Date_Text + rpois(n_patients, 4)))
+
+head(health_data)
+```
+
+# 3. Nuance #1: Handling Dates & Times
+In healthcare, specific durations (Length of Stay, Time to Readmission) are critical. 
+**Common Error:** Subtracting "2023-01-05" - "2023-01-01" will fail if they are text strings.
+
+We must convert them to `Date` objects.
+
+```{r dates}
+clean_data <- health_data %>% 
+  mutate(
+    # Convert Text to Date objects
+    Admit_Date = ymd(Admit_Date_Text),      # ymd stands for Year-Month-Day
+    Discharge_Date = ymd(Discharge_Date_Text),
+    
+    # Now we can do math!
+    Length_Of_Stay = as.numeric(Discharge_Date - Admit_Date)
+  )
+
+# Check the math
+clean_data %>% 
+  select(Admit_Date, Discharge_Date, Length_Of_Stay) %>% 
+  head()
+```
+
+# 4. Nuance #2: The "Average" Trap (Skewed Data)
+Healthcare cost data is almost never a Bell Curve. It is "Right Skewed"—a few patients have million-dollar bills, while most are low.
+
+**The Error:** Using the **Mean** (Average) to describe the "typical" patient. The massive outliers pull the mean up, making it unrepresentative.
+**The Fix:** Use the **Median** or Log-Transform the data.
+
+```{r skew-viz}
+# Visualize the skew
+ggplot(clean_data, aes(x = Hospital_Cost)) +
+  geom_histogram(bins = 30, fill = "coral", color = "white") +
+  labs(title = "Healthcare Costs are Not Normal", subtitle = "Notice the long tail to the right") +
+  theme_minimal()
+
+# Compare Mean vs Median
+summary_stats <- clean_data %>% 
+  summarize(
+    Mean_Cost = mean(Hospital_Cost),
+    Median_Cost = median(Hospital_Cost) # This is usually the "better" number for policy
+  )
+
+print(summary_stats)
+```
+
+# 5. Nuance #3: Data Type Errors in Modeling
+Let's build a model to predict Readmission. 
+
+**The Trap:** `Zip_Code` looks like a number (43210). If we put it in a regression model as-is, R thinks 43210 is "more" than 43201. This is meaningless mathematically. Zip codes are names, not values.
+
+We must convert Zip Code to a **Factor** (Categorical).
+
+```{r model-error}
+# --- The WRONG Way (treating Zip as numeric) ---
+# R interprets this as: "For every +1 in Zip Code, risk changes by X"
+bad_model <- glm(Readmitted ~ Zip_Code + Length_Of_Stay, 
+                 data = clean_data, family = "binomial")
+
+# --- The RIGHT Way (treating Zip as a category) ---
+# R interprets this as: "Compared to Zip A, how is Zip B different?"
+good_model <- glm(Readmitted ~ factor(Zip_Code) + Length_Of_Stay, 
+                  data = clean_data, family = "binomial")
+
+# Let's see how the interpretation changes
+tidy(good_model, exponentiate = TRUE) # Exponentiate to get Odds Ratios
+```
+
+### Interpreting the Output
+* **term**: `factor(Zip_Code)43201`.
+* **estimate**: This is the **Odds Ratio**.
+* **Interpretation**: If the Odds Ratio is 1.5, patients in Zip 43201 have 1.5x higher odds of readmission compared to the reference Zip Code.
+
+# 6. Summary of Healthcare Nuances
+
+| Nuance | The Problem | The R Solution |
+| :--- | :--- | :--- |
+| **Dates** | Strings like "01/05/2023" cannot be subtracted. | Use `lubridate::mdy()` or `ymd()` to convert, then do math. |
+| **Costs** | Outliers make the "Average" misleading. | Use `median()` for summary, or Log-transform for plotting. |
+| **Categories** | Zip codes and ID numbers are not math values. | Wrap them in `factor()` or `as.character()` before modeling. |
+| **Binary Outcomes** | "Linear Regression" (`lm`) doesn't work for Yes/No (0/1). | Use Logistic Regression (`glm` with `family="binomial"`). |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

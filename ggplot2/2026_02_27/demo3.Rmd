@@ -1,0 +1,166 @@
+---
+title: "Leveraging AI & Best Practices in R"
+author: "Neel Agarwal"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+# 1. Introduction: The New Workflow
+Programming has changed. You no longer need to memorize every syntax rule. Instead, you need to master two skills:
+1.  **Prompt Engineering:** Describing your problem clearly so an AI (like ChatGPT, Gemini, or Copilot) can solve it.
+2.  ** commenting:** explaining *why* the code exists, so your future self (and your team) can understand the AI's output.
+
+**The Golden Rule:** Never copy-paste AI code without adding a comment explaining what it does.
+
+# 2. The Art of Commenting
+In Sociology and Healthcare, code is part of your methodology. Comments are not just for the computer; they are for the researcher.
+
+### The "What" vs. The "Why"
+* **Bad Comment (Redundant):** Describes *what* the code is doing (which is obvious).
+* **Good Comment (Contextual):** Describes *why* you are doing it (the sociological or clinical logic).
+
+```{r comment-demo}
+# Create dummy data
+patient_ages <- c(15, 67, 89, 45, 12, 17)
+
+# --- BAD COMMENTING ---
+# Filter data for age greater than or equal to 18
+adults_bad <- patient_ages[patient_ages >= 18]
+
+# --- GOOD COMMENTING ---
+# Exclude pediatric patients (<18) as this study focuses on 
+# age-related hypertension in the adult workforce.
+adults_good <- patient_ages[patient_ages >= 18]
+```
+
+### Exercise 1: Fix these Comments
+*Read the code below. The comments are bad. How would you rewrite them to explain the clinical/sociological logic?*
+
+```{r comment-exercise, eval=FALSE}
+# Rename column
+data <- rename(data, ses_index = var_x)
+
+# Drop rows with NA
+data <- drop_na(data)
+```
+
+# 3. AI-Assisted Problem Solving
+When you get stuck, don't just type "Help me" into an AI. Use the **CPT Framework** for Prompt Engineering:
+
+1.  **C - Context:** Who are you? What data do you have?
+2.  **P - Problem:** What specifically are you trying to do?
+3.  **T - Tool/Constraints:** Do you want `tidyverse` code? Base R? A plot?
+
+### The Scenario: Cleaning Messy BP Data
+We have a dataset where Blood Pressure is stored as a text string (e.g., "120/80"). We need to split this into two numeric columns: `Systolic` and `Diastolic`.
+
+This is tricky to write from scratch. Let's use AI.
+
+```{r messy-data}
+# Our raw, messy data
+bp_data <- data.frame(
+  Patient_ID = 1:5,
+  BP_String = c("120/80", "145/90", "110/70", "130/85", "160/100")
+)
+
+head(bp_data)
+```
+
+### Step 1: Draft the Prompt
+**Do not run this code.** This is the text you would type into Gemini or ChatGPT:
+
+> **Context:** I am a sociology student working in R using the `tidyverse` package. I have a dataframe called `bp_data` with a column `BP_String` that looks like "120/80".
+> **Problem:** I need to split `BP_String` into two new numeric columns: `Systolic` and `Diastolic`.
+> **Constraint:** Please use the `separate()` function or similar tidyverse tools. Do not use Base R string splitting.
+
+### Step 2: The AI Output (Simulation)
+The AI gives you the following code. Your job is to **Verify** it works and then **Comment** it.
+
+```{r ai-solution}
+# --- AI GENERATED CODE START ---
+
+bp_clean <- bp_data %>%
+  # Use separate() to split the string at the slash character
+  separate(BP_String, into = c("Systolic", "Diastolic"), sep = "/") %>%
+  # The result is still text, so mutate them to numbers
+  mutate(
+    Systolic = as.numeric(Systolic),
+    Diastolic = as.numeric(Diastolic)
+  )
+
+# --- AI GENERATED CODE END ---
+
+head(bp_clean)
+```
+
+# 4. Advanced Architecture: Handling "Hallucinations"
+Generative AI often makes up functions that don't exist. You need a "Verification Loop."
+
+**The Loop:**
+1.  **Generate** code with AI.
+2.  **Run** it on a small sample (like `head(data)`).
+3.  **Check** data types (`glimpse(data)`).
+4.  **Document** any weird logic the AI used.
+
+### Example: The "Date" Problem
+AI often struggles with Dates. Let's say we ask AI to calculate age from birthdates.
+
+```{r date-problem}
+# Data
+demo_data <- data.frame(
+  DOB = c("1990-05-01", "1985-10-20", "2000-01-01"),
+  Visit_Date = c("2023-01-01", "2023-01-01", "2023-01-01")
+)
+```
+
+**Prompt:** "Calculate Age in Years from DOB and Visit_Date in R."
+
+**Likely AI Output:**
+Often, AI will suggest: `(Visit_Date - DOB) / 365`.
+*Critique:* This is imprecise because of leap years!
+
+**Better AI Output (after refinement):**
+We should prompt: *"Calculate accurate age accounting for leap years using lubridate."*
+
+```{r date-solution}
+library(lubridate)
+
+# We must convert strings to Dates first (AI often forgets this step!)
+demo_clean <- demo_data %>%
+  mutate(
+    DOB_Date = ymd(DOB),
+    Visit_Date = ymd(Visit_Date),
+    
+    # Using interval() and years() is the robust way to handle leap years
+    # Logic: Create a time interval, then divide by the duration of 1 year
+    Age = interval(DOB_Date, Visit_Date) / years(1)
+  )
+
+print(demo_clean)
+```
+
+# 5. Summary Checklist
+When submitting your code for this course, ensure:
+
+1.  [ ] **No Magic Numbers:** If you filter `Age > 65`, add a comment: `# Medicare eligibility cutoff`.
+2.  [ ] **Attribution:** If an AI wrote a complex function (like a Regex pattern), add a comment: `# Regex pattern generated by AI to extract zip codes`.
+3.  [ ] **Verification:** Did you check the data types after the AI's code ran?
+
+***
+
+**Class Activity:**
+Take the `demo_clean` dataset above. Use Generative AI to find a way to categorize the `Age` column into "Young Adult" (18-35) and "Middle Age" (36-65). Paste the code below and **add comments explaining the logic.**
+
+```{r student-workspace}
+# Your code here...
+```

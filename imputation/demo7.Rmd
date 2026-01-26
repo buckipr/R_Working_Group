@@ -1,0 +1,199 @@
+---
+title: "Advanced Machine Learning Imputation"
+subtitle: "Using missForest and Parallel Processing for Large Healthcare Data"
+author: "Neel Agarwal"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: united
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+# Prerequisites: install.packages(c("missForest", "doParallel", "tidyverse", "naniar"))
+library(tidyverse)
+library(missForest) # The ML Imputation package
+library(doParallel) # For using all CPU cores
+library(naniar)     # For visualizing missingness
+```
+
+# 1. The Problem: "Mean Imputation" is Biased
+In healthcare, data is rarely missing at random. 
+* **Example:** Wealthy patients might skip answering "Income" questions.
+* **The Risk:** If you fill those blanks with the *average* income, you are effectively labeling wealthy people as "average," which hides the health disparities you are trying to study.
+
+**The Solution:** `missForest`. This algorithm builds a Random Forest model for *each variable*, using all other variables as predictors to guess the missing value. It preserves complex non-linear relationships.
+
+# 2. Data Simulation: Ground Truth vs. Dirty Data
+To prove this works, we will simulate a "Perfect" dataset (Ground Truth) and then intentionally punch holes in it (Amputate).
+
+```{r simulate}
+set.seed(42)
+n <- 2000
+
+# --- 1. Create Ground Truth (The "God View") ---
+# We create complex relationships: Depression depends on Pain and Income.
+truth_data <- data.frame(
+  ID = 1:n,
+  Age = rnorm(n, 55, 12),
+  # Education Level (Factor)
+  Education = sample(c("HS", "Bachelor", "Master", "PhD"), n, replace = TRUE, prob = c(0.4, 0.3, 0.2, 0.1)),
+  # Pain Level (1-10)
+  Pain_Score = sample(1:10, n, replace = TRUE),
+  # Income (Correlated with Education)
+  Income = NA # Placeholder
+)
+
+# Feature Engineering relationships
+truth_data$Income <- case_when(
+  truth_data$Education == "HS" ~ rnorm(n, 30000, 5000),
+  truth_data$Education == "Bachelor" ~ rnorm(n, 55000, 10000),
+  TRUE ~ rnorm(n, 85000, 15000)
+)
+
+# Depression (Correlated with Pain AND Income - complex interaction)
+truth_data$Depression_Score <- 20 + 
+  (2 * truth_data$Pain_Score) - 
+  (0.0001 * truth_data$Income) + 
+  rnorm(n, 0, 5)
+
+# --- 2. Create "Dirty" Data (Amputation) ---
+# We remove 15% of Income and 20% of Depression scores
+dirty_data <- truth_data %>% 
+  select(-ID) # Remove ID for imputation (it's useless noise)
+
+# ProdNA artificially introduces missing values (from missForest package)
+dirty_data <- prodNA(dirty_data, noNA = 0.15) 
+
+# Visualize the holes
+gg_miss_var(dirty_data) + labs(title = "Missing Data Pattern")
+```
+
+# 3. Setting up Parallel Processing
+Random Forest is accurate but **slow**. It builds hundreds of decision trees. If you have 10,000 rows, doing this on one CPU core will take forever.
+
+We will "Parallelize" it: split the work across multiple cores of your computer.
+
+```{r parallel-setup}
+cores_available <- detectCores()
+# Use the smaller number: either your actual cores OR 4.
+cores_to_use <- min(cores_available - 1, 4) 
+
+cat("Using", cores_to_use, "cores for imputation.\n")
+
+# 2. Register the cluster with the safe number of cores
+cl <- makeCluster(cores_to_use)
+registerDoParallel(cl)
+```
+
+# 4. Running missForest
+Now we run the imputation.
+* **`ntree`**: Number of trees per forest (100 is usually enough for testing).
+* **`parallelize`**: We set this to `'variables'` (different variables are imputed on different cores simultaneously) or `'forests'`.
+
+*Note: This might take 10-20 seconds depending on your machine.*
+```{r}
+dirty_data <- dirty_data %>% 
+  mutate(
+    # Convert specific column
+    Education = as.factor(Education),
+    
+    # OR: Convert ALL character columns automatically (Best Practice)
+    across(where(is.character), as.factor)
+  )
+
+# Check the types now - Education should say <fct>, not <chr>
+glimpse(dirty_data)
+```
+
+```{r imputation}
+# Start the timer
+start_time <- Sys.time()
+
+# --- RUNNING MISSFOREST ---
+imputed_result <- missForest(
+  xmis = dirty_data,       
+  ntree = 100,             
+  parallelize = 'variables', # 'variables' is safer for small column counts
+  verbose = TRUE           
+)
+
+# Stop the timer
+end_time <- Sys.time()
+print(end_time - start_time)
+
+# Extract the completed dataset
+clean_data_ml <- imputed_result$ximp
+
+# IMPORTANT: Always stop the cluster when done!
+stopCluster(cl)
+```
+
+# 5. Evaluation: Did it work?
+Since we simulated the data, we can cheat and look at the "Ground Truth." Let's verify accuracy.
+
+### Metric 1: NRMSE (Normalized Root Mean Squared Error)
+`missForest` estimates its own error (OOB), but let's calculate the *real* error against the truth.
+
+```{r evaluation}
+# Calculate error for Income
+# Filter only rows that were missing in the dirty data
+missing_indices <- is.na(dirty_data$Income)
+
+actual_values <- truth_data$Income[missing_indices]
+imputed_values <- clean_data_ml$Income[missing_indices]
+
+# Calculate MAPE (Mean Absolute Percentage Error)
+mape <- mean(abs((actual_values - imputed_values) / actual_values)) * 100
+
+cat("The ML model imputed Income with an average error of:", round(mape, 2), "%\n")
+```
+
+### Metric 2: Visual Distribution Check
+The gold standard test: **Does the imputed data look like the real data?**
+If we used Mean Imputation, we would see a giant spike (a tower) at the average. `missForest` should look natural.
+
+```{r comparison-plot}
+# Create a plotting dataset
+plot_data <- data.frame(
+  Value = c(truth_data$Income, clean_data_ml$Income),
+  Type = c(rep("Ground Truth", n), rep("Imputed (ML)", n))
+)
+
+ggplot(plot_data, aes(x = Value, fill = Type)) +
+  geom_density(alpha = 0.4) +
+  labs(
+    title = "Imputation Quality: Distribution Comparison",
+    subtitle = "Notice how the ML Imputation (Blue) overlaps perfectly with the Truth (Red)",
+    x = "Income",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("firebrick", "steelblue"))
+```
+
+# 6. Why not just use `na.omit`?
+In sociology, deleting rows (Listwise Deletion) reduces your "Statistical Power."
+
+```{r power-comparison}
+# Count rows
+original_n <- nrow(truth_data)
+complete_case_n <- nrow(na.omit(dirty_data))
+lost_n <- original_n - complete_case_n
+
+cat("If we just deleted rows with missing data, we would lose", lost_n, "patients.\n")
+cat("That is", (lost_n/original_n)*100, "% of our sample size!")
+```
+
+# 7. Summary
+1.  **Complexity:** `missForest` can guess `Income` based on `Education` and `Pain` simultaneously. Simple methods cannot do this.
+2.  **Mixed Types:** It handles categorical data (Factors) and numbers (Numeric) automatically.
+3.  **Cost:** It is computationally expensive. Using `doParallel` and `registerDoParallel` allows you to scale this to real-world datasets (10k+ rows).
+
+***
+
+### Challenge
+Can you modify the `prodNA` code in Section 2 to introduce **30%** missingness? Rerun the model. Does the `MAPE` error increase significantly? This tests the "Robustness" of the Machine Learning model.

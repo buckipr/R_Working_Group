@@ -1,0 +1,162 @@
+---
+title: "Part 4: Real-World AI Classification with Gemini"
+author: "Neel Agarwal"
+output: 
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(httr)      # Essential for talking to web APIs
+library(jsonlite)  # Essential for reading the API's response
+```
+
+# 1. The Goal
+We want to take unstructured patient comments and automatically classify them using a Large Language Model (LLM). 
+
+Instead of a simulation, we will use **Google's Gemini 1.5 Flash**. It is fast, capable, and free for this type of volume.
+
+### Prerequisites
+To run this code, you need a **Google AI Studio API Key**.
+1.  Go to [aistudio.google.com](https://aistudio.google.com/).
+2.  Sign in with a Google account.
+3.  Click **"Get API Key"** -> **"Create API Key"**.
+4.  Copy that string of random characters.
+
+**Warning:** Treat this key like a password. Do not upload code containing your key to public GitHub repositories.
+
+# 2. The Data: Unstructured Text
+We have a small dataset of patient feedback.
+
+```{r create-data}
+complaints_data <- data.frame(
+  ID = 1:5,
+  Text = c(
+    "The waiting room was freezing and the chairs were broken.",
+    "I am still having sharp pain in my side after the surgery.",
+    "My insurance was billed twice for the same xray.",
+    "The nurse was very kind but the doctor seemed rushed.",
+    "Nobody picked up the phone when I called to reschedule."
+  )
+)
+```
+
+# 3. Building the API Connector
+We will write a custom R function called `ask_gemini`. This function takes a piece of text, sends it to Google's servers, and returns the classification.
+
+*Note: We use the `httr` package. This is the standard way R talks to the internet.*
+
+```{r api-function}
+# PASTE YOUR KEY HERE (Keep this secret!)
+my_api_key <- "PASTE_YOUR_KEY_HERE"
+
+ask_gemini <- function(patient_comment) {
+  
+  # 1. The Prompt Engineering
+  # We give the AI clear instructions and the specific comment to analyze.
+  prompt_text <- paste0(
+    "You are a healthcare data analyst. Classify the following patient comment into exactly one of these categories: 'Clinical', 'Administrative', or 'Facility'. Return ONLY the category name. Comment: '", 
+    patient_comment, "'"
+  )
+  
+  # 2. The Payload (The message we send to Google)
+  # The Gemini API expects specific formatting (JSON).
+  body_data <- list(
+    contents = list(
+      list(
+        parts = list(
+          list(text = prompt_text)
+        )
+      )
+    )
+  )
+  
+  # 3. The API Call (POST request)
+  response <- POST(
+    url = paste0("[https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=)", my_api_key),
+    add_headers("Content-Type" = "application/json"),
+    body = toJSON(body_data, auto_unbox = TRUE),
+    encode = "json"
+  )
+  
+  # 4. Error Handling
+  # If the internet is down or the key is wrong, stop.
+  if (http_error(response)) {
+    return("API_ERROR")
+  }
+  
+  # 5. Parsing (Extracting the answer)
+  # The response is a complex list. We dig down to find the text.
+  parsed <- content(response, as = "parsed")
+  result_text <- parsed$candidates[[1]]$content$parts[[1]]$text
+  
+  # Clean up any extra newlines (often AI adds \n at the end)
+  return(trimws(result_text))
+}
+```
+
+# 4. Running the Pipeline
+Now we use the `rowwise()` workflow. This sends our data to the API one row at a time.
+
+*Pro-Tip: When testing APIs, start with `head(3)` so you don't accidentally process 1,000 rows and hit a rate limit.*
+
+```{r apply-ai, eval=FALSE}
+# set eval=TRUE when running on your own machine with a real key!
+
+classified_data <- complaints_data %>% 
+  rowwise() %>% 
+  mutate(
+    # Pass the 'Text' column to our new function
+    Predicted_Category = ask_gemini(Text)
+  ) %>% 
+  ungroup()
+
+# View the results
+classified_data %>% 
+  select(Text, Predicted_Category)
+```
+
+**Expected Output (if you ran the code):**
+```
+# A tibble: 5 × 2
+  Text                                                      Predicted_Category
+  <chr>                                                     <chr>             
+1 The waiting room was freezing and the chairs were broken. Facility          
+2 I am still having sharp pain in my side after the surg... Clinical          
+3 My insurance was billed twice for the same xray.          Administrative    
+4 The nurse was very kind but the doctor seemed rushed.     Clinical          
+5 Nobody picked up the phone when I called to reschedule.   Administrative    
+```
+
+# 5. Handling "Hallucinations" & Errors
+Even the best AI makes mistakes. As a sociologist, you must validate the data.
+
+### 1. Check for Non-Conformity
+Sometimes, the AI might output sentences like *"I think this is Clinical"* instead of just *"Clinical"*. We can find these errors easily:
+
+```{r validation, eval=FALSE}
+# Check what categories showed up
+table(classified_data$Predicted_Category)
+
+# Filter for rows that didn't match our expected list
+errors <- classified_data %>% 
+  filter(!Predicted_Category %in% c("Clinical", "Administrative", "Facility"))
+
+print(errors)
+```
+
+### 2. Privacy Check (HIPAA/GDPR)
+**CRITICAL:** Google AI Studio (Free Tier) may use input data to improve their models.
+* **NEVER** send real patient names, DOBs, or MRNs to this API.
+* **ALWAYS** scrub the data (de-identify) locally in R before sending it to the cloud.
+
+# 6. Advanced Challenge
+The comment *"The nurse was nice but the billing is wrong"* contains **both** Clinical and Administrative elements.
+
+**Your Task:**
+Modify the `prompt_text` inside the function to ask the AI to return "Mixed" if multiple issues are present. Run the code again on a new custom string and see if it works.

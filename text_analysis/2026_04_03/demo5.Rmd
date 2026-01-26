@@ -1,0 +1,233 @@
+---
+title: "Capstone Project: The Sociology of 'Deaths of Despair'"
+author: "Neel Agarwal"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: lumen
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(lubridate)
+library(gtsummary)  # For professional tables
+library(broom)      # For tidying model outputs
+library(scales)     # For nice graph labeling
+```
+
+# 1. The Research Hypothesis
+**Context:** "Deaths of Despair" (Case & Deaton) suggests that economic hardship and social isolation drive poor health outcomes.
+
+**Research Question:** Does **Social Isolation** predict higher 30-day hospital readmission rates, even after controlling for clinical severity and neighborhood poverty?
+
+**Hypothesis ($H_1$):** Patients with high isolation scores will have higher odds of readmission, but this effect is moderated by Neighborhood Poverty (Interaction Effect).
+
+# 2. Simulating the "Real-World" Data Ecosystem
+In a real study, you never get one file. You get three. We will simulate this fragmented ecosystem:
+
+1.  **EMR (Clinical):** Visits, diagnosis codes (ICD-10), dates.
+2.  **Social Work Survey:** Isolation scores (collected by social workers).
+3.  **Census Data:** Neighborhood poverty rates (public data).
+
+```{r data-simulation}
+set.seed(2026) 
+n_patients <- 1000
+
+# --- 1. Clinical EMR Data (Messy) ---
+emr_data <- data.frame(
+  Patient_ID = 1:n_patients,
+  # Dates stored as text (common headache)
+  Admit_Date_Str = sample(seq(as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), n_patients, replace = TRUE),
+  # ICD-10 Codes (F32=Depression, I10=Hypertension, J45=Asthma)
+  Primary_Dx = sample(c("F32.9", "I10", "J45", "F32.9", "E11"), n_patients, replace = TRUE, prob = c(0.3, 0.2, 0.2, 0.1, 0.2)),
+  # Comorbidity Index (Charlson Score) - Skewed data
+  Charlson_Score = rpois(n_patients, lambda = 2)
+) %>%
+  mutate(
+    # Simulate Discharge Date (Admit + Length of Stay)
+    Length_Stay = rpois(n_patients, 5) + 1,
+    Discharge_Date_Str = as.character(as.Date(Admit_Date_Str) + Length_Stay),
+    # Simulate Outcome: Readmission (linked to Charlson Score + Randomness)
+    # This creates a "ground truth" where sicker patients readmit more
+    Readmit_30_Day = rbinom(n_patients, 1, prob = plogis(-2 + 0.3*Charlson_Score))
+  )
+
+# --- 2. Social Work Survey (Incomplete) ---
+# Not everyone gets surveyed. We introduce "Missing Not At Random" (MNAR)
+survey_data <- data.frame(
+  Patient_ID = sample(1:n_patients, 850), # 150 patients missing
+  # UCLA Loneliness Scale (20-80, higher is lonelier)
+  Isolation_Score = round(rnorm(850, mean = 45, sd = 10)),
+  # Patient Zip Code
+  Zip_Code = sample(c("43210", "43201", "43215", "43085"), 850, replace = TRUE)
+)
+
+# --- 3. Census Bureau Data (External) ---
+census_data <- data.frame(
+  Zip_Code = c("43210", "43201", "43215", "43085"),
+  # Poverty Rate (%)
+  Neighborhood_Poverty = c(32.5, 45.2, 12.8, 5.4)
+)
+```
+
+# 3. Data Wrangling & Engineering
+We must merge these files, clean the dates, and handle the missing survey data.
+
+```{r wrangling}
+# Step 1: Clean Clinical Data
+clean_emr <- emr_data %>% 
+  mutate(
+    Admit_Date = ymd(Admit_Date_Str),
+    Discharge_Date = ymd(Discharge_Date_Str),
+    # Feature Engineering: Categorize Diagnosis
+    Dx_Category = case_when(
+      str_starts(Primary_Dx, "F") ~ "Psychiatric",
+      str_starts(Primary_Dx, "I") ~ "Cardiovascular",
+      str_starts(Primary_Dx, "E") ~ "Endocrine",
+      TRUE ~ "Other"
+    )
+  )
+
+# Step 2: The "Master Merge"
+# We use left_join because we want to keep all clinical patients, even if they lack survey data.
+master_dataset <- clean_emr %>% 
+  left_join(survey_data, by = "Patient_ID") %>% 
+  left_join(census_data, by = "Zip_Code")
+
+# Step 3: Handling Missing Data
+# In advanced analysis, we check *who* is missing.
+# For this tutorial, we will drop NAs but acknowledge the limitation.
+analytic_cohort <- master_dataset %>% 
+  drop_na(Isolation_Score, Neighborhood_Poverty) %>% 
+  mutate(
+    # Important: Ensure Outcome is a Factor for modeling
+    Readmit_Factor = factor(Readmit_30_Day, labels = c("No", "Yes")),
+    # Scale variables for better model convergence (Z-scores)
+    Isolation_Z = scale(Isolation_Score),
+    Poverty_Z = scale(Neighborhood_Poverty)
+  )
+
+glimpse(analytic_cohort)
+```
+
+# 4. Descriptive Statistics (Table 1)
+Before modeling, we must understand our population. We categorize Isolation scores into quartiles just for the table (easier to read).
+
+```{r table1}
+analytic_cohort %>% 
+  mutate(Isolation_Group = ntile(Isolation_Score, 4)) %>% 
+  select(Readmit_Factor, Dx_Category, Charlson_Score, Isolation_Score, Neighborhood_Poverty) %>% 
+  tbl_summary(
+    by = Readmit_Factor, 
+    label = list(
+      Dx_Category ~ "Primary Diagnosis",
+      Charlson_Score ~ "Clinical Severity Index",
+      Isolation_Score ~ "UCLA Loneliness Score",
+      Neighborhood_Poverty ~ "Neighborhood Poverty (%)"
+    ),
+    statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>% 
+  add_p() %>% 
+  bold_labels()
+```
+
+# 5. Statistical Modeling: Logistic Regression
+We build two models to test our hypothesis:
+1.  **Model A (Base):** Clinical factors only.
+2.  **Model B (Sociological):** Adds Isolation and Poverty.
+
+```{r modeling}
+# Model 1: Clinical Only
+m1 <- glm(Readmit_30_Day ~ Charlson_Score + Dx_Category, 
+          data = analytic_cohort, family = "binomial")
+
+# Model 2: Clinical + Sociological
+m2 <- glm(Readmit_30_Day ~ Charlson_Score + Dx_Category + Isolation_Score + Neighborhood_Poverty, 
+          data = analytic_cohort, family = "binomial")
+
+# Compare Model Fit (AIC - Lower is Better)
+cat("Model 1 AIC:", AIC(m1), "\n")
+cat("Model 2 AIC:", AIC(m2), "\n")
+```
+
+# 6. Advanced Visualization: The "Forest Plot"
+In medical sociology journals, regression results are rarely shown as raw text tables. They are visualized as **Forest Plots** of Odds Ratios.
+
+We will use `broom::tidy` to extract the math and `ggplot2` to draw it.
+
+```{r forest-plot, fig.height=5, fig.width=8}
+# 1. Tidy the model results
+model_results <- tidy(m2, conf.int = TRUE, exponentiate = TRUE) %>% 
+  # Remove the Intercept (it distorts the plot scale)
+  filter(term != "(Intercept)") %>% 
+  # Clean up term names for the plot
+  mutate(term = case_when(
+    term == "Charlson_Score" ~ "Clinical Severity",
+    term == "Isolation_Score" ~ "Social Isolation",
+    term == "Neighborhood_Poverty" ~ "Neighborhood Poverty",
+    TRUE ~ term # Keep diagnosis names as is
+  ))
+
+# 2. The Plot
+ggplot(model_results, aes(x = estimate, y = reorder(term, estimate))) +
+  # Reference line at OR = 1 (No effect)
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
+  
+  # Error bars (95% Confidence Interval)
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2, color = "darkblue") +
+  
+  # Point estimate
+  geom_point(size = 3, color = "darkblue") +
+  
+  # Labels and scales
+  scale_x_log10() + # Log scale is standard for Odds Ratios
+  labs(
+    title = "Predictors of 30-Day Readmission",
+    subtitle = "Multivariate Logistic Regression (Adjusted Odds Ratios)",
+    x = "Odds Ratio (Log Scale)",
+    y = "",
+    caption = "Error bars represent 95% Confidence Intervals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
+```
+
+# 7. Visualization 2: The Social Gradient
+To interpret the effect of Poverty, we often need a predicted probability plot. This shows the "Real world" impact.
+
+```{r probability-plot}
+# Create a "dummy" dataset to predict over
+# We hold clinical factors constant (at their average) and vary Poverty
+pred_data <- expand.grid(
+  Neighborhood_Poverty = seq(0, 60, by = 5),
+  Isolation_Score = mean(analytic_cohort$Isolation_Score), # Average isolation
+  Charlson_Score = mean(analytic_cohort$Charlson_Score),   # Average severity
+  Dx_Category = "Cardiovascular"                           # Reference diagnosis
+)
+
+# Add predictions
+pred_data$Predicted_Prob <- predict(m2, newdata = pred_data, type = "response")
+
+# Plot
+ggplot(pred_data, aes(x = Neighborhood_Poverty, y = Predicted_Prob)) +
+  geom_line(color = "firebrick", size = 1.2) +
+  geom_ribbon(aes(ymin = Predicted_Prob - 0.05, ymax = Predicted_Prob + 0.05), 
+              alpha = 0.1, fill = "firebrick") + # Fake CI for visual demo
+  scale_y_continuous(labels = percent_format()) +
+  labs(
+    title = "Impact of Neighborhood Poverty on Readmission Risk",
+    subtitle = "Predicted probability for an average Cardiovascular patient",
+    y = "Probability of Readmission",
+    x = "Neighborhood Poverty Rate (%)"
+  ) +
+  theme_light()
+```
+
+# 8. Discussion Questions
+1.  **The "Black Box" Problem:** If `Charlson_Score` is the strongest predictor (highest Odds Ratio), why do we care about Poverty? (Hint: Think about *modifiable risk factors*).
+2.  **Data Quality:** We dropped 150 patients who were missing Survey Data. If the most socially isolated people are the *least* likely to answer surveys, how does that bias our results?
+3.  **AI Integration:** If we had the doctors' free-text discharge notes, how could we use the `ask_gemini()` function from the previous lesson to extract "Social Isolation" flags for patients who didn't take the survey?

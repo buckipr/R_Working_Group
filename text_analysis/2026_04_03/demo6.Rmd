@@ -1,0 +1,173 @@
+---
+title: "Capstone: Advanced Sociological Analysis in R"
+subtitle: "Testing 'Deaths of Despair' Hypotheses with Real-World Constraints"
+author: "Instructor Version"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+# Install these if missing: install.packages(c("ggeffects", "naniar", "car"))
+library(tidyverse)
+library(lubridate)
+library(gtsummary)  # Professional Tables
+library(broom)      # Tidy Model Output
+library(ggeffects)  # For visualizing Interaction Effects
+library(naniar)     # For visualizing Missing Data
+library(car)        # For VIF (Multicollinearity checks)
+```
+
+# 1. Theoretical Framework
+**The "Deaths of Despair" Hypothesis:**
+Economists Case & Deaton argue that rising mortality in certain groups is driven by cumulative disadvantage: economic struggle, social isolation, and loss of community.
+
+**Our Advanced Research Question:**
+Does the effect of **Social Isolation** on hospital readmission vary by **Neighborhood Poverty**? 
+*(i.e., Is isolation more dangerous for poor patients than for wealthy ones? This is an Interaction Effect.)*
+
+# 2. Advanced Data Simulation
+We will simulate a dataset with two realistic "flaws":
+1.  **Missing Not At Random (MNAR):** Sicker, more isolated patients are *less* likely to complete the social survey.
+2.  **Interaction Effect:** The code specifically generates higher readmission risk when *both* Isolation and Poverty are high.
+
+```{r simulation}
+set.seed(2026)
+n <- 1200
+
+# --- Step 1: Base Clinical Data ---
+cohort <- data.frame(
+  ID = 1:n,
+  Age = round(rnorm(n, 65, 10)),
+  Gender = sample(c("Male", "Female"), n, replace = TRUE),
+  Charlson_Index = rpois(n, 2) # Clinical Severity (0-10 scale)
+)
+
+# --- Step 2: Social Exposures ---
+cohort <- cohort %>% 
+  mutate(
+    # Neighborhood Poverty Rate (0-40%)
+    Poverty_Rate = runif(n, 0, 40),
+    
+    # Isolation Score (0-100). 
+    # Note: We make Isolation correlated with Poverty (Sociological Realism)
+    Isolation_Score = 30 + (0.5 * Poverty_Rate) + rnorm(n, 0, 15),
+    
+    # Cap score at 100
+    Isolation_Score = pmin(Isolation_Score, 100)
+  )
+
+# --- Step 3: The Outcome (with Interaction) ---
+# Log-odds calculation:
+# 1. Base risk from Sickness (Charlson)
+# 2. Risk from Isolation
+# 3. EXTRA Risk if both Poverty AND Isolation are high (The Interaction Term)
+logits <- -3 + 
+  (0.4 * cohort$Charlson_Index) + 
+  (0.02 * cohort$Isolation_Score) + 
+  (0.001 * (cohort$Isolation_Score * cohort$Poverty_Rate)) # Interaction!
+
+cohort$Readmitted <- rbinom(n, 1, plogis(logits))
+
+# --- Step 4: Injecting "Realism" (Missing Data) ---
+# Patients with high Isolation are 40% more likely to refuse the survey.
+cohort <- cohort %>% 
+  mutate(
+    Survey_Missing_Prob = plogis(-2 + 0.03 * Isolation_Score),
+    Is_Missing = rbinom(n, 1, Survey_Missing_Prob),
+    # If Missing, set Isolation_Score to NA
+    Isolation_Score_Observed = ifelse(Is_Missing == 1, NA, Isolation_Score)
+  )
+
+glimpse(cohort)
+```
+
+# 3. Forensic Data Analysis: Who is Missing?
+In introductory classes, we just `drop_na()`. In advanced sociology, we ask: **"Who are we erasing?"**
+
+If we drop the missing rows, are we biasing our study? Let's check if the people missing surveys are clinically different from those who answered.
+
+```{r missing-analysis}
+# Create a flag for "Missing Survey"
+cohort %>% 
+  mutate(Missing_Survey = is.na(Isolation_Score_Observed)) %>% 
+  select(Missing_Survey, Age, Charlson_Index, Readmitted, Poverty_Rate) %>% 
+  tbl_summary(by = Missing_Survey) %>% 
+  add_p() 
+```
+
+**Interpretation:** Look at the table above. If the p-value for `Readmitted` or `Charlson_Index` is significant (<0.05), it proves our data is **biased**. The people we dropped were likely sicker. *We will proceed with the analysis, but we must note this limitation in our Discussion.*
+
+# 4. Modeling the Interaction
+We use `*` in the formula to tell R to test the interaction.
+`Isolation * Poverty` is shorthand for: `Isolation + Poverty + (Isolation x Poverty)`.
+
+```{r modeling}
+# Filter for complete cases for the model
+analytic_data <- cohort %>% drop_na(Isolation_Score_Observed)
+
+# Build the Interaction Model
+interaction_model <- glm(
+  Readmitted ~ Age + Charlson_Index + Isolation_Score_Observed * Poverty_Rate,
+  data = analytic_data,
+  family = "binomial"
+)
+
+# Show tidy results
+tidy(interaction_model, conf.int = TRUE, exponentiate = FALSE) %>% 
+  filter(term == "Isolation_Score_Observed:Poverty_Rate") %>% 
+  select(term, estimate, p.value)
+```
+**Interpretation:** If the interaction term p-value is significant, it confirms our hypothesis: Poverty changes how dangerous isolation is.
+
+# 5. Visualizing the Interaction (Marginal Effects)
+Interaction terms are impossible to read from a table. We must plot them. We will visualize the probability of readmission as Isolation increases, split by "Low Poverty" vs "High Poverty" neighborhoods.
+
+```{r interaction-plot}
+# Calculate Marginal Effects
+# "At what levels of Poverty do we want to check?" -> 5% (Wealthy) and 35% (Poor)
+effects <- ggpredict(interaction_model, terms = c("Isolation_Score_Observed", "Poverty_Rate [5, 35]"))
+
+# Plot
+ggplot(effects, aes(x = x, y = predicted, color = group)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = group), alpha = 0.1, color = NA) +
+  labs(
+    title = "The 'Double Burden' of Poverty and Isolation",
+    subtitle = "Predicted Readmission Probability by Isolation Score & Neighborhood Status",
+    x = "Social Isolation Score (0-100)",
+    y = "Probability of Readmission",
+    color = "Neighborhood Poverty",
+    fill = "Neighborhood Poverty"
+  ) +
+  scale_color_manual(values = c("5" = "steelblue", "35" = "firebrick"), labels = c("Low Poverty (5%)", "High Poverty (35%)")) +
+  scale_fill_manual(values = c("5" = "steelblue", "35" = "firebrick"), labels = c("Low Poverty (5%)", "High Poverty (35%)")) +
+  theme_minimal()
+```
+**Visual Analysis:**
+* Look at the **Slopes**.
+* If the Red Line (High Poverty) is steeper than the Blue Line (Low Poverty), it means Isolation is *more dangerous* for poor patients.
+* This visualizes the concept of "Vulnerability."
+
+# 6. Model Diagnostics (The "Sanity Check")
+Before publishing, we must check for **Multicollinearity**. Did we include variables that are too similar? (e.g., Poverty and Isolation are correlated).
+We use the Variance Inflation Factor (VIF).
+
+```{r diagnostics}
+# Check VIF
+vif(interaction_model)
+```
+**Rule of Thumb:** A VIF > 5 is problematic.
+* *Note: Interaction terms always have high VIF because they are made of the other variables. This is expected. Look at Age and Charlson—are they low (<2)? Good.*
+
+# 7. Assignment: The "AI" Rescue
+We simulated missing data earlier. In a real job, you might try to "impute" (fill in) that missing data.
+
+**Challenge:**
+Write a prompt for an AI (ChatGPT/Gemini) that asks it to write R code to perform **"Multiple Imputation using the `mice` package"** for this dataset.
+* *Hint: You must tell the AI that the data is likely "Missing Not At Random" based on your Table 1 analysis.*

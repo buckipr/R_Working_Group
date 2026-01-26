@@ -1,0 +1,176 @@
+---
+title: "R Tutorial: Analyzing Healthcare Equity"
+author: "Neel Agarwal"
+output: 
+  html_document:
+    theme: minty
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. The Setup (Loading Packages)
+Think of R like a smartphone. "Packages" are the apps we download to do specific tasks. We need the `tidyverse` "app" for almost everything we do.
+
+```{r packages, message=FALSE, warning=FALSE}
+# This package helps us clean and graph data easily
+library(tidyverse)
+```
+
+# 2. Creating Data
+Usually, you will load an Excel or CSV file. However, to understand how R "thinks," we will create a small sample dataset right here representing 10 patients in an Emergency Room.
+
+We are looking at three variables:
+1. **Patient_ID**: An anonymous number.
+2. **Insurance_Type**: "Private" vs. "Medicaid" (Social Stratification).
+3. **Wait_Time_Minutes**: How long they waited to see a doctor (Health Outcome).
+
+```{r create-data}
+# We are creating a "Data Frame" (think of this as an Excel sheet)
+er_data <- data.frame(
+  Patient_ID = 1:10,
+  Insurance_Type = c("Private", "Private", "Private", "Private", "Private",
+                     "Medicaid", "Medicaid", "Medicaid", "Medicaid", "Medicaid"),
+  Wait_Time_Minutes = c(15, 20, 18, 25, 22, 
+                        45, 60, 50, 55, 40)
+)
+
+# Let's "print" the data to the screen to verify it looks right
+print(er_data)
+```
+
+# 3. Analyzing the Data
+Now we want to ask a sociological question: **"On average, do patients with Medicaid wait longer?"**
+
+We will use the `group_by()` and `summarize()` commands. These are the "bread and butter" of data analysis in R.
+
+```{r analysis}
+er_data %>% 
+  # Step 1: Split the data into piles based on Insurance
+  group_by(Insurance_Type) %>% 
+  
+  # Step 2: Calculate the average wait time for each pile
+  summarize(
+    Average_Wait = mean(Wait_Time_Minutes),
+    Total_Patients = n()
+  )
+```
+
+# 4. Visualizing the Disparity
+Numbers are good, but pictures are better. We will use `ggplot` (Grammar of Graphics) to draw a boxplot.
+
+* **Aesthetics (aes):** We tell R that "Insurance" goes on the X-axis, and "Wait Time" goes on the Y-axis.
+* **Geometry (geom):** We tell R to draw a "boxplot".
+
+```{r plot}
+ggplot(data = er_data, aes(x = Insurance_Type, y = Wait_Time_Minutes, fill = Insurance_Type)) +
+  geom_boxplot() +
+  labs(
+    title = "ER Wait Times by Insurance Status",
+    subtitle = "Does insurance status affect care access?",
+    y = "Wait Time (Minutes)",
+    x = "Insurance Type"
+  ) +
+  theme_minimal()
+```
+
+
+
+# 5. Example Code from a Previous Work (Unpublished, but feel free to ask questions and if you want to mess around with the code!)
+I wrote this code in 2023 as part of an endeavour to predict liver ultrasound results given a patient's other clinical measurements (due to barriers of care in obtaining a liver ultrasound). While I never went forward with the project due to hurdles with data completeness as well as time limitations, I include this code below to show you that R is a powerful tool that goes beyond "visualizing" data and simple "analysis" or "cleaning". We can use it to run machine learning algorithms, predictions, etc. Ask me any questions you have and if you would like, figure out how to run it ;) I can give you all my example data!
+
+* **Data manipulation (filter, select, mutate etc.)** Any command followed by a %>% is from a package called dplyr. These help us wrangle and clean data.
+* **Data manipulation (as.numeric, etc.):** These are "Base R" commands to change data types, which make analysis easier and more simple. Useful for changing categorical to continuous variables.
+* **Data Analysis (inital_split, training, testing, glm, predict, etc. )** These commands are mainly to split my dataset for training and testing of a glm (logistic model) and predict uses the model to output the y value, essentially.
+* **Data Visualization (summary, cor, plot)** These commands allow me to peek at the data, get the correlation coefficient (r), and scatterplot everything to see how good it looks.
+
+```{r setup2, include=FALSE}
+# # top part is double commented out because this "chunk" is usually the first part of the document (where we have similar import statements). I have put it here just to show you that sometimes this gets long! I like to "add" to my reservoir of packages, but general practice is to remove packages you don't need :) 
+# # knitr::opts_chunk$set(
+# # 	echo = TRUE,
+# # 	message = FALSE,
+# # 	warning = FALSE
+# # )
+# library(MASS)
+# library(glmnet)
+# library(geepack)
+# library(naniar)
+# library(AICcmodavg)
+# library(xgboost)
+# library(tableone)
+# library(rpart)
+# library(rms)
+# library(Hmisc)
+# library(janitor)
+# library(transplantr)
+# library(tibble)
+# library(GGally)
+# library(foreign)
+# library(readr)
+# library(dplyr)
+# library(randomForest)
+# library(missForest)
+# library(survival)
+# library(ranger)
+# library(ggplot2)
+# library(dplyr)
+# library(ggfortify)
+# library(tidyr)
+# library(foreach)
+# library(doParallel)
+# library(bigstatsr)
+# library(Rfast)
+# library(casebase)
+# library(visreg)
+# library(splines)
+# library(ggplot2)
+# library(survival)
+# library(survminer)
+# library(gtsummary)
+# library(finalfit)
+# library(readxl)
+# library(ggsurvfit)
+# library(kableExtra)
+# library(imbalance)
+# library(patchwork)
+# library(vip)
+# library(rsample)   
+# library(caret)     
+# library(h2o)       
+# library(doParallel)
+# library(foreach) 
+# library(pdp)
+# library(pROC)
+# library(rpart)       
+# library(ipred)  
+# # h2o set-up 
+# h2o.no_progress()  # turn off h2o progress bars
+# h2o.init()         # launch h2o
+# cl <- makeCluster(16) # machine learning only, helpful to include if you have a beefy computer or multicore
+# registerDoParallel()
+```
+
+
+```{r}
+liver<- liver2017 %>% filter(age >=18, luanmvgp>=10)%>% select(age, t2dm, gender, race, lbxglu, waist, bmi, bpxsar, bpxdar, mi, chf, tia, high_bp, luxcapm, e_gfr_averaged, cad,lbxsal, lbxscr, lbdhdl, lbxtr, lbdldl, lbxtc, lbxsca, lbxstb, lbxsbu, lbxsnasi, lbxsksi, lbxsc3si, lbxsclsi, lbxsapsi, lbxsatsi, lbxsassi) %>% na.omit() %>% mutate( lbxsal= as.numeric(lbxsal), lbxscr= as.numeric(lbxscr),lbdhdl= as.numeric(lbdhdl),lbxtr= as.numeric(lbxtr),lbdldl= as.numeric(lbdldl),lbxtc= as.numeric(lbxtc),lbxsca= as.numeric(lbxsca),lbxstb= as.numeric(lbxstb),lbxsbu= as.numeric(lbxsbu),lbxsnasi= as.numeric(lbxsnasi),lbxsksi= as.numeric(lbxsksi),lbxsc3si= as.numeric(lbxsc3si),lbxsclsi= as.numeric(lbxsclsi),lbxsapsi= as.numeric(lbxsapsi),lbxsatsi= as.numeric(lbxsatsi),lbxsassi= as.numeric(lbxsassi)) %>% mutate(lbxglulog = log(lbxglu))%>% mutate(egfrlog = log(e_gfr_averaged))%>% mutate(lbxsallog = log(lbxsal))%>% mutate(lbxscrlog = log(lbxscr))%>% mutate(lbdhdllog = log(lbdhdl))%>% mutate(lbxtrlog = log(lbxtr))%>% mutate(lbxtclog = log(lbxtc))%>% mutate(lbxscalog = log(lbxsca))%>% mutate(lbxtclog = log(lbxtc))%>% mutate(lbxstblog = log(lbxstb))%>% mutate(lbxsbulog = log(lbxsbu))%>% mutate(lbxsnasilog = log(lbxsnasi))%>% mutate(lbxsksilog = log(lbxsksi))%>% mutate(lbxsc3silog = log(lbxsc3si))%>% mutate(lbxsclsilog = log(lbxsclsi))%>% mutate(lbxsapsilog = log(lbxsapsi))%>% mutate(lbxsatsilog = log(lbxsatsi))%>% mutate(lbxsassilog = log(lbxsassi)) %>% mutate(gender = (as.factor(gender)))%>% mutate(race = (as.factor(race))) %>% rowwise() %>% filter_if(~is.numeric(.), all_vars(!is.infinite(.)))
+
+split <- initial_split(liver, prop = 0.8)
+train  <- training(split) # this "section" is to create a logistic model on a small subset of the data to "train" a stepped-down model to fit the data
+test   <- testing(split)
+full.model <- glm(luxcapm ~., data = train)
+summary(full.model)
+predicted <- predict(full.model, test, type="response")
+predicted[is.infinite(predicted)] <- 400
+cor(test$luxcapm, predicted)
+plot(test$luxcapm, predicted)
+
+step.model <- full.model %>% stepAIC(trace = FALSE)
+summary(step.model)
+predicted <- predict(step.model, test, type="response") # this is to "test" the model on the data the model didn't "train on"
+cor(test$luxcapm, predicted)
+plot(test$luxcapm, predicted)
+```
+
+
