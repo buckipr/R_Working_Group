@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Maximizing Research Efficiency</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.21/header-attrs.js"></script>
+    <link rel="stylesheet" href="buckeye.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Maximizing Research Efficiency
+]
+.subtitle[
+## R Working Group
+]
+.date[
+### December 7th, 2023
+]
+
+---
+
+
+
+
+
+class:: inverse, center, middle
+
+&lt;font size="10"&gt;TLDR...&lt;/font&gt;
+
+
+---
+class:: inverse, center, middle
+background-image: url(img/tortoise_hare.jpg)
+background-size: contain
+
+
+---
+# Motivation
+
+* I've got a meeting on Friday at 9:45am.  I promised to show my advisor results for X, Y, and Z.
+It is 10:57pm on Thursday, and I haven't started yet.
+
+--
+
+* 👍🏾 My article got an R&amp;R.  Wait, now I have to make sense of code I wrote
+8 months ago? 🤦🏾‍♀️ (see first quote)
+
+
+---
+# Introduction
+
+* Two components of research efficiency
+
+  + building efficient infrastructure for your projects
+
+  + automate repetitive and tedious tasks
+  
+--
+
+* Time-consuming investments...
+
+  + you will be slow off the starting line
+  
+  + but there will be returns on these investments!
+
+
+---
+# Introduction
+
+* Goals for today
+
+  + embrace our imperfections and value reproducibility (while leaning heavily on automation)
+
+  + learn about about specific investments &amp; good habits to improve research efficiency
+
+--
+
+* [Motivational words of wisdom](https://github.com/kbroman/datasciquotes)
+
+--
+
+* GitHub Repository: [github.com/buckipr/R_Working_Group/efficiency](https://github.com/buckipr/R_Working_Group/efficiency)
+
+
+---
+# Game plan
+
+* **Project Organization**
+
+  + layout of folders and files
+  
+  + documentation (markdown is useful here!)
+  
+  + tips for `code`
+  
+* **Tools**
+
+  + passing the baton (dynamic documents &amp; related tools)
+
+  + version control &amp; GitHub
+
+
+---
+class: inverse, center, middle
+
+# &lt;p style="color:red;"&gt; Project Organization &lt;/p&gt;
+
+
+---
+class: slide-font-25
+# Project Organization
+
+&gt; "Well begun is half done"
+&gt; &lt;footer&gt;--- Mary Poppins&lt;/footer&gt;
+
+Before you even look at any data...
+
+--
+
+* **COMPARTMENTALIZE** -- create all the folders you will need for the project
+
+  + keep data with data, code with code, results with results, etc.
+
+--
+
+* create a `README.md` file
+   
+   + anyone who needs to newly understand how everything works &lt;br&gt; (i.e., you in 4 months)
+   will thank you for this
+
+* create a `run_all.R` master file
+
+
+---
+class: no-slide-number
+
+# Example Project Layout
+
+&lt;pre&gt;&lt;span class="inner-pre" style="font-size: 28px"&gt;
+|-- README.md
+|-- run_everything.R (??)
+|-- Code
+|   |-- run_everything.R (??)
+|   |-- clean_data.R
+|   |-- run_and_export_models.R
+|   |-- create_tables.R
+|   |-- create_figures.R
+|   |-- sensitivity_analysis.R
+|
+|-- Data
+|   |-- Original_Data
+|   |   |-- original_file_downloaded_2022_03_21.csv
+|   |   |-- code_book_downloaded_2022_03_21.cbk
+|   |-- Cleaned_Data
+|   |   |-- analytic_sample.RData
+|   |   |-- cleaned_with_new_variables.RData
+|   |   |-- sensitivity_analysis_new_age_cutoff.RData
+|   |   |-- sensitivity_analysis_imputed_income.RData
+|
+|-- Drafts
+|   |-- Demography
+|   |
+|   |-- Population_Studies
+|   |   |-- original_submission_2023_08_18.docx
+|   |   |-- revise_resubmit_2056_02_11.docx
+|   |   |-- letter_revise_resubmit_2056_02_11.docx
+|
+|-- Figures
+|   |-- EDA
+|   |   |-- scatter_plot_x_y.pdf
+|   |   |-- hist_income.pdf
+|   |   |-- educ_dist_by_race.pdf
+|   |
+|   |-- fig1_univariate_dist.pdf
+|   |-- fig2_map_life_expectancy_county.pdf
+|   |-- fig3_model4_marginal_effects.pdf
+|
+|-- Tables
+|   |-- table1_data_sources.csv
+|   |-- table2_descriptive_statistics.csv
+|   |-- table3_sample_selection.csv
+|   |-- table4_models.csv
+|   |-- table4_predicted_probabilities.csv
+|
+|-- Presentations
+|   |-- paa_slides_2021.Rmd
+|   |-- paa_slides_2023.Rmd
+|   |-- ipr_seminar_2022_03.Rmd
+&lt;/span&gt;&lt;/pre&gt;
+
+
+---
+# README.md
+  
+* This is the first file you create in the project folder
+  + describe the sequence of steps for how you go from the original data file(s) to the accepted manuscript
+  + describe the layout of the project folder
+  + (overachiever) describe what the different files do
+  + [An example](https://github.com/buckipr/R_Working_Group/blob/main/efficiency/example_project_folder/README.md)
+
+* **Markdown** is a language (like HTML) that allows you to easily add formatting to plain text
+
+  + [Test drive](https://markdownlivepreview.com/)
+
+  + [Markdown Guide](https://www.markdownguide.org/extended-syntax/) &amp; [GitHub's Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+
+---
+# `run_all.R` master file
+  
+Use a master file to run every step of the process
+
+* This will automate and simplify the task of reproducing all of your work
+  
+  + (with the side benefit of helping you keep everything organized)
+
+--
+
+* It can get a little tricky dealing with **paths** to files, so keep track of
+
+  + the current working directory
+  
+  + where you are reading (saving) input (output) files
+  
+  + PRACTICE AND TEST!!!!
+
+
+---
+# `run_all.R` -- How to...
+
+* Separate each logical step into different R scripts
+
+  + data cleaning, fit models, make plots/tables, additional data prep &amp; analyses
+  for revise and resubmit
+
+--
+  
+* Use the `source("path/to/script.R")` command to run each script in the appropriate sequence
+  
+  + `system2("path")` is an appealing alternative
+  
+  + other useful commands: `getwd()`, `setwd()`, `dir()`,
+  `dir.create()`, `unlink()`, `file.exists()`, `file.remove()`
+
+
+---
+class: slide-font-25
+# Dealing with paths
+  
+Example layout for project
+
+* `/projects/cool_prj/run_all.R`
+* `/projects/cool_prj/R Code/prepare_data.R`
+* `/projects/cool_prj/Original Data/og_data.csv`
+* `/projects/cool_prj/Figures`
+
+Possible Strategies
+
+* Set and leave the working directory; all paths relative  to `/projects/cool_prj`
+
+* Set the working directory in each R script (and potential reset the working directory at the
+end of each script)
+
+* [example](https://github.com/buckipr/R_Working_Group/blob/main/efficiency/example_project_folder/run_all.R)
+
+---
+# Coding Tips
+
+* Templates are your friend!
+
+* Start your R scripts with a comment block containing...
+
+   + a description of what this file is supposed to do &lt;br&gt; (and what it depends on)
+  
+   + important dates (e.g., last edit) or version number
+   
+   + useful comments &lt;br&gt;
+   &lt;span style="font-size:16pt"&gt;
+   `# (2023-09-11) I tried recoding educashun but it didn't` &lt;br&gt;
+   `# improve the model fit...need more stars!`
+   &lt;/span&gt;
+
+---
+# More Coding Tips
+
+* Use comments to provide an organizational structure to long scripts
+
+   + too many (good) comments? it is easier to delete comments than to write them
+
+* DRY (don't repeat yourself)
+
+    + comments serve as methods excerpts
+
+    + for loops and functions
+    
+    + it is going to be a pain to rename files to account for a new figure so automate this!
+
+
+---
+# Find a good IDE or text editor
+
+* Integrated Development Environments offer tools and shortcuts to improve efficiency
+
+* The obvious example is RStudio: keyboard shortcuts &lt;br&gt;
+(for macs use `cmd` instead of `ctrl`)
+
+  + running lines/regions of code: `ctrl + enter`
+  + commenting: `ctrl + shift + c`
+  + indentation: `ctrl + i`
+  + in console, up arrow is previous command
+  + 😎 expand cursor: (`alt + click +` drag cursor across lines)
+
+* Visual Studio, Sublime, and 🖖🏾 Emacs (for the wicked!) are other IDEs
+useful for working with different file types/programs (including R)
+
+---
+class: inverse, center, middle
+
+# &lt;p style="color:red;"&gt; Tools &lt;/p&gt;
+
+
+
+---
+# Exporting Statistical Results
+
+* *Reminder*: embrace our imperfections
+
+* Copying and pasting regression coefficients and asterisks is a job for a really fast (but precise) moron,
+ namely, your computer
+
+--
+
+* Early on, same excellent tools were developed for exporting tables to other formats (e.g., CSV, LaTeX)
+
+  + This task has been somewhat complicated by journals asking for MS Word tables
+  
+  + More recently, **dynamic documents** have evolved into an excellent tool (worthy of investment)
+
+
+
+---
+# Say it with me: AUTOMATE!
+
+* The move towards integration
+
+  + A **dynamic document** weaves text, code, and results together into a single file (e.g., MS Word, PowerPoint,
+  LaTeX)
+  
+  + Useful for manuscripts, but also reports!
+  
+  + (But what about track changes?!?)
+
+
+---
+# Exporting &amp; Dyn Docs with R
+
+
+* [R Markdown](https://rmarkdown.rstudio.com/articles_intro.html) -- produce Word, PowerPoint, PDF (manuscript &amp; slides), &amp; HTML
+  
+  + you can run [Stata code](https://bookdown.org/yihui/rmarkdown-cookbook/eng-stata.html)!
+  
+* [officeverse](https://ardata-fr.github.io/officeverse/) - creating formatted tables for Word
+  
+* [stargazer](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf) - tables for PDF &amp; HTML (&amp; Word?)
+  
+* [kableExtra](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html) - tables for PDF &amp; HTML
+  
+
+
+
+---
+# Track Changes for Code
+
+* [**GitHub**](https://github.com) is an on-line service for tracking the history of each file in your project
+(i.e., **version control**)
+
+   + each project is stored in a *repository*, which can be made public or private (so only you and
+   your team can access the files)
+
+  + [how much space?](https://docs.github.com/en/github/managing-large-files/what-is-my-disk-quota)
+
+  + unlimited repositories (public and private); "abundant storage"; try to keep it under 1GB per repo
+
+* Software: [GitHub Desktop](https://desktop.github.com/) (but also hooks into fancy IDEs like R Studio 
+and VS Code)
+
+
+---
+# GitHub: additional features
+
+* Branches -- a separate copy of every file in your repository; make changes and (if all goes well)
+merge back with the main branch
+
+    + useful for trying new code/tools that *might* work; sensitivity analysis, 
+  
+* You can host your own website through GitHub: [R Working Group](https://buckipr.github.io/R_Working_Group/)
+  
+* Extensive userbase -- easy to find help online and many tools/libraries/packages are hosted on GitHub
+(help with errors and new features)
+
+* Excellent for group projects!
+
+
+---
+class: slide-font-25
+## GitHub: concepts and workflow
+
+* Start by creating a repository on the GitHub website
+
+* **clone** the repository -- creates a copy of all the files on your personal computer
+
+* Make new files and changes to your local copies, then **stage** all the files you want to keep track of
+
+* **commit** all of the files you have staged (you can also add a comment about what was done)
+
+  + this creates a new version (or snap shot) of your project
+  
+  + you can go back and look at previous commits (or revert to that version) and look at differences between
+  commits
+
+* **push** your files to GitHub so that your on-line repository has the latest version of the files
+
+
+---
+## Recap
+
+* Embrace our imperfections and value reproducibility (while leaning heavily on automation)
+
+* Make investments (and develop good habits) &amp;#8680; efficiency
+
+  + Project Organization
+
+  + Dynamic Documents
+  
+  + GitHub
+
+* Resources from today: &lt;br&gt; [github.com/buckipr/R_Working_Group/efficiency](github.com/buckipr/R_Working_Group/efficiency)
+
+
+---
+class: inverse, center, middle
+
+# &lt;p style="color:red;"&gt; Thank You! &lt;/p&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
