@@ -1,0 +1,861 @@
+---
+title: "End-to-End RNA-Seq Analysis in R: From Generative Simulation to Pathway Enrichment"
+author: "Neel Agarwal"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    theme: flatly
+    highlight: tango
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.height = 5.5,
+  fig.align = "center"
+)
+```
+
+# Overview & Environment Setup
+
+# Lesson Primer: Goals, R Paradigms, and Statistical Foundations
+
+## Goals of This Lesson
+
+Most RNA-seq tutorials hand you a pre-processed dataset from a public repository, tell you to run three functions, and show you a volcano plot. While that teaches you how to execute code, it hides *why* the workflow is designed the way it is—and leaves you guessing when your own experimental data behaves unexpectedly.
+
+**Our pedagogical approach is different: to truly understand a statistical model, you should first build the data it is designed to analyze.**
+
+By the end of this module, you will be able to:
+
+1. **Simulate ground-truth RNA-seq count matrices** from statistical first principles (Negative Binomial distribution), incorporating library depth variation, biological dispersion, and technical batch effects.
+2. **Import, clean, and validate real-world datasets** (`featureCounts` matrices and `Salmon`/`Kallisto` transcript quantifications) without falling into common R formatting traps.
+3. **Navigate Bioconductor's `SummarizedExperiment` / `DESeqDataSet` architecture** to keep expression matrices, sample metadata, and gene annotations synchronized.
+4. **Distinguish between normalization for statistical testing vs. transformation for visualization**, applying Median-of-Ratios for Generalized Linear Modeling (GLM) and Variance Stabilizing Transformation (`vst`) for PCA and clustering.
+5. **Execute a rigorous differential expression pipeline in `DESeq2`**, interpret dispersion and Log2 Fold Change (`apeglm`) shrinkage, and benchmark model recovery against known ground truth.
+6. **Translate gene lists into biological mechanisms** using threshold-free Gene Set Enrichment Analysis (`fgsea`).
+
+---
+
+## Prerequisites & Required Knowledge
+
+This tutorial is designed for researchers who understand the biological basics of transcription and sequencing (reads, alignments, exons, genes) and have basic exposure to programming (variables, functions, tabular data), but are new to the R/Bioconductor ecosystem.
+
+### The R & Bioconductor Syntax Crash Course
+
+Before running the code, familiarize yourself with six core R idioms that appear throughout this document:
+
+#### 1. Data Structures: `matrix` vs. `data.frame` vs. `tibble`
+* **`matrix`**: A 2D grid where **every element must be the same data type** (e.g., all integers or all decimals). Used for count tables and transformed expression matrices because mathematical operations on matrices are fast. Has both `rownames()` and `colnames()`.
+* **`data.frame`**: Base R's standard table where different columns can hold different types (e.g., Column 1 is character sample IDs, Column 2 is factor conditions, Column 3 is numeric RIN scores). Supports `rownames()`.
+* **`tibble`**: The modern `tidyverse` version of a `data.frame`. It prints cleanly to the console and never accidentally converts text strings into factors. **Nuance:** Tibbles discourage `rownames()`. When moving between `dplyr` pipes and Bioconductor functions, we frequently use `rownames_to_column("gene_id")` and `column_to_rownames("gene_id")`.
+
+#### 2. Vectorization
+R operates on entire vectors or matrices simultaneously without needing explicit `for` loops. If `x` is a vector of 4,000 gene lengths, writing `x / 1000` divides all 4,000 numbers at once. Similarly, `rowSums(counts(dds) >= 10) >= 4` checks every cell in a matrix to see if it is at least 10, counts how many samples pass per gene (`rowSums`), and returns a `TRUE`/`FALSE` vector for every gene.
+
+#### 3. The Native Pipe (`%>%`)
+Read `%>%` as *"and then pass the result into..."*. It takes the output of the expression on the left and passes it as the first argument to the function on the right:
+```r
+# Instead of nested parentheses from the inside out:
+head(arrange(filter(res_df, padj < 0.05), padj), 10)
+
+# We write sequential, readable steps from top to bottom:
+res_df %>%
+  filter(padj < 0.05) %>%
+  arrange(padj) %>%
+  slice_head(n = 10)
+```
+
+#### 4. Categorical Variables (`factor`) and Reference Levels
+In R, categorical variables (like `"Control"` vs. `"Treated"`, or `"Batch1"` vs. `"Batch2"`) must be stored as a **`factor`**. A factor has an explicit ordering of `levels`. 
+* The **first level** is treated by statistical models as the **baseline reference group** (the denominator in fold-change calculations).
+* **Trap:** By default, R assigns levels *alphabetically*. If your groups are `"WT"` and `"KO"`, `"KO"` comes first alphabetically, so R will calculate $\log_2(\text{WT} / \text{KO})$ unless you explicitly set the reference level using `relevel(condition, ref = "WT")` or `factor(condition, levels = c("WT", "KO"))`.
+
+#### 5. Bioconductor S4 Containers & Accessor Functions
+In base R, you might keep your counts in one spreadsheet (`counts_df`) and your sample info in another (`meta_df`). If you sort or remove a sample from `meta_df` and forget to update `counts_df`, your labels are scrambled and your analysis is silently ruined.
+
+Bioconductor solves this using **S4 Objects** like `SummarizedExperiment` and `DESeqDataSet`. Think of `dds` as a locked shipping container that holds three synchronized tables:
+
+| Component | Accessor Function | Dimensions | Contents |
+| :--- | :--- | :--- | :--- |
+| **Assay(s)** | `counts(dds)` or `assay(vsd)` | $\text{Genes} \times \text{Samples}$ | Raw integer counts or normalized/VST expression values |
+| **Column Data** | `colData(dds)` (or `dds$column`) | $\text{Samples} \times \text{Variables}$ | Sample metadata (Condition, Batch, Sex, RIN) |
+| **Row Data** | `rowData(dds)` | $\text{Genes} \times \text{Attributes}$ | Gene metadata (Gene Symbol, Biotype, Chromosome) |
+
+> **Rule of Thumb:** If you subset `dds[1:100, 1:4]`, Bioconductor automatically subsets the genes in `rowData(dds)` to rows 1–100 and the samples in `colData(dds)` to samples 1–4. Always use accessor functions (`counts(dds)`, `colData(dds)`) rather than reaching inside the object's raw slots with `@`.
+
+#### 6. Statistical Model Formulas (`~`)
+The tilde symbol (`~`) defines a statistical formula in R, read as *"is modeled as a function of"*.
+* `design = ~ condition`: Models gene expression based solely on experimental condition.
+* `design = ~ batch + condition`: Fits an additive Generalized Linear Model that estimates the effect of `batch` and the effect of `condition` simultaneously. In `DESeq2`, **always put nuisance covariates (like `batch`, `sex`, or `age`) first, and your primary biological variable of interest last**—by default, `results()` extracts the comparison for the final term in the formula.
+
+---
+
+## Conceptual Deep-Dive: The Math & Biology Behind the Code
+
+When you reach the analysis sections below, you will see several statistical transformations and shrinkage steps. Here is the intuition for every major concept before you encounter it in code.
+
+### 1. Why Negative Binomial? (Poisson Noise vs. Biological Overdispersion)
+Why can't we just run a standard Student's *t*-test on RNA-seq counts?
+1. **Counts are discrete and skewed:** Read counts are non-negative integers ($0, 1, 2, \dots$). A gene with a mean count of 2 cannot have symmetric normal tails extending into negative numbers.
+2. **Variance scales with the mean:** In RNA-seq, highly expressed genes have huge variances, while lowly expressed genes have small variances.
+
+If you take a single cDNA library and sequence it across multiple lanes (technical replicates), the randomness of sampling molecules from a pool follows a **Poisson distribution**, where the variance equals the mean ($\text{Var}(K) = \mu$).
+
+However, when comparing **independent biological replicates** (different mice, patients, or cell culture plates), two samples in the exact same treatment group will have slightly different true expression levels due to biological variability. This adds extra variance above the Poisson floor—a phenomenon called **overdispersion**.
+
+`DESeq2` and `edgeR` model read count $K_{ij}$ (for gene $i$ in sample $j$) using a **Negative Binomial (NB) distribution**, which has two parameters: the expected mean $\mu_{ij}$ and the gene-specific **dispersion parameter $\alpha_i$**:
+
+$$\text{Var}(K_{ij}) = \underbrace{\mu_{ij}}_{\text{Technical Shot Noise (Poisson)}} + \underbrace{\alpha_i \mu_{ij}^2}_{\text{Biological Variability}}$$
+
+* **Intuition for $\alpha_i$:** The square root of dispersion ($\sqrt{\alpha_i}$) is the **biological coefficient of variation (BCV)**. If $\alpha_i = 0.04$, then $\sqrt{0.04} = 0.20$, meaning the gene's true expression naturally fluctuates by $\pm 20\%$ across biological replicates even before sequencing noise is added!
+* At **low counts** (small $\mu$), the linear term $\mu_{ij}$ dominates (Poisson shot noise).
+* At **high counts** (large $\mu$), the quadratic term $\alpha_i \mu_{ij}^2$ dominates (biological variation).
+
+---
+
+### 2. Library Size vs. RNA Composition Bias (Why TPM/FPKM Fail for DE)
+Suppose Sample A is sequenced to a depth of 20 million reads and Sample B is sequenced to 40 million reads. Every gene in Sample B will have roughly twice as many raw reads just because we sequenced deeper.
+
+**Why not just divide by total reads (CPM / TPM / FPKM)?**
+Imagine a liver treatment that causes 5 metabolic genes to become massively upregulated, consuming 30% of all sequencing reads in the `Treated` library. Because a sequencing run is a fixed-sum pie of reads, every *other* unchanged housekeeping gene in the `Treated` sample now gets a smaller slice of the remaining pie. If you divide by total library size (CPM or TPM), all 15,000 unchanged genes will appear artificially **downregulated**!
+
+**How `DESeq2`'s Median-of-Ratios (`estimateSizeFactors`) solves this:**
+1. For each gene, it calculates the geometric mean across all samples to create a synthetic "pseudo-reference" sample.
+2. For each sample, it calculates the ratio of every gene's count to that pseudo-reference.
+3. It takes the **median** of those ratios across all genes in the sample as the sample's **Size Factor ($s_j$)**.
+
+Because the **median** is completely unaffected by the top 5% or 20% of genes skyrocketing, a massive transcriptional burst in a few hundred genes won't distort normalization!
+
+---
+
+### 3. Two Worlds of Data: Raw Counts for Testing vs. VST for Visualization
+One of the most common points of confusion for beginners is why `DESeq2` creates two different objects (`dds` vs. `vsd`) during an analysis:
+
+| Task | Object Used | Data Scale | Why? |
+| :--- | :--- | :--- | :--- |
+| **Differential Expression Testing (`DESeq()`)** | `dds` | **Raw Integer Counts** (with size factors attached as model offsets) | The Negative Binomial GLM needs to know whether a 2-fold change came from `2 vs. 1` reads (high Poisson noise) or `2000 vs. 1000` reads (high precision). Pre-normalizing or log-transforming destroys this information. |
+| **Visualization & Clustering (PCA, Heatmaps)** | `vsd` | **Variance Stabilizing Transformation (`vst`)** | Distance metrics (PCA, Euclidean clustering) assume **homoscedasticity** (equal variance across all features). On raw counts, top-abundance genes dominate PCA; on simple $\log_2(\text{count}+1)$, noisy genes bouncing between `0` and `2` counts dominate PCA. `vst()` flattens the mean-variance curve so all genes contribute fairly. |
+
+---
+
+### 4. Empirical Bayes Shrinkage: Borrowing Strength Across Genes
+Most RNA-seq experiments have only 3 to 6 replicates per group. Trying to estimate a gene's variance from just 3 data points is notoriously noisy: by pure luck, 3 replicates might have almost identical counts (underestimating variance and causing a false positive) or one wide outlier (overestimating variance and causing a false negative).
+
+`DESeq2` solves the small-$n$ problem using **Empirical Bayes Shrinkage** in two distinct places:
+
+1. **Dispersion Shrinkage (`estimateDispersions`, used *inside* the statistical test):**
+   `DESeq2` fits a trendline between mean expression and dispersion across all 20,000 genes. It then pulls ("shrinks") noisy individual gene dispersion estimates toward that global trendline. How much it shrinks depends on how far the gene is from the curve and how many samples you have.
+2. **Log2 Fold Change Shrinkage (`lfcShrink` with `apeglm`, used *after* the statistical test):**
+   If a lowly expressed gene has 0 reads in `Control` and 3 reads in `Treated`, its raw fold change is $\infty$ (or a huge noisy number like $\text{LFC} = +5$). Even though its $p$-value is non-significant ($p = 0.6$), that huge LFC will ruin volcano plots and put a noisy gene at the very top of your ranked list for GSEA. `lfcShrink(type = "apeglm")` looks at the uncertainty (standard error) of each gene's LFC and shrinks imprecise, low-count LFCs toward zero while leaving precise, well-supported LFCs untouched. *(Note: `lfcShrink` changes the `log2FoldChange` column, not the $p$-values!)*
+
+---
+
+### 5. Confounder Adjustment vs. Matrix Subtraction (The Batch Effect Nuance)
+Suppose your samples were processed in two batches (`Batch1` and `Batch2`). You include `design = ~ batch + condition` in `DESeq2`.
+* **What happens during `DESeq(dds)`:** The Generalized Linear Model accounts for `batch` mathematically when testing `condition`, eating one degree of freedom and isolating the true treatment effect.
+* **What does *not* happen during `vst(dds)`:** The `vst()` function transforms the count matrix for visualization, but it **does not alter the expression values to erase the batch effect**. Therefore, a PCA plot of `vsd` will still show samples separating by batch!
+* **How to visualize batch-corrected data:** In Section 7 (Bonus), we use a linear model (`limma::removeBatchEffect` logic) on the `vst` matrix to subtract the batch component *strictly for PCA and heatmap visualization*. Never feed batch-subtracted continuous matrices back into `DESeq2` for statistical testing!
+
+---
+
+### 6. Multiple Hypothesis Testing ($p$-value vs. `padj` / FDR)
+A raw **$p$-value** is the probability of observing an effect at least as extreme as yours if the gene were truly unchanged (the null hypothesis). 
+* If you test 1 gene at $\alpha = 0.05$, you have a 5% chance of a false positive.
+* If you test 20,000 unchanged genes at $p < 0.05$, you expect $20,000 \times 0.05 = \mathbf{1,000\text{ false positives}}$ by pure chance!
+
+To prevent drowning in false discoveries, `DESeq2` uses the **Benjamini-Hochberg (BH)** procedure to compute an adjusted $p$-value (**`padj`**), which controls the **False Discovery Rate (FDR)**:
+* **Raw `pvalue < 0.05`**: 5% of *all truly null tests* will be false positives.
+* **Adjusted `padj < 0.05`**: At most 5% of *the genes you call significant* are expected to be false positives. (e.g., If 200 genes have `padj < 0.05`, roughly 190 are true hits and 10 are false positives).
+
+> **Why are some `pvalue` or `padj` entries `NA` in `DESeq2`?**
+> 1. **All zero counts:** Both `pvalue` and `padj` are `NA`.
+> 2. **Extreme outlier (`Cook's distance`):** If a single sample has an extreme count spike that would artificially drive significance, `DESeq2` flags the gene and sets `pvalue` and `padj` to `NA`.
+> 3. **Independent Filtering (Low mean count):** If a gene has very low average expression (`baseMean`), it has almost zero statistical power to ever reach significance, but keeping it in the Benjamini-Hochberg calculation penalizes every other gene. `DESeq2` automatically sets `padj = NA` for genes below an optimal `baseMean` threshold to maximize discoveries.
+
+---
+
+### 7. Pathway Analysis: Over-Representation (ORA) vs. GSEA
+Once you have your differential expression results, how do you connect hundreds of genes to biological pathways (Gene Ontology, KEGG, Reactome, MSigDB Hallmarks)?
+
+* **Over-Representation Analysis (ORA):** You draw an arbitrary line in the sand (e.g., `padj < 0.05` and $|\text{LFC}| > 1$), grab the 150 genes that pass, and run a Fisher's Exact / Hypergeometric test to see if "Cell Cycle" genes appear in your list of 150 more often than in the background genome.
+  * *Weakness:* Throws away 98% of your data! If 100 genes in the Oxidative Phosphorylation pathway all shift down by a coordinated, modest $\text{LFC} = -0.35$ with `padj = 0.08`, ORA sees **zero** genes passing the cutoff and misses the pathway completely.
+* **Gene Set Enrichment Analysis (GSEA / `fgsea`):** Threshold-free! You rank **all** expressed genes from most upregulated ($+\text{LFC}$) at the top to most downregulated ($-\text{LFC}$) at the bottom. GSEA walks down the ranked list: every time it encounters a gene in the pathway, a running sum goes up; every time it encounters a gene not in the pathway, the sum goes down.
+  * **Enrichment Score (ES):** The maximum deviation of that running walk from zero.
+  * **Normalized Enrichment Score (NES):** The ES normalized for the size of the pathway (since a 500-gene pathway can reach a higher raw score by chance than a 20-gene pathway). Positive NES = pathway is upregulated; Negative NES = pathway is downregulated.
+
+---
+
+## Package Installation & Loading
+
+The chunk below checks for required CRAN and Bioconductor packages, installs any that are missing, and loads them into your session.
+
+```{r load-packages}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+required_pkgs <- c(
+  # Bioconductor packages
+  "DESeq2", "SummarizedExperiment", "apeglm", "fgsea",
+  # CRAN packages for data wrangling & visualization
+  "ggplot2", "dplyr", "tidyr", "tibble", "pheatmap", "ggrepel", "RColorBrewer"
+)
+
+missing_pkgs <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing_pkgs) > 0) {
+  BiocManager::install(missing_pkgs, update = FALSE, ask = FALSE)
+}
+
+library(DESeq2)
+library(SummarizedExperiment)
+library(apeglm)
+library(fgsea)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(pheatmap)
+library(ggrepel)
+library(RColorBrewer)
+
+theme_set(theme_bw(base_size = 12))
+set.seed(2026) # Ensure 100% reproducibility across machines
+```
+
+
+
+---
+
+# Importing Your Own RNA-Seq Data (Real-World Workflows)
+
+When moving from simulated data to your own experiments, getting your files into R cleanly is half the battle. Depending on your upstream bioinformatics pipeline, your data will arrive in one of two formats:
+
+1. **A Feature Count Matrix** (from `featureCounts`, `HTSeq`, or `STAR --quantMode GeneCounts`): A tabular file of raw integer read counts per gene.
+2. **Transcript Abundance Files** (from pseudo-aligners like `Salmon` or `Kallisto`): Per-sample folders containing `quant.sf` or `abundance.tsv` files with estimated counts and TPMs.
+
+---
+
+## Workflow A: Importing a Count Matrix (`CSV` / `TSV` / `featureCounts`)
+
+Real count tables from alignment pipelines almost always contain formatting quirks that will crash `DESeq2` if not cleaned first. Below, we create a mock "raw" `featureCounts` file and sample metadata sheet on your computer so you can practice the exact import and cleaning steps.
+
+```{r generate-mock-local-files, include=FALSE}
+# Hidden helper chunk: writes a realistic dirty count table & metadata CSV to tempdir()
+# so this tutorial remains 100% knittable without external files.
+tmp_counts_path <- file.path(tempdir(), "raw_featureCounts.tsv")
+tmp_meta_path   <- file.path(tempdir(), "sample_metadata.csv")
+
+# Notice the deliberate real-world quirks:
+# 1. Ensembl version suffixes (.12, .4)
+# 2. Extra genomic coordinate columns (Chr, Start, End, Length)
+# 3. Hyphens in sample names ("Ctrl-1") and disordered columns relative to metadata
+mock_raw_df <- data.frame(
+  Geneid = c("ENSG00000000003.15", "ENSG00000000005.6", "ENSG00000000419.14"),
+  Chr    = c("chrX", "chrX", "chr20"),
+  Start  = c(100627108, 100584936, 50934867),
+  End    = c(100639991, 100599885, 50958555),
+  Length = c(4535, 1476, 1205),
+  `Trt-2`  = c(890, 12, 430),
+  `Ctrl-1` = c(210, 15, 410),
+  `Ctrl-2` = c(245, 9,  395),
+  `Trt-1`  = c(920, 18, 450),
+  check.names = FALSE
+)
+write.table(mock_raw_df, file = tmp_counts_path, sep = "\t", row.names = FALSE, quote = FALSE)
+
+mock_meta_df <- data.frame(
+  sample_id = c("Ctrl-1", "Ctrl-2", "Trt-1", "Trt-2"),
+  condition = c("WildType", "WildType", "Treated", "Treated"),
+  batch     = c("Batch1", "Batch2", "Batch1", "Batch2")
+)
+write.csv(mock_meta_df, file = tmp_meta_path, row.names = FALSE, quote = FALSE)
+```
+
+### Step 1: Read and Clean the Count Matrix and Metadata
+
+When replacing this chunk with your own files, swap `tmp_counts_path` and `tmp_meta_path` with your local file paths (e.g., `"data/my_counts.tsv"` and `"data/metadata.csv"`).
+
+```{r import-and-clean-local}
+# 1. Read Sample Metadata
+# Use row.names = 1 to set the first column (sample IDs) as the data.frame row names
+my_meta <- read.csv(tmp_meta_path, row.names = 1, stringsAsFactors = FALSE)
+
+# 2. Read the Raw Count Table
+# CRITICAL: check.names = FALSE prevents R from silently turning hyphens ("Ctrl-1") 
+# into periods ("Ctrl.1") or prepending "X" to sample names starting with numbers!
+# comment.char = "#" skips the header summary line generated by featureCounts.
+raw_counts_df <- read.delim(
+  tmp_counts_path, 
+  row.names = 1, 
+  check.names = FALSE, 
+  comment.char = "#"
+)
+
+# Inspect the raw table: notice the non-count annotation columns (Chr, Start, End, Length)!
+head(raw_counts_df)
+
+# 3. Strip non-count annotation columns and convert to a numeric matrix
+# Here we keep only columns whose names appear in our metadata row names
+my_counts_mat <- raw_counts_df[, rownames(my_meta)] %>% as.matrix()
+
+# Also notice that doing `[, rownames(my_meta)]` automatically reorders the columns 
+# of the count matrix to match the exact row order of my_meta!
+
+# 4. Clean Ensembl Version Suffixes (Optional but Highly Recommended)
+# Aligners often output IDs like "ENSG00000000003.15". The ".15" breaks downstream
+# gene annotation and pathway tools (org.Hs.eg.db / clusterProfiler).
+rownames(my_counts_mat) <- sub("\\..*$", "", rownames(my_counts_mat))
+
+# 5. Ensure counts are strictly integers (required by DESeq2)
+mode(my_counts_mat) <- "integer"
+
+my_counts_mat
+```
+
+### Step 2: The Three Mandatory Pre-Flight Checks
+
+Before passing your imported objects into `DESeqDataSetFromMatrix()`, always run these three checks. They prevent the most common silent bugs in RNA-seq analysis:
+
+```{r preflight-checks}
+# CHECK 1: Are all sample names present in both files, and in the EXACT same order?
+# DESeq2 does NOT match samples by name—it matches by position (Column 1 to Row 1)!
+stopifnot(all(colnames(my_counts_mat) == rownames(my_meta)))
+
+# CHECK 2: Set your Factor Reference Level explicitly!
+# By default, R orders factors ALPHABETICALLY. If your groups are "Treated" and "WildType",
+# R makes "Treated" the baseline (since T comes before W), flipping all your signs!
+my_meta$condition <- factor(my_meta$condition)
+my_meta$condition <- relevel(my_meta$condition, ref = "WildType") # Force baseline first
+
+# Ensure batch or other numeric-looking covariates (e.g., "1", "2") are factors, not numbers
+my_meta$batch <- factor(my_meta$batch)
+
+# CHECK 3: Verify there are no NA values in the count matrix
+stopifnot(!any(is.na(my_counts_mat)))
+```
+
+Once your `my_counts_mat` and `my_meta` pass those three checks, you can plug them directly into the tutorial's pipeline:
+
+```{r plug-into-tutorial, eval=FALSE}
+# Replace the simulated 'dds' object in Section 3 with your own data:
+dds <- DESeqDataSetFromMatrix(
+  countData = my_counts_mat,
+  colData   = my_meta,
+  design    = ~ batch + condition
+)
+```
+
+---
+
+## Workflow B: Importing Salmon or Kallisto Files via `tximport`
+
+If you quantified transcripts using **Salmon** or **Kallisto**, your output counts are *not* integers—they are expected counts adjusted for effective transcript length. 
+
+**Never round Salmon/Kallisto TPMs or counts manually to force them into `DESeqDataSetFromMatrix()`.** Instead, use the `tximport` package, which summarizes transcript-level estimates to the gene level while calculating a length-offset matrix that corrects for differential isoform usage across samples.
+
+```{r tximport-template, eval=FALSE}
+# Install tximport if needed: BiocManager::install("tximport")
+library(tximport)
+
+# 1. Point to your sample quantification files (e.g., output folders from Salmon)
+# Suppose your directory looks like: quant_dir/Sample_1/quant.sf
+files <- file.path("path/to/quant_dir", rownames(my_meta), "quant.sf")
+names(files) <- rownames(my_meta)
+stopifnot(all(file.exists(files)))
+
+# 2. Provide a 2-column data.frame mapping Transcript IDs (TXNAME) to Gene IDs (GENEID)
+# You can generate this from your GTF file using GenomicFeatures::makeTxDbFromGFF()
+tx2gene <- read.csv("path/to/tx2gene.csv") # Columns: tx_id, gene_id
+
+# 3. Summarize transcript quantifications to gene level
+txi <- tximport(files, type = "salmon", tx2gene = tx2gene, ignoreTxVersion = TRUE)
+
+# 4. Build the DESeqDataSet directly from the tximport object!
+# This automatically attaches the transcript-length offset matrix to dds
+dds <- DESeqDataSetFromTximport(
+  txi     = txi,
+  colData = my_meta,
+  design  = ~ batch + condition
+)
+```
+
+---
+
+## Quick Reference: 6 Common Data Import Traps
+
+| Trap | Symptom / Error | Fix |
+| :--- | :--- | :--- |
+| **1. `tibble` vs `matrix`** | Using `readr::read_csv()` drops row names; `DESeq2` throws an error that `countData` is not numeric. | Use `read.csv(..., row.names = 1)` or pipe your tibble into `tibble::column_to_rownames("gene_id") %>% as.matrix()`. |
+| **2. Name Mangling** | `"colnames of countData do not match rownames of colData"` even though they look identical in Excel. | Pass `check.names = FALSE` inside `read.csv()` / `read.delim()` so R doesn't convert `-` to `.` or add `X` before leading digits. |
+| **3. Inverted Fold Changes** | Upregulated genes show negative LFCs; downregulated genes show positive LFCs. | R ordered your condition alphabetically (`"Treated"` before `"WT"`). Always run `relevel(dds$condition, ref = "WT")`. |
+| **4. Duplicate Gene Symbols** | `"duplicate 'row.names' are not allowed"` when reading the count table. | Never use HGNC Gene Symbols (`GAPDH`, `TP53`) as initial row names—many non-coding RNAs share duplicate symbols. Keep unique Ensembl IDs as row names and store Symbols in `rowData(dds)`. |
+| **5. Numeric Batch IDs** | Your `batch` column has values `1, 2, 3`, and `DESeq2` treats batch as a continuous linear slope instead of discrete groups. | Wrap categorical covariates in `factor()`: `my_meta$batch <- factor(my_meta$batch)`. |
+| **6. Feeding Normalized Data** | Passing RPKM, FPKM, or TPM tables into `DESeq2` results in distorted p-values and false positives. | Only use raw integer counts (`featureCounts` / `STAR`) or `tximport` objects. |
+
+
+---
+
+# Simulating Ground-Truth RNA-Seq Data
+
+Why do we use specialized statistical distributions for RNA-seq instead of simple student's *t*-tests?
+
+RNA-seq produces discrete **read counts**. If you sequence the same library twice, technical sampling noise follows a **Poisson distribution** (where variance equals the mean). However, across *biological replicates*, gene expression exhibits extra variability ("overdispersion"). Therefore, RNA-seq counts $K_{ij}$ for gene $i$ in sample $j$ are modeled using a **Negative Binomial (NB) distribution**:
+
+$$K_{ij} \sim \text{NB}(\text{mean} = \mu_{ij}, \text{dispersion} = \alpha_i)$$
+
+Where the variance is a quadratic function of the mean:
+
+$$\text{Var}(K_{ij}) = \mu_{ij} + \alpha_i \mu_{ij}^2$$
+
+Let's simulate **4,000 genes** across **8 samples** (4 `Control`, 4 `Treated`), split evenly across **2 sequencing batches** (`Batch1`, `Batch2`).
+
+```{r simulate-data}
+n_genes <- 4000
+n_samples <- 8
+
+# 1. Define Sample Metadata (colData)
+sample_meta <- data.frame(
+  sample_id = paste0("Sample_", 1:n_samples),
+  condition = factor(rep(c("Control", "Treated"), each = 4), levels = c("Control", "Treated")),
+  batch     = factor(rep(c("Batch1", "Batch2"), times = 4)),
+  # Simulate varying sequencing depth (library size factors between 0.7x and 1.4x)
+  true_size_factor = c(0.75, 1.10, 0.90, 1.35, 0.80, 1.25, 0.95, 1.40)
+)
+rownames(sample_meta) <- sample_meta$sample_id
+
+# 2. Define Gene Ground-Truth Metadata (rowData)
+# - Genes 1 to 200: Upregulated in Treated (True LFC around +2)
+# - Genes 201 to 400: Downregulated in Treated (True LFC around -2)
+# - Genes 401 to 4000: Null / Unchanged (True LFC = 0)
+gene_meta <- data.frame(
+  gene_id = paste0("Gene_", sprintf("%04d", 1:n_genes)),
+  status  = c(rep("Up", 200), rep("Down", 200), rep("Null", n_genes - 400)),
+  true_lfc = c(
+    rnorm(200, mean = 2.0, sd = 0.4),
+    rnorm(200, mean = -2.0, sd = 0.4),
+    rep(0, n_genes - 400)
+  ),
+  # Simulate a realistic technical batch effect on 25% of all genes
+  batch_lfc = ifelse(runif(n_genes) < 0.25, rnorm(n_genes, mean = 0, sd = 1.2), 0),
+  # Baseline mean expression (log-normal distribution of abundance)
+  base_mean = 2^rnorm(n_genes, mean = 6.5, sd = 2.0)
+)
+rownames(gene_meta) <- gene_meta$gene_id
+
+# Inverse relationship between mean expression and dispersion (lower counts = higher dispersion)
+gene_meta$true_disp <- 0.05 + (4 / gene_meta$base_mean)
+
+# 3. Construct the Expected Mean Matrix (mu_ij) and Sample from Negative Binomial
+counts_mat <- matrix(0, nrow = n_genes, ncol = n_samples,
+                     dimnames = list(gene_meta$gene_id, sample_meta$sample_id))
+
+for (j in seq_len(n_samples)) {
+  is_treated <- ifelse(sample_meta$condition[j] == "Treated", 1, 0)
+  is_batch2  <- ifelse(sample_meta$batch[j] == "Batch2", 1, 0)
+  
+  # Calculate expected true expression for sample j
+  expected_mu <- gene_meta$base_mean *
+    (2^(gene_meta$true_lfc * is_treated)) *
+    (2^(gene_meta$batch_lfc * is_batch2)) *
+    sample_meta$true_size_factor[j]
+  
+  # In R's rnbinom(), 'size' = 1 / dispersion
+  counts_mat[, j] <- rnbinom(n = n_genes, mu = expected_mu, size = 1 / gene_meta$true_disp)
+}
+
+# Preview the simulated integer count matrix
+counts_mat[1:5, 1:6]
+```
+
+---
+
+# The `DESeqDataSet` Architecture
+
+Bioconductor stores high-throughput genomic data inside a `SummarizedExperiment` (or its derivative, `DESeqDataSet`). It synchronizes three tables so subsetting one automatically subsets the others:
+
+* **`assay(dds)`**: The matrix of raw integer counts (rows = genes, columns = samples).
+* **`colData(dds)`**: Sample-level metadata (experimental condition, batch, patient ID).
+* **`rowData(dds)`**: Gene-level metadata (gene symbols, genomic coordinates, or our ground-truth simulation parameters).
+
+```{r build-dds}
+dds <- DESeqDataSetFromMatrix(
+  countData = counts_mat,
+  colData   = sample_meta,
+  rowData   = gene_meta,
+  design    = ~ batch + condition # Put covariates first, variable of interest last!
+)
+
+dds
+```
+
+> **Crucial Rule**: `DESeq2` requires **raw, unnormalized integer counts** (or `tximport` counts from Salmon/Kallisto). Never feed TPM, FPKM, or RPKM values into `DESeq2`—doing so breaks the Negative Binomial variance model.
+
+### Pre-Filtering Low-Count Genes
+
+Genes with near-zero counts across all samples carry no statistical power to detect differential expression, yet they increase the multiple-testing burden. We filter to keep genes with at least 10 counts in at least 4 samples (the size of our smallest experimental group).
+
+```{r filter-dds}
+keep <- rowSums(counts(dds) >= 10) >= 4
+table(keep)
+
+dds <- dds[keep, ]
+```
+
+---
+
+# Normalization & Exploratory Data Analysis (EDA)
+
+### Size Factor Normalization (Median-of-Ratios)
+
+Why can't we just divide each sample's counts by its total number of reads (Counts Per Million)? 
+Because of **RNA composition bias**: if a few highly expressed genes are massively upregulated in `Treated` samples, they consume a large fraction of the sequencing pool, making all other genes appear artificially downregulated.
+
+`DESeq2` uses the **median-of-ratios** method (`estimateSizeFactors`), which is immune to outlier genes. Let's run it and compare `DESeq2`'s estimated size factors against the true size factors we simulated!
+
+```{r check-size-factors}
+dds <- estimateSizeFactors(dds)
+
+tibble(
+  sample = colnames(dds),
+  true_sf = dds$true_size_factor,
+  estimated_sf = sizeFactors(dds)
+) %>%
+  ggplot(aes(x = true_sf, y = estimated_sf, label = sample)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  geom_point(size = 3, color = "dodgerblue4") +
+  geom_text_repel() +
+  labs(
+    title = "DESeq2 Accurately Recovers True Library Size Factors",
+    x = "Simulated Ground-Truth Size Factor",
+    y = "DESeq2 Estimated Size Factor"
+  )
+```
+
+### Variance Stabilizing Transformation (VST) for PCA & Clustering
+
+For statistical testing, we use raw counts. For **visualization and clustering (PCA, heatmaps)**, raw counts fail because high-abundance genes have massive variance that dominates distance metrics. Simple $\log_2(\text{count} + 1)$ over-amplifies noise in low-count genes.
+
+Instead, we apply a **Variance Stabilizing Transformation (`vst`)**, which makes variance roughly constant across the entire dynamic range of expression.
+
+```{r vst-pca}
+# blind = FALSE ensures known design variables (condition/batch) don't inflate noise estimates
+vsd <- varianceStabilizingTransformation(dds, blind = FALSE)
+
+# Extract PCA coordinates using DESeq2's helper, returning data for custom ggplot2 styling
+pca_data <- plotPCA(vsd, intgroup = c("condition", "batch"), returnData = TRUE)
+percent_var <- round(100 * attr(pca_data, "percentVar"))
+
+ggplot(pca_data, aes(x = PC1, y = PC2, color = condition, shape = batch)) +
+  geom_point(size = 4, alpha = 0.9) +
+  geom_text_repel(aes(label = name), show.legend = FALSE) +
+  scale_color_manual(values = c("Control" = "#377EB8", "Treated" = "#E41A1C")) +
+  labs(
+    title = "Principal Component Analysis (VST Counts)",
+    subtitle = "PC1 separates Treatment; PC2 captures the simulated Batch Effect",
+    x = paste0("PC1: ", percent_var[1], "% variance"),
+    y = paste0("PC2: ", percent_var[2], "% variance")
+  )
+```
+
+Notice how **PC1** cleanly separates `Control` vs. `Treated`, while **PC2** separates `Batch1` vs. `Batch2`. Always color your PCA plots by technical metadata (batch, extraction date, RIN score, sex) to spot hidden confounders!
+
+### Sample-to-Sample Distance Heatmap
+
+We can also compute Euclidean distances between all pairs of samples on the VST scale to check replicate consistency:
+
+```{r sample-dist}
+sample_dists <- dist(t(assay(vsd)))
+sample_dist_matrix <- as.matrix(sample_dists)
+
+anno_col <- as.data.frame(colData(vsd)[, c("condition", "batch")])
+
+pheatmap(
+  sample_dist_matrix,
+  clustering_distance_rows = sample_dists,
+  clustering_distance_cols = sample_dists,
+  annotation_col = anno_col,
+  color = colorRampPalette(rev(brewer.pal(9, "Blues")))(255),
+  main = "Sample-to-Sample Euclidean Distance Matrix"
+)
+```
+
+---
+
+# Differential Expression Modeling & LFC Shrinkage
+
+### Running the `DESeq()` Pipeline
+
+The wrapper function `DESeq(dds)` executes three steps sequentially:
+1. `estimateSizeFactors()`: Normalizes for library depth and composition.
+2. `estimateDispersions()`: Estimates gene-wise dispersion and shrinks noisy estimates toward a parametric trendline (sharing information across all genes to stabilize small sample sizes).
+3. `nbinomWaldTest()`: Fits a Generalized Linear Model (GLM) for each gene and tests whether coefficients differ significantly from zero.
+
+```{r run-deseq}
+dds <- DESeq(dds)
+
+# Visualize Dispersion Shrinkage
+plotDispEsts(dds, main = "Gene-Wise Dispersion Estimates & Empirical Bayes Shrinkage")
+```
+
+In the dispersion plot above, black dots are raw gene-wise estimates, the red curve is the fitted mean-dispersion trend, and blue dots are the final "shrunken" dispersions used in statistical testing.
+
+### Extracting Results & Multiple Testing Correction
+
+When testing ~4,000 (or ~20,000) genes simultaneously, a standard threshold of $p < 0.05$ would yield hundreds of false positives by pure chance ($4000 \times 0.05 = 200$ false hits). `DESeq2` applies the **Benjamini-Hochberg (BH)** procedure to control the **False Discovery Rate (`padj`)**.
+
+```{r extract-results}
+# Extract unshrunken Wald test results for Treated vs Control
+res_unshrunken <- results(dds, contrast = c("condition", "Treated", "Control"), alpha = 0.05)
+summary(res_unshrunken)
+```
+
+### Log2 Fold Change Shrinkage (`apeglm`)
+
+Low-count genes have high variance, which often produces extreme, noisy log2 fold changes (e.g., 1 read vs. 8 reads gives an LFC of 3.0, even if statistically insignificant). 
+
+Using `lfcShrink()` with the `apeglm` (Adaptive Student's *t* prior shrinkage) estimator pulls noisy, low-information fold changes toward zero while preserving true large effect sizes. **Always use shrunken LFCs for ranking genes (e.g., in GSEA) and volcano/MA plots.**
+
+```{r lfc-shrinkage}
+# Check coefficient names available in the model
+resultsNames(dds)
+
+# Apply apeglm shrinkage
+res_shrunken <- lfcShrink(dds, coef = "condition_Treated_vs_Control", type = "apeglm")
+
+# Compare Unshrunken vs Shrunken MA Plots side by side
+par(mfrow = c(1, 2))
+plotMA(res_unshrunken, ylim = c(-4, 4), main = "Unshrunken LFCs (Noisy Low Counts)")
+plotMA(res_shrunken, ylim = c(-4, 4), main = "apeglm Shrunken LFCs")
+par(mfrow = c(1, 1))
+```
+
+### Benchmarking Against Our Ground Truth
+
+Since we simulated this dataset, let's merge our `DESeq2` output with `rowData(dds)` and verify how accurately our model recovered the true fold changes and differentially expressed genes!
+
+```{r benchmark-ground-truth}
+res_df <- as.data.frame(res_shrunken) %>%
+  rownames_to_column("gene_id") %>%
+  left_join(as.data.frame(rowData(dds)), by = "gene_id") %>%
+  mutate(
+    called_status = case_when(
+      is.na(padj) ~ "Filtered",
+      padj < 0.05 & log2FoldChange > 0.58 ~ "Up",
+      padj < 0.05 & log2FoldChange < -0.58 ~ "Down",
+      TRUE ~ "Null"
+    )
+  )
+
+# Confusion Matrix: Simulated Truth (rows) vs DESeq2 Calls (columns)
+table(Simulated_Truth = res_df$status, DESeq2_Call = res_df$called_status)
+
+# Plot True LFC vs Shrunken Estimated LFC
+ggplot(res_df, aes(x = true_lfc, y = log2FoldChange, color = status)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  geom_point(alpha = 0.5, size = 1.5) +
+  scale_color_manual(values = c("Down" = "#377EB8", "Null" = "grey70", "Up" = "#E41A1C")) +
+  labs(
+    title = "Recovery of Simulated Ground-Truth Log2 Fold Changes",
+    x = "Simulated Ground-Truth LFC",
+    y = "DESeq2 Shrunken LFC (apeglm)",
+    color = "True Status"
+  )
+```
+
+---
+
+# Publication-Quality Visualizations
+
+### Volcano Plot (`ggplot2` + `ggrepel`)
+
+A volcano plot displays statistical significance ($-\log_{10} p_{\text{adj}}$) against biological effect size ($\log_2 \text{Fold Change}$).
+
+```{r volcano-plot}
+# Select top 10 most significant genes to label
+top_labelled <- res_df %>%
+  filter(!is.na(padj)) %>%
+  arrange(padj) %>%
+  slice_head(n = 10)
+
+ggplot(res_df %>% filter(!is.na(padj)), aes(x = log2FoldChange, y = -log10(padj))) +
+  geom_point(aes(color = called_status), alpha = 0.6, size = 1.8) +
+  geom_vline(xintercept = c(-0.58, 0.58), linetype = "dashed", color = "grey40") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "grey40") +
+  geom_text_repel(
+    data = top_labelled,
+    aes(label = gene_id),
+    size = 3.2,
+    max.overlaps = 20,
+    box.padding = 0.4
+  ) +
+  scale_color_manual(values = c("Down" = "#377EB8", "Null" = "grey75", "Up" = "#E41A1C")) +
+  labs(
+    title = "Volcano Plot: Treated vs. Control",
+    subtitle = "Thresholds: |LFC| > 0.58 (1.5-fold) and FDR < 0.05",
+    x = "Shrunken Log2 Fold Change",
+    y = "-Log10 Adjusted P-Value",
+    color = "DE Call"
+  )
+```
+
+### Clustered Z-Score Heatmap of Top 30 DE Genes
+
+When plotting gene expression heatmaps across samples, we row-scale the VST matrix into **Z-scores** (subtracting the gene's mean and dividing by its standard deviation across samples) so that genes with different baseline abundances can be visually compared on the same color scale.
+
+```{r top-genes-heatmap}
+top30_genes <- res_df %>%
+  filter(!is.na(padj)) %>%
+  arrange(padj) %>%
+  slice_head(n = 30) %>%
+  pull(gene_id)
+
+mat_top30 <- assay(vsd)[top30_genes, ]
+# Compute row-wise Z-scores
+mat_zscore <- t(scale(t(mat_top30)))
+
+anno_row <- res_df %>%
+  filter(gene_id %in% top30_genes) %>%
+  select(gene_id, True_Status = status) %>%
+  column_to_rownames("gene_id")
+
+pheatmap(
+  mat_zscore,
+  annotation_col = anno_col,
+  annotation_row = anno_row,
+  show_rownames = TRUE,
+  cluster_cols = TRUE,
+  color = colorRampPalette(rev(brewer.pal(11, "RdBu")))(100),
+  main = "Top 30 Differentially Expressed Genes (Row Z-Scores of VST)"
+)
+```
+
+### Plotting Individual Gene Counts
+
+Always inspect the raw/normalized counts of your top hits to verify that significance isn't driven by a single bizarre outlier sample.
+
+```{r plot-single-genes}
+top4_genes <- top30_genes[1:4]
+
+# Extract normalized counts for top 4 genes and pivot to tidy format
+norm_counts_top4 <- counts(dds, normalized = TRUE)[top4_genes, ] %>%
+  as.data.frame() %>%
+  rownames_to_column("gene_id") %>%
+  pivot_longer(-gene_id, names_to = "sample_id", values_to = "norm_count") %>%
+  left_join(sample_meta, by = "sample_id")
+
+ggplot(norm_counts_top4, aes(x = condition, y = norm_count, color = batch)) +
+  geom_jitter(width = 0.15, size = 3, alpha = 0.9) +
+  facet_wrap(~ gene_id, scales = "free_y") +
+  scale_y_log10() +
+  labs(
+    title = "Normalized Read Counts for Top 4 Hits",
+    x = "Experimental Condition",
+    y = "DESeq2 Normalized Counts (log10 scale)",
+    color = "Batch"
+  )
+```
+
+---
+
+# Downstream Pathway & Functional Enrichment Analysis
+
+Once we have a differential expression table, we want to know which biological pathways are coordinatedly altered. There are two primary paradigms:
+
+1. **Over-Representation Analysis (ORA)**: Takes a hard threshold (e.g., `padj < 0.05` & `LFC > 1`) and uses a hypergeometric / Fisher's exact test to ask if your list overlaps a pathway more than expected by chance.
+2. **Gene Set Enrichment Analysis (GSEA)**: Threshold-free! Ranks *all* genes from most upregulated to most downregulated and tests whether members of a pathway cluster at the top or bottom of the ranked list.
+
+Let's construct a synthetic database of 8 biological pathways (`pathways_list`) and run **Fast Gene Set Enrichment Analysis (`fgsea`)**.
+
+```{r gsea-analysis}
+# 1. Create a synthetic pathway database (simulating MSigDB / GO gene sets)
+all_genes <- rownames(dds)
+
+pathways_list <- list(
+  "HALLMARK_CELL_CYCLE_UP"       = c(sample(paste0("Gene_", sprintf("%04d", 1:200)), 45),
+                                     sample(all_genes, 15)),
+  "HALLMARK_INTERFERON_RESPONSE" = c(sample(paste0("Gene_", sprintf("%04d", 1:200)), 30),
+                                     sample(all_genes, 30)),
+  "KEGG_OXIDATIVE_PHOSPHORYLATION" = c(sample(paste0("Gene_", sprintf("%04d", 201:400)), 40),
+                                       sample(all_genes, 20)),
+  "GO_FATTY_ACID_METABOLISM"     = c(sample(paste0("Gene_", sprintf("%04d", 201:400)), 25),
+                                     sample(all_genes, 35)),
+  "REACTOME_DNA_REPAIR_NULL"     = sample(all_genes, 60),
+  "GO_SYNAPTIC_TRANSMISSION_NULL"= sample(all_genes, 50),
+  "KEGG_RIBOSOME_NULL"           = sample(all_genes, 70),
+  "HALLMARK_APOPTOSIS_NULL"      = sample(all_genes, 55)
+)
+
+# 2. Create a named vector of gene-level ranking statistics
+# Best practice: rank by shrunken LFC (or Wald test statistic 'stat' from unshrunken results)
+ranks <- res_df %>%
+  filter(!is.na(log2FoldChange)) %>%
+  arrange(desc(log2FoldChange)) %>%
+  select(gene_id, log2FoldChange) %>%
+  deframe()
+
+# 3. Run fgsea
+fgsea_res <- fgsea(
+  pathways = pathways_list,
+  stats    = ranks,
+  minSize  = 15,
+  maxSize  = 500
+) %>%
+  as_tibble() %>%
+  arrange(padj)
+
+# View GSEA results table
+fgsea_res %>% select(pathway, pval, padj, NES, size)
+```
+
+### Visualizing Normalized Enrichment Scores (NES)
+
+```{r plot-gsea-nes}
+fgsea_res %>%
+  mutate(significant = padj < 0.05) %>%
+  ggplot(aes(x = reorder(pathway, NES), y = NES, fill = significant)) +
+  geom_col(width = 0.7) +
+  coord_flip() +
+  scale_fill_manual(values = c("TRUE" = "#E41A1C", "FALSE" = "grey70")) +
+  labs(
+    title = "Gene Set Enrichment Analysis (fgsea)",
+    subtitle = "Positive NES = Enriched in Treated; Negative NES = Enriched in Control",
+    x = "Pathway",
+    y = "Normalized Enrichment Score (NES)",
+    fill = "FDR < 0.05"
+  )
+```
+
+We can also plot the classic GSEA running enrichment score curve for our top upregulated and downregulated pathways:
+
+```{r plot-enrichment-curve}
+plotEnrichment(pathways_list[["HALLMARK_CELL_CYCLE_UP"]], ranks) +
+  labs(title = "GSEA Enrichment Plot: HALLMARK_CELL_CYCLE_UP")
+```
+
+---
+
+# Bonus: Removing Batch Effects for Visualization
+
+Earlier, we saw in our PCA plot that **PC2** was driven by `batch`. When we set `design = ~ batch + condition`, `DESeq2` automatically controlled for `batch` during statistical testing. 
+
+However, `varianceStabilizingTransformation()` does **not** subtract the batch effect from the transformed matrix itself. If you want to plot a batch-corrected PCA or heatmap for a publication figure, you can regress out the batch effect on the VST matrix using a linear model (identical to `limma::removeBatchEffect`):
+
+```{r batch-correction-pca}
+vsd_batch_corrected <- vsd
+
+# Regress out the batch effect while preserving the treatment effect
+design_treatment <- model.matrix(~ condition, data = colData(vsd))
+design_batch     <- model.matrix(~ batch, data = colData(vsd))[, -1, drop = FALSE]
+
+# Fit linear model and subtract only the batch component
+fit <- lm.fit(x = cbind(design_treatment, design_batch), y = t(assay(vsd)))
+```
