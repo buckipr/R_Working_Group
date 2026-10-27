@@ -19,7 +19,7 @@ OSU Software Carpentry: R for Scientific Reproducibility
 ## **Schedule for Fall 2026**
 
 
-We will be meeting in 38 Townshend Hall from 12:00pm - 1:30pm on the following Fridays:
+We will be meeting in 38 Townshend Hall from 4:30-5:30PM Mondays:
 
 * Sep 14th: Introduction to <img src="https://www.r-project.org/logo/Rlogo.png" width="25">
 and Computational methods in Demography (with a healthcare big data analysis twist)
@@ -35,10 +35,11 @@ and Computational methods in Demography (with a healthcare big data analysis twi
     - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/dplyr/2025_10_09/)
 	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/intro_r/2026_02_06)
 
-* Oct 12th: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/) and AI LMM Integration 1 && BONUS LESSON (GENOME STUDY)
+* Oct 12th: Making Plots in R with [ggplot2](https://ggplot2.tidyverse.org/) and AI LMM Integration 1 && UPDATED GGPLOT2 File With Code && BONUS LESSON (GENOME STUDY)
     - [slides](https://buckipr.github.io/R_Working_Group/ggplot2/2025_10_23/ggplot2.html#1)
     - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2025_10_23)
 	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2026_02_27)
+		- [files_updatedggplot2](https://github.com/buckipr/R_Working_Group/tree/main/ggplot2/2026_10_26)
 	- [files_bonus](https://github.com/buckipr/R_Working_Group/tree/main/bonus/)
     - readings
         + Danielle Rhubart, Alexis Santos; Research Note Showing That the Rural Mortality Penalty Varies && ADVANCED STATS (REGRESSIONS)

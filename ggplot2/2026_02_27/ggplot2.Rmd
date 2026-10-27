@@ -166,6 +166,11 @@ or within geoms
 ---
 # Layering in action
 
+```{r}
+mtcars
+```
+
+
 ```{r, fig.cap='(just the data)', out.width="43%"}
 ggplot(data = mtcars)
 ```
@@ -174,9 +179,14 @@ ggplot(data = mtcars)
 ---
 # Layering in action
 
+```{r}
+mtcars$am
+```
+
+
 ```{r, fig.cap='(mapping too)', out.width="43%"}
 ggplot(data = mtcars,
-       mapping = aes(x = mpg, y = wt))
+       mapping = aes(x = am, y = wt)) 
 ```
 
 
@@ -212,6 +222,8 @@ ggplot(mtcars, aes(x = mpg, y = wt, color=factor(cyl))) +
 
 ---
 # Global vs. Local
+
+I have data about cars and I want a linear line that is a solid color that goes through all the points of my dataset that is grouped by factor(cyl)
 
 ```{r, message=FALSE, out.width="50%"}
 ggplot(mtcars, aes(x = mpg, y = wt)) +

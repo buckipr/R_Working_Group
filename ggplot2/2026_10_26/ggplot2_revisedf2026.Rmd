@@ -1,0 +1,239 @@
+---
+title: "Introduction to ggplot2: Part 2"
+subtitle: "Extensions, Advanced Geoms, and Interactive Plots (With Syntax Decoded)"
+author: "Generated for Non-Coders & The R Working Group"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+# === INSTALLATION INSTRUCTIONS ===
+# install.packages() is like buying a toolbox at the store. You only do it once.
+# library() is like opening the toolbox on your workbench. You must do this every time you restart R.
+
+# If you don't have these, remove the '#' and run this line once:
+# install.packages(c("tidyverse", "ggrepel", "patchwork", "plotly", "maps"))
+
+library(tidyverse)  # The master toolbox. Contains ggplot2, and tools for organizing data.
+library(ggrepel)    # Fixes text that overlaps.
+library(patchwork)  # Lets us stitch plots together using math symbols.
+library(plotly)     # Turns static images into interactive web plots.
+library(maps)       # Contains coordinates to draw country/state borders.
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+
+```
+
+# Welcome to Part 2: The "Under the Hood" Edition
+
+In Part 1, we learned that `ggplot2` is like building a burger: you start with a bun (the data and axes), add a patty (the `geom`), and add condiments (colors and themes).
+
+Before we dive into advanced plots, here is a quick **Non-Coder's Translation Guide** for the weird symbols you are about to see in the code:
+
+* `<-` is the **assignment arrow**. It means "save the stuff on the right into the name on the left."
+* `%>%` is the **pipe operator**. Read it out loud as *"and then..."*. It takes your data, passes it to a step, *and then* passes it to the next step.
+* `|` means **OR** (e.g., condition A | condition B).
+* `==` means **EXACTLY EQUALS**. (A single `=` is used to assign settings, a double `==` is used to search for data).
+
+---
+
+# 1. Fixing Messy Text: `ggrepel`
+
+**Best for:** Biology (Volcano plots of genes), Finance (labeled outlier stocks).
+
+When you use the standard `geom_text()`, R blindly slaps the text exactly where the data point is. If 5 points are close together, you get an unreadable black blob of ink. The `ggrepel` package acts like magnets, pushing labels away from each other and drawing neat little lines back to the data point.
+
+### Syntax decoded:
+
+* `filter(wt > 4.5 | wt < 2)`: We are telling R: "Keep only the rows where weight is greater than 4.5 OR less than 2."
+* `mutate(...)`: Creates a new column in our data.
+* `box.padding`: How much invisible "personal space" to put around each text box.
+* `point.padding`: How much space to leave around the dot itself so the line doesn't cover it.
+
+```{r ggrepel-example, out.width="70%"}
+# 1. Prep the data: Let's isolate just the extremely heavy or light cars
+extreme_cars <- mtcars %>% 
+  filter(wt > 4.5 | wt < 2) %>%  # Keep heavy OR light cars
+  mutate(car_name = rownames(.)) # Copy the row names into a new column called 'car_name'
+
+# 2. The Plot
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point(color = "grey50") +
+  # Draw a second layer of dots just for our extreme cars, making them red
+  geom_point(data = extreme_cars, color = "red", size = 3) + 
+  
+  # The Magic: geom_text_repel instead of geom_text
+  geom_text_repel(
+    data = extreme_cars, 
+    aes(label = car_name),
+    box.padding = 0.8,     
+    point.padding = 0.5,   
+    color = "black"
+  ) +
+  labs(title = "Car Weight vs MPG", subtitle = "Labeling only the extreme outliers") +
+  theme_bw()
+
+```
+
+---
+
+# 2. Showing Uncertainty: The Ribbon
+
+**Best for:** Physics, Engineering, Medicine, and Forecasting (confidence intervals).
+
+In science, a single line is rarely enough; you need to show the margin of error. `geom_ribbon()` draws a shaded shape behind your line.
+
+### Syntax decoded:
+
+* `ymin` and `ymax`: Unlike a point (which just needs `x` and `y`), a ribbon needs to know the floor (`ymin`) and the ceiling (`ymax`) of the shading.
+* `alpha = 0.2`: Controls transparency. `0` is completely invisible, `1` is solid paint. `0.2` makes the ribbon see-through so it doesn't hide the gridlines.
+* **Layer order matters:** We put `geom_ribbon()` *before* `geom_line()` in the code so the ribbon is drawn in the background, and the line is drawn on top of it.
+
+```{r ribbon-example, out.width="70%"}
+# 1. Dummy Data: Patient recovery scores over time
+medicine_data <- data.frame(
+  Day = 1:10,
+  Average_Score = c(10, 15, 22, 35, 45, 50, 65, 75, 82, 90)
+) %>%
+  mutate(
+    Lower_Bound = Average_Score * 0.90, # Create a floor (10% lower)
+    Upper_Bound = Average_Score * 1.10  # Create a ceiling (10% higher)
+  )
+
+# 2. The Plot
+ggplot(medicine_data, aes(x = Day, y = Average_Score)) +
+  geom_ribbon(aes(ymin = Lower_Bound, ymax = Upper_Bound), fill = "blue", alpha = 0.2) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(size = 2) +
+  labs(title = "Patient Recovery Trajectory", y = "Recovery Score") +
+  theme_classic()
+
+```
+
+---
+
+# 3. Heatmaps: `geom_tile`
+
+**Best for:** Genetics, Finance correlation matrices, Anthropology site grids.
+
+A heatmap turns numbers into colors on a grid. We use `geom_tile()` to create the squares, and a `fill` scale to map the numbers to colors.
+
+### Syntax decoded:
+
+* `expand.grid()`: An R trick that creates every possible combination of variables. Think of it as instantly generating a chessboard.
+* `scale_fill_viridis_c()`: Viridis is a color palette designed to be readable by colorblind individuals and prints beautifully in black-and-white. The `_c` stands for **continuous** (for numbers, like temperature). If your data was text (like "Good", "Bad"), you would use `_d` for **discrete**.
+* `coord_fixed()`: Forces the X and Y axes to use the exact same physical scale on your screen. This guarantees your tiles are perfect squares, not stretched rectangles.
+
+```{r heatmap-example, out.width="70%"}
+# 1. Dummy Data: A 5x5 excavation grid
+grid_data <- expand.grid(X_Coord = 1:5, Y_Coord = 1:5)
+grid_data$Soil_pH <- runif(25, min = 5.0, max = 8.0) # Generate 25 random numbers
+
+# 2. The Plot
+ggplot(grid_data, aes(x = X_Coord, y = Y_Coord, fill = Soil_pH)) +
+  geom_tile(color = "white", size = 1) + 
+  scale_fill_viridis_c(option = "plasma") + 
+  geom_text(aes(label = round(Soil_pH, 1)), color = "white") +
+  labs(title = "Dig Site: Soil pH Levels", x = "Trench X", y = "Trench Y") +
+  theme_minimal() +
+  coord_fixed() 
+
+```
+
+---
+
+# 4. Combining Plots: `patchwork`
+
+**Best for:** Multi-panel publication figures (Figure 1A, 1B, 1C).
+
+Normally, R plots one graphic at a time. The `patchwork` package lets you save plots to variables (like `p1`, `p2`) and then literally add them together using basic math symbols.
+
+### Syntax decoded:
+
+* `|` (Vertical pipe): Places plots **beside** each other (columns). Think of it as a wall between two rooms.
+* `/` (Forward slash): Places plots **on top** of each other (rows). Think of it as a floor separating a top and bottom story.
+* `(p2 | p3)`: Parentheses group them together, just like algebra.
+
+```{r patchwork-example, out.width="90%"}
+# 1. Save three separate plots (notice they don't print yet, they just save to memory)
+p1 <- ggplot(mtcars, aes(wt, hp, color=factor(cyl))) + geom_point() + theme_bw() + labs(title="Scatter")
+p2 <- ggplot(mtcars, aes(factor(cyl), mpg, fill=factor(cyl))) + geom_boxplot() + guides(fill="none") + labs(title="Box")
+p3 <- ggplot(mtcars, aes(factor(cyl))) + geom_bar() + theme_minimal() + labs(title="Bar")
+
+# 2. Combine them! 
+# We want p1 taking up the whole top row. We want p2 and p3 sharing the bottom row.
+combined_plot <- p1 / (p2 | p3)
+
+# Print the result
+combined_plot + plot_annotation(title = "The Magic of Patchwork")
+
+```
+
+---
+
+# 5. Maps and Spatial Data: `geom_polygon`
+
+**Best for:** Epidemiology, Geography, Political Science.
+
+Maps are just connect-the-dots on a massive scale. R has built-in coordinate data for the world. We just need to merge our spreadsheet of numbers with R's massive spreadsheet of border coordinates.
+
+### Syntax decoded:
+
+* `map_data("world")`: Grabs thousands of longitude/latitude points that draw country borders.
+* `left_join()`: This is R's version of Excel's `VLOOKUP`. It matches our `outbreak_data` to the `world_map` by looking for matching country names in the `"region"` column.
+* `group = group`: **Crucial for maps.** This tells ggplot which dots belong to which country. Without this, R tries to draw one single, continuous scribbly line connecting every country in the world!
+* `theme_void()`: Deletes the X and Y axes. You don't need to see "Latitude 45" on a map, the shapes speak for themselves.
+
+```{r map-example, out.width="80%"}
+# 1. Get the map coordinates
+world_map <- map_data("world")
+
+# 2. Our data
+outbreak_data <- data.frame(
+  region = c("Brazil", "China", "India", "USA", "France", "Australia"),
+  cases = c(500, 1200, 800, 300, 150, 400)
+)
+
+# 3. Merge them together (VLOOKUP)
+map_with_data <- left_join(world_map, outbreak_data, by = "region")
+
+# 4. The Plot
+ggplot(map_with_data, aes(x = long, y = lat, group = group)) +
+  # Draw the polygons (shapes). Fill them based on 'cases'. 
+  # na.value tells R what color to paint countries not in our data.
+  geom_polygon(aes(fill = cases), color = "black", size = 0.1) +
+  scale_fill_gradient(low = "yellow", high = "red", na.value = "grey90") +
+  theme_void() 
+
+```
+
+---
+
+# 6. The Crowd Pleaser: Interactive Plots (`plotly`)
+
+**Best for:** Dashboards and HTML presentations.
+
+Static plots are for paper. Web documents (like this one) can have interactive graphics where you hover over a point to see the exact data underneath.
+
+### Syntax decoded:
+
+* `text = rownames(mtcars)`: We add a sneaky, invisible aesthetic called `text`. It doesn't change how the plot looks, but it loads information into the background.
+* `ggplotly()`: Takes any finished ggplot and converts it into Javascript for the web browser.
+* `tooltip = "text"`: Tells the interactive plot, "When the user hovers their mouse, pop up a box showing whatever data I hid inside the `text` aesthetic."
+
+```{r plotly-example, out.width="80%"}
+# 1. Build a normal ggplot, hiding extra info in 'text'
+my_plot <- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl), text = rownames(mtcars))) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "Hover your mouse over the points!") +
+  theme_minimal()
+
+# 2. Make it interactive!
+ggplotly(my_plot, tooltip = "text")
+
+```
