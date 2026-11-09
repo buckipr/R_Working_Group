@@ -1,0 +1,260 @@
+---
+title: "Computational Text Analysis for Health Research"
+author: "Advanced Methods Demo"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: paper
+    highlight: textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 5)
+
+```
+
+## 1. Environment & Architecture
+
+For this workflow, we leverage specialized packages to handle unstructured archival data, extract specific clinical entities, and perform unsupervised machine learning on text corpuses.
+
+```{r packages, results='hide'}
+# Define required dependencies
+req_pkgs <- c("tidyverse", "tidytext", "tesseract", "magick", 
+              "udpipe", "igraph", "ggraph", "textrank", 
+              "topicmodels", "pdftools")
+
+# Install missing packages
+missing <- req_pkgs[!(req_pkgs %in% installed.packages()[,"Package"])]
+if(length(missing)) install.packages(missing)
+
+# Load all libraries
+invisible(lapply(req_pkgs, library, character.only = TRUE))
+
+```
+
+---
+
+## 2. Archival Data: Image Preprocessing for OCR
+
+Raw OCR often fails on historical medical records due to noise or skew. We use `magick` to mathematically clean the image *before* feeding it to `tesseract`.
+
+```{r image_preprocessing}
+# 1. Generate a "noisy, skewed" mock archival document
+raw_scan <- image_blank(width = 600, height = 250, color = "gray90") %>%
+  image_annotate("CLINICAL NOTE - 1984\nPt presents with acute myocardial infarction.\nAdministered IV nitroglycerin.\nPrognosis: Guarded.", 
+                 size = 22, color = "black", gravity = "center") %>%
+  image_rotate(3.5) %>% # Simulate a bad scanner feed
+  image_noise("gaussian") # Simulate archival degradation
+
+# 2. Preprocess (Deskew, Grayscale, Contrast Enhancement)
+cleaned_scan <- raw_scan %>%
+  image_deskew(threshold = 40) %>%
+  image_convert(type = "grayscale") %>%
+  image_contrast(sharpen = 1) %>%
+  image_enhance()
+
+# 3. Extract text
+eng_engine <- tesseract("eng")
+extracted_text <- tesseract::ocr(cleaned_scan, engine = eng_engine)
+
+cat("--- OCR OUTPUT ---\n")
+cat(extracted_text)
+
+```
+
+---
+
+## 3. Comparative Corpus Analysis (TF-IDF)
+
+To find terms that distinguish different medical guidelines, we use **Term Frequency-Inverse Document Frequency (TF-IDF)**, which penalizes words common across all documents and rewards uniquely defining terminology.
+
+```{r tf_idf}
+# Mock corpus of medical guidelines
+guidelines <- tibble(
+  specialty = c(rep("Cardiology", 3), rep("Neurology", 3), rep("Oncology", 3)),
+  text = c(
+    "Hypertension is a primary driver of cardiovascular disease.",
+    "Heart failure patients require diligent blood pressure monitoring.",
+    "Acute myocardial infarction requires rapid catheterization.",
+    
+    "Ischemic stroke is a major neurological emergency.",
+    "Patients with acute stroke require rapid neurological assessment.",
+    "Migraine management involves identifying triggers and neuroimaging.",
+    
+    "Chemotherapy protocols depend heavily on initial tumor staging.",
+    "Radiation therapy may be used in conjunction with surgical resection.",
+    "Tumor biomarkers increasingly guide targeted oncology treatments."
+  )
+)
+
+# Tokenize and calculate TF-IDF
+guidelines %>%
+  unnest_tokens(word, text) %>%
+  count(specialty, word, sort = TRUE) %>%
+  bind_tf_idf(word, specialty, n) %>%
+  group_by(specialty) %>%
+  slice_max(tf_idf, n = 4) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, tf_idf)) %>%
+  ggplot(aes(tf_idf, word, fill = specialty)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~specialty, ncol = 3, scales = "free") +
+  labs(title = "Highest TF-IDF Words by Medical Specialty") +
+  theme_minimal()
+
+```
+
+---
+
+## 4. Entity Extraction (Regular Expressions)
+
+In clinical text, you often need to extract precise data points—dosages, blood pressure readings, or ages—buried within paragraphs. We use **Regular Expressions (Regex)** via `stringr` for pattern matching.
+
+```{r regex_extraction}
+# Mock messy clinical notes
+clinical_notes <- tibble(
+  patient_id = c("P-001", "P-002", "P-003"),
+  note = c("Patient is a 54yo male. Prescribed Amoxicillin 500mg PO BID.",
+           "42yo female patient. Refill Lisinopril 10mg daily. BP 130/85.",
+           "Pt is a 71yo male. Administered 1000mg Acetaminophen. BP 145/90.")
+)
+
+# Extract structured data using RegEx patterns
+structured_data <- clinical_notes %>%
+  mutate(
+    age = str_extract(note, "\\d{2}(?=yo)"),           # Digits followed by 'yo'
+    dosage = str_extract(note, "\\d{1,4}mg"),          # 1-4 digits followed by 'mg'
+    blood_pressure = str_extract(note, "\\d{2,3}/\\d{2,3}") # Digits/Digits
+  )
+
+# Display the neatly extracted data
+knitr::kable(structured_data)
+
+```
+
+---
+
+## 5. Topic Modeling (LDA)
+
+When handed 10,000 documents without labels, researchers use **Latent Dirichlet Allocation (LDA)** to mathematically discover the hidden "topics" pervading the corpus. LDA assumes every document is a mixture of topics, and every topic is a mixture of words.
+
+```{r lda_topic_modeling}
+# 1. Convert our tidy data into a Document-Term Matrix (DTM)
+dtm <- guidelines %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words, by = "word") %>%
+  count(specialty, word) %>%
+  cast_dtm(document = specialty, term = word, value = n)
+
+# 2. Run the LDA model (asking it to find 2 underlying topics)
+lda_model <- LDA(dtm, k = 2, control = list(seed = 1234))
+
+# 3. Extract the per-topic-per-word probabilities (Beta)
+topic_probabilities <- tidy(lda_model, matrix = "beta")
+
+# 4. Visualize the top terms defining each mathematically discovered topic
+topic_probabilities %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 5) %>%
+  ungroup() %>%
+  arrange(topic, -beta) %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered() +
+  labs(title = "Top Terms Defining Unsupervised Topics",
+       subtitle = "Topic 1 aligns with Oncology; Topic 2 aligns with Cardio/Neuro",
+       x = "Beta (Probability word belongs to topic)", y = NULL) +
+  theme_minimal()
+
+```
+
+---
+
+## 6. Semantic Networks (N-grams)
+
+To understand context, we extract **bigrams** (two-word phrases) and visualize how medical concepts map together using network graphs.
+
+```{r bigram_networks}
+bigram_counts <- guidelines %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  filter(!word1 %in% stop_words$word, !word2 \%in\% stop_words$word) %>%
+  count(word1, word2, sort = TRUE)
+
+# Plot network using ggraph
+set.seed(42)
+bigram_counts %>%
+  filter(n > 0) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n), arrow = a(length = unit(3, 'mm')), end_cap = circle(2, 'mm')) +
+  geom_node_point(color = "darkred", size = 4) +
+  geom_node_text(aes(label = name), vjust = 1.5, size = 4) +
+  theme_void() +
+  labs(title = "Semantic Network of Medical Guidelines")
+
+```
+
+---
+
+## 7. Advanced NLP: Lemmatization & Keyword Extraction (RAKE)
+
+Standard tidy approaches strip away grammar. For deep qualitative analysis, `udpipe` performs **Part-of-Speech tagging** and **Lemmatization**. We use this to execute Rapid Automatic Keyword Extraction (RAKE) to find complex, multi-word medical concepts based on grammar rules.
+
+```{r advanced_nlp, results='hide'}
+# Load the English language model
+ud_model <- udpipe_download_model(language = "english")
+ud_english <- udpipe_load_model(ud_model$file_model)
+
+# Annotate our entire corpus
+annotations <- udpipe_annotate(ud_english, x = guidelines$text, doc_id = guidelines$specialty)
+nlp_data <- as.data.frame(annotations)
+
+```
+
+```{r rake_extraction}
+# Execute RAKE hunting for adjacent Nouns and Adjectives
+rake_stats <- keywords_rake(x = nlp_data, 
+                            term = "lemma", 
+                            group = "doc_id", 
+                            relevant = nlp_data$upos %in% c("NOUN", "ADJ"),
+                            n_min = 2)
+
+# Display top extracted concepts
+rake_stats %>%
+  arrange(desc(rake)) %>%
+  select(keyword, freq, rake) %>%
+  head(5) %>%
+  knitr::kable()
+
+```
+
+---
+
+## 8. Scaling Up: Ingesting Real PDFs
+
+While this demo uses mock dataframes, researchers usually start with folders full of PDFs. The `pdftools` package bridges this gap seamlessly.
+
+```{r pdf_ingestion_example, eval=FALSE}
+# NOTE: This chunk is set to eval=FALSE so it doesn't fail during compilation.
+# In a real workflow, point this to a folder of actual PDF guidelines.
+
+pdf_directory <- "path/to/your/pdf/folder"
+pdf_files <- list.files(pdf_directory, pattern = "\\.pdf$", full.names = TRUE)
+
+# Read all PDFs into a single dataframe
+corpus_df <- tibble(file_path = pdf_files) %>%
+  mutate(
+    # Extract text from the PDF
+    raw_text = map(file_path, pdftools::pdf_text),
+    # Paste pages together into a single string per document
+    clean_text = map_chr(raw_text, ~ paste(.x, collapse = " ")) 
+  )
+
+# You can now pass `corpus_df` directly into the tidytext pipelines above!
+
+```

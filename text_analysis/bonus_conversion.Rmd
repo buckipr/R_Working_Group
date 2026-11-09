@@ -1,0 +1,375 @@
+---
+title: "The Ultimate Data I/O Masterclass: Bridging R with Everything"
+author: "Workshop Instructor"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+# Global chunk options: eval=TRUE allows students to knit this into a working 
+# HTML document, because the script now generates its own dummy data!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+## Introduction
+
+Research and data science rarely happen in a single software ecosystem. You might pull data from a SQL database, receive spatial files from a GIS team, get genetic sequences from a lab, and need to hand your final analysis over to a colleague who only uses Excel or Python.
+
+This workshop provides copy-pastable code to convert, import, and export data between R and almost any other format or software program in existence.
+
+### 0. Setup: Installing the Ecosystem
+
+Because we are covering everything from basic stats to bioinformatics and GIS, we need a robust set of tools from CRAN and Bioconductor.
+
+```{r install-packages, eval=FALSE}
+# 1. Standard CRAN Packages
+cran_packages <- c(
+  "rio", "haven", "readxl", "writexl", "R.matlab", # Stats & Tabular
+  "DBI", "RSQLite",                                # Databases
+  "jsonlite", "xml2",                              # Web & APIs
+  "sf", "terra",                                   # Spatial / GIS
+  "arrow", "reticulate",                           # Big Data & Python
+  "magick",                                        # Images
+  "pdftools", "readtext", "officer", "flextable"   # Word, PDF, Docs
+)
+
+new_cran <- cran_packages[!(cran_packages %in% installed.packages()[,"Package"])]
+if(length(new_cran)) install.packages(new_cran, repos = "[http://cran.us.r-project.org](http://cran.us.r-project.org)")
+
+# 2. Bioconductor Packages (for DNA/RNA seq and HDF5)
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager", repos = "[http://cran.us.r-project.org](http://cran.us.r-project.org)")
+}
+bioc_packages <- c("Biostrings", "rtracklayer", "rhdf5")
+new_bioc <- bioc_packages[!(bioc_packages %in% installed.packages()[,"Package"])]
+if(length(new_bioc)) BiocManager::install(new_bioc, update = FALSE, ask = FALSE)
+library(tidyverse)
+```
+
+### 0.5 Generate Workshop Data (Run Once)
+
+*Instructor Note: To ensure this script is entirely standalone, run this hidden chunk to generate the dummy files we will be importing in the following lessons.*
+
+```{r generate-dummy-files, echo=FALSE, results='hide'}
+# Create local directories
+dir.create("data", showWarnings = FALSE)
+dir.create("output", showWarnings = FALSE)
+
+# 1. Tabular
+rio::export(mtcars, "data/raw_data.csv")
+rio::export(iris, "data/survey.xlsx")
+rio::export(mtcars, "data/model_data.dta")
+haven::write_sav(mtcars, "data/clinical.sav")
+haven::write_xpt(mtcars, "data/legacy.xpt") # SAS Transport format
+
+# 2. SQL Database
+con <- DBI::dbConnect(RSQLite::SQLite(), "data/company_database.sqlite")
+DBI::dbWriteTable(con, "customers", mtcars, overwrite = TRUE)
+DBI::dbDisconnect(con)
+
+# 3. XML
+xml2::write_xml(xml2::read_xml("<dataset><record><title>Workshop Data</title></record></dataset>"), "data/dataset.xml")
+
+# 4. Spatial / GIS
+dummy_sf <- sf::st_sf(id = 1, geometry = sf::st_sfc(sf::st_point(c(-73.9, 40.7))), crs = 4326)
+sf::st_write(dummy_sf, "data/city_boundaries.shp", delete_dsn = TRUE, quiet = TRUE)
+
+dummy_rast <- terra::rast(matrix(runif(100), 10, 10))
+terra::writeRaster(dummy_rast, "data/elevation.tif", overwrite = TRUE)
+
+# 5. Bioinformatics
+Biostrings::writeXStringSet(Biostrings::DNAStringSet(c(Gene1="ATGCGT", Gene2="GGTACC")), "data/genome.fasta")
+rtracklayer::export.bed(GenomicRanges::GRanges("chr1:100-200"), "data/peaks.bed")
+
+# 6. MATLAB
+R.matlab::writeMat("data/sensor_data.mat", my_matrix_name = matrix(1:9, 3, 3))
+
+# 7. Unstructured Text (PDF)
+pdf("data/report.pdf")
+plot(1:10, main = "Automated Analysis Report", type="n")
+text(5, 5, "This text was successfully extracted from the PDF.")
+dev.off()
+
+# 8. Images
+img_blank <- magick::image_blank(100, 100, "lightblue")
+magick::image_write(img_blank, "data/microscope_slide.tif")
+
+# 9. Big Data (HDF5)
+if(file.exists("data/single_cell.h5")) file.remove("data/single_cell.h5")
+rhdf5::h5createFile("data/single_cell.h5")
+rhdf5::h5createGroup("data/single_cell.h5", "matrix")
+rhdf5::h5write(matrix(rnorm(100), 10, 10), "data/single_cell.h5", "matrix/data")
+
+```
+
+---
+
+## 1. The "One-Stop Shop" for Tabular Data (`rio` & `haven`)
+
+For standard spreadsheets and stats software (Excel, CSV, Stata, SPSS, SAS), the `rio` package acts as a universal translator. It reads the file extension and automatically uses the right package in the background.
+
+```{r tabular-rio}
+library(rio)
+library(haven) # Loaded alongside rio to handle value labels
+
+# ----- IMPORTING -----
+df_csv   <- import("data/raw_data.csv")
+df_excel <- import("data/survey.xlsx")
+df_stata <- import("data/model_data.dta")
+df_spss  <- import("data/clinical.sav")
+df_sas   <- import("data/legacy.xpt")
+
+# PRO TIP: Stata, SAS, and SPSS use "value labels" (e.g., 1 = Male, 2 = Female). 
+# R uses "factors". Use haven::as_factor() to instantly convert them!
+df_spss_clean <- as_factor(df_spss)
+
+# ----- EXPORTING -----
+export(df_csv, "output/for_colleague.xlsx")
+
+# FIX: Stata doesn't allow periods in column names. 
+# Replace periods (.) with underscores (_) before exporting
+names(df_excel) <- gsub("\\.", "_", names(df_excel))
+
+export(df_excel, "output/for_stata_users.dta")
+
+# ----- DIRECT CONVERSION -----
+# Convert a Stata file directly to Excel without even loading it into R memory!
+convert("data/model_data.dta", "output/ready_for_excel.xlsx")
+
+```
+
+---
+
+## 2. Databases & SQL
+
+You don't need to export a database to a CSV to use it in R. You can query databases directly and bring the results in as an R data frame.
+
+```{r databases}
+library(DBI)
+library(RSQLite)
+
+# Connect to a database (SQLite used here, but works for Postgres, MySQL, etc.)
+con <- dbConnect(RSQLite::SQLite(), "data/company_database.sqlite")
+
+# See what tables exist in the database
+dbListTables(con)
+
+# Read an entire SQL table directly into an R data frame
+df_customers <- dbReadTable(con, "customers")
+
+# Write an R data frame back into the database as a new table
+dbWriteTable(con, "cleaned_customers", df_customers, overwrite = TRUE)
+
+# Always disconnect when done
+dbDisconnect(con)
+
+```
+
+---
+
+## 3. Web Data & APIs (JSON and XML)
+
+Modern web APIs rarely send CSVs; they send JSON or XML. R handles these beautifully.
+
+```{r web-json-xml}
+library(jsonlite)
+library(xml2)
+
+# ----- JSON -----
+# Import JSON from a local file or directly from a web API URL
+api_url <- "https://api.github.com/users/hadley/repos"
+df_json <- fromJSON(api_url) # Automatically flattens JSON into a data frame!
+
+# Export R data frame to JSON (useful for web developers)
+write_json(df_json, "output/data_for_web.json", pretty = TRUE)
+
+# ----- XML -----
+# Read XML data
+xml_data <- read_xml("data/dataset.xml")
+# Extract specific nodes using XPath
+titles <- xml_find_all(xml_data, "//title") %>% xml_text()
+
+```
+
+---
+
+## 4. Spatial Data & GIS (Maps)
+
+Geospatial data usually comes in two flavors: **Vector** (points/polygons, like Shapefiles) and **Raster** (pixel grids, like GeoTIFF satellite imagery).
+
+```{r spatial-gis}
+library(sf)     # For Vector data
+library(terra)  # For Raster data
+
+# ----- VECTOR (Shapefiles, GeoJSON, KML) -----
+# Import a shapefile or GeoJSON
+map_vector <- st_read("data/city_boundaries.shp", quiet = TRUE)
+
+# Export to GeoJSON (the modern web standard for maps)
+st_write(map_vector, "output/web_map.geojson", delete_dsn = TRUE, quiet = TRUE)
+
+# ----- RASTER (GeoTIFF, NetCDF) -----
+# Import a satellite image or elevation model
+map_raster <- rast("data/elevation.tif")
+
+# Export raster data
+writeRaster(map_raster, "output/processed_elevation.tif", overwrite = TRUE)
+
+```
+
+---
+
+## 5. Bioinformatics: DNA, RNA, and Genomics
+
+Bioinformatics heavily relies on specific file formats (FASTA, FASTQ, BED, GTF/GFF). We use Bioconductor packages to handle these without breaking R's memory.
+
+```{r bioinformatics}
+library(Biostrings)
+library(rtracklayer)
+
+# ----- SEQUENCE DATA (FASTA/FASTQ) -----
+# Import DNA/RNA sequences (FASTA)
+dna_seqs <- readDNAStringSet("data/genome.fasta")
+
+# Export back to FASTA for use in other bioinformatics tools (like BLAST)
+writeXStringSet(dna_seqs, "output/processed_sequences.fasta")
+
+# ----- GENOMIC COORDINATES (BED/GTF) -----
+# Import a BED file (genomic coordinates)
+bed_data <- import.bed("data/peaks.bed")
+
+# Export R genomic ranges to a BED file (e.g., to view in IGV browser)
+export.bed(bed_data, "output/filtered_peaks.bed")
+
+```
+
+---
+
+## 6. MATLAB and Matrix Data
+
+MATLAB `.mat` files are hierarchical workspaces, not flat spreadsheets.
+
+```{r matlab}
+library(R.matlab)
+
+# Import a MATLAB workspace (returns a list of objects)
+mat_workspace <- readMat("data/sensor_data.mat")
+
+# Extract a specific matrix from the MATLAB list and make it a data frame
+r_dataframe <- as.data.frame(mat_workspace$my_matrix_name)
+
+# Export an R matrix back to MATLAB
+writeMat("output/r_matrices.mat", data_for_matlab = as.matrix(r_dataframe))
+
+```
+
+---
+
+## 7. Unstructured Text: PDFs and Word Documents
+
+Sometimes your data is trapped in reports, PDFs, or Word documents.
+
+```{r text-docs}
+library(pdftools)
+library(officer)
+library(flextable)
+
+# ----- PDF -----
+# Extract all text from a PDF (returns a character vector, 1 element per page)
+pdf_text_data <- pdf_text("data/report.pdf")
+
+# ----- MS WORD -----
+# Create a new, blank Word document in R to send automated reports
+my_doc <- read_docx() %>%
+  body_add_par("Automated Analysis Report", style = "heading 1") %>%
+  body_add_par("Here are the results from the R analysis.", style = "Normal") %>%
+  body_add_flextable(flextable(head(mtcars))) # Add a neat table
+
+# Save the document to your drive
+print(my_doc, target = "output/automated_report.docx")
+
+```
+
+---
+
+## 8. Images and Pixel Data
+
+For computer vision or spatial transcriptomics, we can treat images as data arrays.
+
+```{r images}
+library(magick)
+
+# Import an image (PNG, JPEG, TIFF, etc.)
+img <- image_read("data/microscope_slide.tif")
+
+# Export the processed image back to a file
+image_write(img, path = "output/processed_slide.png", format = "png")
+
+# Convert an image into a raw numeric array for statistical pixel analysis
+# Note: We must use image_data() to extract the underlying tensor array first
+pixel_array <- as.integer(image_data(img))
+
+```
+
+---
+
+## 9. Big Data & Python Interoperability
+
+When datasets exceed your computer's RAM, or when you need to seamlessly pass data to a Python collaborator, use **Parquet**, **HDF5**, and **Reticulate**.
+
+### Arrow / Parquet & HDF5
+
+```{r big-data}
+library(arrow)
+library(rhdf5)
+
+# ----- ARROW/PARQUET (Massive Tabular Data) -----
+# Export a massive R dataset to a compressed Parquet file
+write_parquet(mtcars, "output/cloud_data.parquet")
+# Import Parquet (loads infinitely faster than CSV)
+huge_data <- read_parquet("output/cloud_data.parquet")
+
+# ----- HDF5 (Massive Matrix Data / Single-Cell Genomics) -----
+# Read a specific matrix out of an HDF5 file
+expression_matrix <- h5read("data/single_cell.h5", name = "matrix/data")
+# Write an R matrix into an HDF5 format
+h5write(expression_matrix, file = "output/new_data.h5", name = "processed_matrix")
+
+```
+
+### Passing Data directly to Python (`reticulate`)
+
+You don't even need to save a file to transfer data to Python! You can run Python *inside* RStudio and pass data back and forth in memory.
+
+```{r reticulate-r-chunk}
+library(reticulate)
+
+# Let's say we have an R data frame
+r_dataset <- mtcars
+
+```
+
+```{python reticulate-python-chunk}
+# This is a Python chunk! We pull the R data frame using the 'r' object
+import pandas as pd
+
+# The r_dataset is automatically converted to a Pandas DataFrame
+python_dataset = r.r_dataset
+
+# Do some data manipulation in Python
+python_dataset['mpg_doubled'] = python_dataset['mpg'] * 2
+
+```
+
+```{r back-to-r}
+# Back in an R chunk, bring the modified Python data back to R using 'py'
+final_r_dataset <- py$python_dataset
+
+```
