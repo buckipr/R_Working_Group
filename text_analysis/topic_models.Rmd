@@ -158,6 +158,7 @@ class: inverse, center, middle
 --
 
 ```{r, collapse=TRUE}
+
 data(JSS_papers)  ## load example dataset from topicmodels
 colnames(JSS_papers)
 ```

@@ -58,20 +58,19 @@ and Computational methods in Demography (with a healthcare big data analysis twi
 	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/web_scraping/2026_03_06/)
     - reading: Bernau, J. A. (2018). Text Analysis with JSTOR Archives. Socius, 4. https://doi.org/10.1177/2378023118809264 
 
-* Nov 9th: Text Analysis I -- data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
+* Nov 9th: Text Analysis I and II -- topic modeling and data preparation with [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
     - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/topic_models_np.html#1)
     - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
+    - The files to run are topic_models.Rmd, text_analysis_pt2.Rmd, and finally bonus_conversion.Rmd
   - reading: Felmlee, D., DellaPosta, D., Rodis, P. d. C. I., & Matthews, S. A. (2020). Can Social Media Anti-abuse Policies Work?
   A Quasi-experimental Study of Online Sexist and Racist Slurs. Socius, 6.
   https://doi.org/10.1177/2378023120948711 (Original work published 2020)
 
-* Nov 23rd: Text Analysis II -- topic modeling and Healthcare Analysis II
-    - [slides](https://buckipr.github.io/R_Working_Group/text_analysis/topic_models_np.html#1)
-    - [files_intro](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
-	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/text_analysis/)
-
-* Dec 7th: Machine Learning and Imputation using missForest and parallelize
+* Nov 23rd: Machine Learning and Imputation using missForest and parallelize
 	- [files_healthcare](https://github.com/buckipr/R_Working_Group/tree/main/imputation/)
+
+* Dec 7th: Adanced Genomics Data and Special Session 1
+	- 
 
 ## Schedule for Spring 2025
 

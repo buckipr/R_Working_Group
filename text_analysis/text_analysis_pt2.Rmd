@@ -97,13 +97,13 @@ guidelines %>%
   group_by(specialty) %>%
   slice_max(tf_idf, n = 4) %>%
   ungroup() %>%
-  mutate(word = reorder(word, tf_idf)) %>%
+  mutate(word = reorder_within(word, tf_idf, specialty)) %>% # Fixed: reorder_within
   ggplot(aes(tf_idf, word, fill = specialty)) +
   geom_col(show.legend = FALSE) +
+  scale_y_reordered() +                                      # Fixed: scale_y_reordered
   facet_wrap(~specialty, ncol = 3, scales = "free") +
   labs(title = "Highest TF-IDF Words by Medical Specialty") +
   theme_minimal()
-
 ```
 
 ---
@@ -130,7 +130,7 @@ structured_data <- clinical_notes %>%
   )
 
 # Display the neatly extracted data
-knitr::kable(structured_data)
+knitr::kable(clinical_notes)
 
 ```
 
@@ -182,7 +182,7 @@ To understand context, we extract **bigrams** (two-word phrases) and visualize h
 bigram_counts <- guidelines %>%
   unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
   separate(bigram, c("word1", "word2"), sep = " ") %>%
-  filter(!word1 %in% stop_words$word, !word2 \%in\% stop_words$word) %>%
+  filter(!word1 %in% stop_words$word, !word2 %in% stop_words$word) %>%
   count(word1, word2, sort = TRUE)
 
 # Plot network using ggraph
@@ -191,7 +191,7 @@ bigram_counts %>%
   filter(n > 0) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
-  geom_edge_link(aes(edge_alpha = n), arrow = a(length = unit(3, 'mm')), end_cap = circle(2, 'mm')) +
+  geom_edge_link(aes(edge_alpha = n), end_cap = circle(2, 'mm')) +
   geom_node_point(color = "darkred", size = 4) +
   geom_node_text(aes(label = name), vjust = 1.5, size = 4) +
   theme_void() +
@@ -213,7 +213,7 @@ ud_english <- udpipe_load_model(ud_model$file_model)
 # Annotate our entire corpus
 annotations <- udpipe_annotate(ud_english, x = guidelines$text, doc_id = guidelines$specialty)
 nlp_data <- as.data.frame(annotations)
-
+nlp_data
 ```
 
 ```{r rake_extraction}
@@ -221,8 +221,8 @@ nlp_data <- as.data.frame(annotations)
 rake_stats <- keywords_rake(x = nlp_data, 
                             term = "lemma", 
                             group = "doc_id", 
-                            relevant = nlp_data$upos %in% c("NOUN", "ADJ"),
-                            n_min = 2)
+                            relevant = nlp_data$upos %in% c("NOUN", "ADJ"), 
+                            n_min = 1) # Changed from 2 to 1
 
 # Display top extracted concepts
 rake_stats %>%
